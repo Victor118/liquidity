@@ -7,16 +7,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/liquidity/app"
-	"github.com/tendermint/liquidity/x/liquidity"
-	"github.com/tendermint/liquidity/x/liquidity/types"
+	"github.com/Victor118/liquidity/app"
+	"github.com/Victor118/liquidity/x/liquidity"
+	"github.com/Victor118/liquidity/x/liquidity/types"
 )
 
 func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 	for seed := int64(0); seed < 100; seed++ {
 		r := rand.New(rand.NewSource(seed))
 
-		simapp, ctx := createTestInput()
+		simapp, ctx := createTestInput(t)
 		simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 		params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -113,7 +113,7 @@ func TestGetAllLiquidityPoolBatchSwapMsgs(t *testing.T) {
 }
 
 func TestGetAllNotProcessedPoolBatchSwapMsgs(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 
 	// define test denom X, Y for Liquidity Pool
@@ -156,7 +156,7 @@ func TestGetAllNotProcessedPoolBatchSwapMsgs(t *testing.T) {
 }
 
 func TestIterateAllBatchMsgs(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 
 	// define test denom X, Y for Liquidity Pool

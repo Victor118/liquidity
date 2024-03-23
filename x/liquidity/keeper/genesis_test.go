@@ -4,17 +4,17 @@ import (
 	"fmt"
 	"testing"
 
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/tendermint/liquidity/app"
-	"github.com/tendermint/liquidity/x/liquidity"
-	"github.com/tendermint/liquidity/x/liquidity/types"
+	"github.com/Victor118/liquidity/app"
+	"github.com/Victor118/liquidity/x/liquidity"
+	"github.com/Victor118/liquidity/x/liquidity/types"
 )
 
 func TestGenesis(t *testing.T) {
-	simapp, ctx := app.CreateTestInput()
+	simapp, ctx := app.CreateTestInput(t)
 
 	lk := simapp.LiquidityKeeper
 
@@ -36,7 +36,7 @@ func TestGenesis(t *testing.T) {
 }
 
 func TestGenesisState(t *testing.T) {
-	simapp, ctx := app.CreateTestInput()
+	simapp, ctx := app.CreateTestInput(t)
 
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	paramsDefault := simapp.LiquidityKeeper.GetParams(ctx)
@@ -100,7 +100,7 @@ func TestGenesisState(t *testing.T) {
 	// not initialized genState of other module (auth, bank, ... ) only liquidity module
 	reserveCoins := simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
 	require.Equal(t, 2, len(reserveCoins))
-	simapp2 := app.Setup(false)
+	simapp2 := app.Setup(t, false)
 	ctx2 := simapp2.BaseApp.NewContext(false, tmproto.Header{})
 	require.Panics(t, func() {
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
@@ -118,7 +118,7 @@ func TestGenesisState(t *testing.T) {
 		simapp2.LiquidityKeeper.InitGenesis(ctx2, *newGenesis)
 	})
 
-	simapp3 := app.Setup(false)
+	simapp3 := app.Setup(t, false)
 	ctx3 := simapp3.BaseApp.NewContext(false, tmproto.Header{}).WithBlockHeight(ctx.BlockHeight())
 	require.Panics(t, func() {
 		simapp3.LiquidityKeeper.InitGenesis(ctx3, *newGenesis)

@@ -3,20 +3,20 @@ package liquidity_test
 import (
 	"testing"
 
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/tendermint/liquidity/app"
-	"github.com/tendermint/liquidity/x/liquidity"
-	"github.com/tendermint/liquidity/x/liquidity/types"
+	"github.com/Victor118/liquidity/app"
+	"github.com/Victor118/liquidity/x/liquidity"
+	"github.com/Victor118/liquidity/x/liquidity/types"
 )
 
 func TestGenesisState(t *testing.T) {
 	cdc := codec.NewLegacyAmino()
 	types.RegisterLegacyAminoCodec(cdc)
-	simapp := app.Setup(false)
+	simapp := app.Setup(t, false)
 
 	ctx := simapp.BaseApp.NewContext(false, tmproto.Header{})
 	genesis := types.DefaultGenesisState()
@@ -59,7 +59,7 @@ func TestGenesisState(t *testing.T) {
 	genesisExported := liquidity.ExportGenesis(ctx, simapp.LiquidityKeeper)
 	bankGenesisExported := simapp.BankKeeper.ExportGenesis(ctx)
 
-	simapp2 := app.Setup(false)
+	simapp2 := app.Setup(t, false)
 
 	ctx2 := simapp2.BaseApp.NewContext(false, tmproto.Header{})
 	ctx2 = ctx2.WithBlockHeight(1)

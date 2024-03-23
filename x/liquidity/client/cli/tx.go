@@ -15,7 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/spf13/cobra"
 
-	"github.com/tendermint/liquidity/x/liquidity/types"
+	"github.com/Victor118/liquidity/x/liquidity/types"
 )
 
 // GetTxCmd returns a root CLI command handler for all x/liquidity transaction commands.

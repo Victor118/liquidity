@@ -9,14 +9,14 @@ import (
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/liquidity/app"
-	"github.com/tendermint/liquidity/x/liquidity"
-	"github.com/tendermint/liquidity/x/liquidity/keeper"
-	"github.com/tendermint/liquidity/x/liquidity/types"
+	"github.com/Victor118/liquidity/app"
+	"github.com/Victor118/liquidity/x/liquidity"
+	"github.com/Victor118/liquidity/x/liquidity/keeper"
+	"github.com/Victor118/liquidity/x/liquidity/types"
 )
 
 func TestLiquidityPool(t *testing.T) {
-	app, ctx := createTestInput()
+	app, ctx := createTestInput(t)
 	lp := types.Pool{
 		Id:                    0,
 		TypeId:                0,
@@ -32,7 +32,7 @@ func TestLiquidityPool(t *testing.T) {
 }
 
 func TestCreatePool(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -76,7 +76,7 @@ func TestCreatePool(t *testing.T) {
 }
 
 func TestCreatePoolInsufficientAmount(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	depositCoins := sdk.NewCoins(sdk.NewInt64Coin(DenomX, 1000), sdk.NewInt64Coin(DenomY, 1000))
@@ -98,7 +98,7 @@ func TestCreatePoolInsufficientAmount(t *testing.T) {
 }
 
 func TestPoolCreationFee(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -142,7 +142,7 @@ func TestPoolCreationFee(t *testing.T) {
 }
 
 func TestExecuteDeposit(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -197,7 +197,7 @@ func TestExecuteDeposit(t *testing.T) {
 }
 
 func TestExecuteDepositTruncation(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -258,7 +258,7 @@ func TestExecuteDepositTruncation(t *testing.T) {
 }
 
 func TestDepositDecimalTruncation(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	params.WithdrawFeeRate = sdk.ZeroDec()
 
@@ -300,12 +300,12 @@ func TestDepositDecimalTruncation(t *testing.T) {
 	withdrawMsgStates := simapp.LiquidityKeeper.GetAllWithdrawMsgStates(ctx)
 	require.Len(t, withdrawMsgStates, 0)
 
-	depositorCoinsDelta := depositCoins.Sub(simapp.BankKeeper.GetAllBalances(ctx, depositor))
+	depositorCoinsDelta := depositCoins.Sub(simapp.BankKeeper.GetAllBalances(ctx, depositor)...)
 	require.True(t, depositorCoinsDelta.IsZero())
 }
 
 func TestDepositDecimalTruncation2(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	params.WithdrawFeeRate = sdk.ZeroDec()
 
@@ -346,7 +346,7 @@ func TestDepositDecimalTruncation2(t *testing.T) {
 }
 
 func TestReserveCoinLimit(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	params := types.DefaultParams()
 	params.MaxReserveCoinAmount = sdk.NewInt(1000000000000)
 	simapp.LiquidityKeeper.SetParams(ctx, params)
@@ -421,7 +421,7 @@ func TestReserveCoinLimit(t *testing.T) {
 }
 
 func TestExecuteWithdrawal(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -474,8 +474,8 @@ func TestExecuteWithdrawal(t *testing.T) {
 	require.Equal(t, withdrawerPoolCoinAfter.Amount, withdrawerPoolCoinBefore.Amount.QuoRaw(2))
 	withdrawerDenomABalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[0])
 	withdrawerDenomBBalance := simapp.BankKeeper.GetBalance(ctx, addrs[0], pool.ReserveCoinDenoms[1])
-	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[0]).QuoRaw(2).ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerDenomABalance.Amount)
-	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[1]).QuoRaw(2).ToDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerDenomBBalance.Amount)
+	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[0]).QuoRaw(2).ToLegacyDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerDenomABalance.Amount)
+	require.Equal(t, deposit.AmountOf(pool.ReserveCoinDenoms[1]).QuoRaw(2).ToLegacyDec().Mul(sdk.OneDec().Sub(params.WithdrawFeeRate)).TruncateInt(), withdrawerDenomBBalance.Amount)
 
 	// Case for withdrawing all reserve coins
 	poolCoinBefore = simapp.LiquidityKeeper.GetPoolCoinTotalSupply(ctx, pool)
@@ -507,7 +507,7 @@ func TestExecuteWithdrawal(t *testing.T) {
 }
 
 func TestSmallWithdrawalCase(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	params := types.DefaultParams()
 	params.InitPoolCoinMintAmount = sdk.NewInt(1_000000_000000)
 	simapp.LiquidityKeeper.SetParams(ctx, params)
@@ -574,7 +574,7 @@ func TestSmallWithdrawalCase(t *testing.T) {
 }
 
 func TestReinitializePool(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	params.WithdrawFeeRate = sdk.ZeroDec()
@@ -661,7 +661,7 @@ func TestReinitializePool(t *testing.T) {
 }
 
 func TestReserveAccManipulation(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -746,7 +746,7 @@ func TestReserveAccManipulation(t *testing.T) {
 }
 
 func TestGetLiquidityPoolMetadata(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -798,7 +798,7 @@ func TestGetLiquidityPoolMetadata(t *testing.T) {
 }
 
 func TestIsPoolCoinDenom(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -832,7 +832,7 @@ func TestIsPoolCoinDenom(t *testing.T) {
 }
 
 func TestGetPoolByReserveAccIndex(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -878,7 +878,7 @@ func TestDepositWithdrawEdgecase(t *testing.T) {
 	for seed := int64(0); seed < 20; seed++ {
 		r := rand.New(rand.NewSource(seed))
 
-		simapp, ctx := createTestInput()
+		simapp, ctx := createTestInput(t)
 		params := simapp.LiquidityKeeper.GetParams(ctx)
 
 		X := params.MinInitDepositAmount.Add(app.GetRandRange(r, 0, 1_000_000))
@@ -931,7 +931,7 @@ func TestDepositWithdrawEdgecase(t *testing.T) {
 }
 
 func TestWithdrawEdgecase(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	X, Y := sdk.NewInt(1_000_000), sdk.NewInt(10_000_000)
@@ -974,7 +974,7 @@ func TestWithdrawEdgecase(t *testing.T) {
 }
 
 func TestWithdrawEdgecase2(t *testing.T) {
-	simapp, ctx, pool, creatorAddr, err := createTestPool(sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1500000))
+	simapp, ctx, pool, creatorAddr, err := createTestPool(t, sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1500000))
 	require.NoError(t, err)
 
 	for i := 0; i < 1002; i++ {
@@ -991,7 +991,7 @@ func TestWithdrawEdgecase2(t *testing.T) {
 }
 
 func TestWithdrawSmallAmount(t *testing.T) {
-	simapp, ctx, pool, creatorAddr, err := createTestPool(sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1500000))
+	simapp, ctx, pool, creatorAddr, err := createTestPool(t, sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1500000))
 	require.NoError(t, err)
 
 	require.NotPanics(t, func() {
@@ -1003,7 +1003,7 @@ func TestWithdrawSmallAmount(t *testing.T) {
 }
 
 func TestGetReserveCoins(t *testing.T) {
-	simapp, ctx, pool, creatorAddr, err := createTestPool(sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1000000))
+	simapp, ctx, pool, creatorAddr, err := createTestPool(t, sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1000000))
 	require.NoError(t, err)
 
 	reserveCoins := simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
@@ -1023,7 +1023,7 @@ func TestGetReserveCoins(t *testing.T) {
 }
 
 func TestDepositToDepletedPool(t *testing.T) {
-	simapp, ctx, pool, creatorAddr, err := createTestPool(sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1000000))
+	simapp, ctx, pool, creatorAddr, err := createTestPool(t, sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1000000))
 	require.NoError(t, err)
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -1074,7 +1074,7 @@ func TestDepositToDepletedPool(t *testing.T) {
 }
 
 func TestDepositWithCoinsSent(t *testing.T) {
-	simapp, ctx, pool, _, err := createTestPool(sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1000000))
+	simapp, ctx, pool, _, err := createTestPool(t, sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1000000))
 	require.NoError(t, err)
 
 	// Send extra coins to the pool reserve account, which causes the pool price to change.
@@ -1108,7 +1108,7 @@ func TestDepositWithCoinsSent(t *testing.T) {
 }
 
 func TestCreatePoolEqualDenom(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	params := types.DefaultParams()
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 	addrs := app.AddTestAddrs(simapp, ctx, 1, params.PoolCreationFee)
@@ -1122,7 +1122,7 @@ func TestCreatePoolEqualDenom(t *testing.T) {
 }
 
 func TestOverflowAndZeroCases(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	params := types.DefaultParams()
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 	keeper.BatchLogicInvariantCheckFlag = false
@@ -1233,7 +1233,7 @@ func TestOverflowAndZeroCases(t *testing.T) {
 }
 
 func TestExecuteBigDeposit(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	keeper.BatchLogicInvariantCheckFlag = false

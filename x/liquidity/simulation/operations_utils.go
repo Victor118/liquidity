@@ -9,13 +9,13 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
-	"github.com/tendermint/liquidity/x/liquidity/keeper"
-	"github.com/tendermint/liquidity/x/liquidity/types"
+	"github.com/Victor118/liquidity/x/liquidity/keeper"
+	"github.com/Victor118/liquidity/x/liquidity/types"
 )
 
 var (
 	// create simulated accounts due to gas usage overflow issue.
-	// Read this issue: https://github.com/tendermint/liquidity/issues/349
+	// Read this issue: https://github.com/Victor118/liquidity/issues/349
 	randomAccounts []simtypes.Account
 )
 
@@ -79,7 +79,7 @@ func randomWithdrawCoin(r *rand.Rand, denom string, balance sdk.Int) sdk.Coin {
 func randomOfferCoin(r *rand.Rand, k keeper.Keeper, ctx sdk.Context, pool types.Pool, denom string) sdk.Coin {
 	params := k.GetParams(ctx)
 	reserveCoinAmt := k.GetReserveCoins(ctx, pool).AmountOf(denom)
-	maximumOrderableAmt := reserveCoinAmt.ToDec().Mul(params.MaxOrderAmountRatio).TruncateInt()
+	maximumOrderableAmt := reserveCoinAmt.ToLegacyDec().Mul(params.MaxOrderAmountRatio).TruncateInt()
 	amt := int64(simtypes.RandIntBetween(r, 1, int(maximumOrderableAmt.Int64())))
 	return sdk.NewInt64Coin(denom, amt)
 }

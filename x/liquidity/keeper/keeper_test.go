@@ -8,9 +8,9 @@ import (
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 
-	lapp "github.com/tendermint/liquidity/app"
-	"github.com/tendermint/liquidity/x/liquidity/keeper"
-	"github.com/tendermint/liquidity/x/liquidity/types"
+	lapp "github.com/Victor118/liquidity/app"
+	"github.com/Victor118/liquidity/x/liquidity/keeper"
+	"github.com/Victor118/liquidity/x/liquidity/types"
 )
 
 type KeeperTestSuite struct {
@@ -27,8 +27,8 @@ type KeeperTestSuite struct {
 	queryClient  types.QueryClient
 }
 
-func (suite *KeeperTestSuite) SetupTest() {
-	app, ctx := createTestInput()
+func (suite *KeeperTestSuite) SetupTest(t *testing.T) {
+	app, ctx := createTestInput(t)
 
 	querier := keeper.Querier{Keeper: app.LiquidityKeeper}
 
@@ -49,7 +49,7 @@ func TestKeeperTestSuite(t *testing.T) {
 }
 
 func TestCircuitBreakerEnabled(t *testing.T) {
-	app, ctx := createTestInput()
+	app, ctx := createTestInput(t)
 
 	enabled := app.LiquidityKeeper.GetCircuitBreakerEnabled(ctx)
 	require.Equal(t, false, enabled)

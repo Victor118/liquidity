@@ -126,7 +126,7 @@ $ make localnet
 
 ### 1.1 Broadcast transactions using CLI command-line interface
 
-Sample scripts are provided in [scripts](https://github.com/tendermint/liquidity/tree/develop/scripts) folder to help you to test the liquidity module interface.
+Sample scripts are provided in [scripts](https://github.com/Victor118/liquidity/tree/develop/scripts) folder to help you to test the liquidity module interface.
 
 ### 2. Manually set up a local testnet
 

@@ -9,44 +9,44 @@ import (
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 
-	"github.com/tendermint/liquidity/x/liquidity/types"
+	"github.com/Victor118/liquidity/x/liquidity/types"
 )
 
 // ParamChanges defines the parameters that can be modified by param change proposals
 // on the simulation
-func ParamChanges(r *rand.Rand) []simtypes.ParamChange {
-	return []simtypes.ParamChange{
-		simulation.NewSimParamChange(types.ModuleName, string(types.KeyMinInitDepositAmount),
+func ParamChanges(r *rand.Rand) []simtypes.LegacyParamChange {
+	return []simtypes.LegacyParamChange{
+		simulation.NewSimLegacyParamChange(types.ModuleName, string(types.KeyMinInitDepositAmount),
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("\"%d\"", GenMinInitDepositAmount(r).Int64())
 			},
 		),
-		simulation.NewSimParamChange(types.ModuleName, string(types.KeyInitPoolCoinMintAmount),
+		simulation.NewSimLegacyParamChange(types.ModuleName, string(types.KeyInitPoolCoinMintAmount),
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("\"%d\"", GenInitPoolCoinMintAmount(r).Int64())
 			},
 		),
-		simulation.NewSimParamChange(types.ModuleName, string(types.KeyMaxReserveCoinAmount),
+		simulation.NewSimLegacyParamChange(types.ModuleName, string(types.KeyMaxReserveCoinAmount),
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("\"%d\"", GenMaxReserveCoinAmount(r).Int64())
 			},
 		),
-		simulation.NewSimParamChange(types.ModuleName, string(types.KeySwapFeeRate),
+		simulation.NewSimLegacyParamChange(types.ModuleName, string(types.KeySwapFeeRate),
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("\"%s\"", GenSwapFeeRate(r))
 			},
 		),
-		simulation.NewSimParamChange(types.ModuleName, string(types.KeyWithdrawFeeRate),
+		simulation.NewSimLegacyParamChange(types.ModuleName, string(types.KeyWithdrawFeeRate),
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("\"%s\"", GenWithdrawFeeRate(r))
 			},
 		),
-		simulation.NewSimParamChange(types.ModuleName, string(types.KeyMaxOrderAmountRatio),
+		simulation.NewSimLegacyParamChange(types.ModuleName, string(types.KeyMaxOrderAmountRatio),
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("\"%s\"", GenMaxOrderAmountRatio(r))
 			},
 		),
-		simulation.NewSimParamChange(types.ModuleName, string(types.KeyUnitBatchHeight),
+		simulation.NewSimLegacyParamChange(types.ModuleName, string(types.KeyUnitBatchHeight),
 			func(r *rand.Rand) string {
 				return fmt.Sprintf("%d", GenUnitBatchHeight(r))
 			},

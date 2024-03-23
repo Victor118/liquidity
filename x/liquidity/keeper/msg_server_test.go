@@ -7,16 +7,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/liquidity/app"
-	"github.com/tendermint/liquidity/x/liquidity"
-	"github.com/tendermint/liquidity/x/liquidity/types"
+	"github.com/Victor118/liquidity/app"
+	"github.com/Victor118/liquidity/x/liquidity"
+	"github.com/Victor118/liquidity/x/liquidity/types"
 )
 
 // Although written in msg_server_test.go, it is approached at the keeper level rather than at the msgServer level
 // so is not included in the coverage.
 
 func TestMsgCreatePool(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -57,7 +57,7 @@ func TestMsgCreatePool(t *testing.T) {
 }
 
 func TestMsgDepositWithinBatch(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -112,7 +112,7 @@ func TestMsgDepositWithinBatch(t *testing.T) {
 }
 
 func TestMsgWithdrawWithinBatch(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -170,7 +170,7 @@ func TestMsgWithdrawWithinBatch(t *testing.T) {
 }
 
 func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
-	simapp, ctx := createTestInput()
+	simapp, ctx := createTestInput(t)
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -222,7 +222,7 @@ func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 }
 
 func TestMsgSwapWithinBatch(t *testing.T) {
-	simapp, ctx := app.CreateTestInput()
+	simapp, ctx := app.CreateTestInput(t)
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
 	depositCoins := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1_000_000_000)), sdk.NewCoin(DenomY, sdk.NewInt(1_000_000_000)))

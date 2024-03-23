@@ -3,15 +3,15 @@ package liquidity_test
 import (
 	"testing"
 
+	abcitypes "github.com/cometbft/cometbft/abci/types"
+	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	"github.com/stretchr/testify/require"
-	abcitypes "github.com/tendermint/tendermint/abci/types"
-	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	lapp "github.com/tendermint/liquidity/app"
+	lapp "github.com/Victor118/liquidity/app"
 )
 
 func TestItCreatesModuleAccountOnInitBlock(t *testing.T) {
-	app := lapp.Setup(false)
+	app := lapp.Setup(t, false)
 	ctx := app.BaseApp.NewContext(false, tmproto.Header{})
 
 	app.InitChain(

@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strconv"
 
+	sdkerrors "cosmossdk.io/errors"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
-	"github.com/tendermint/liquidity/x/liquidity/types"
+	"github.com/Victor118/liquidity/x/liquidity/types"
 )
 
 func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool) error {
@@ -245,23 +245,23 @@ func (k Keeper) ExecuteDeposit(ctx sdk.Context, msg types.DepositMsgState, batch
 	depositCoinA := depositCoins[0]
 	depositCoinB := depositCoins[1]
 
-	poolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool).ToDec()
-	if err := types.CheckOverflowWithDec(poolCoinTotalSupply, depositCoinA.Amount.ToDec()); err != nil {
+	poolCoinTotalSupply := k.GetPoolCoinTotalSupply(ctx, pool).ToLegacyDec()
+	if err := types.CheckOverflowWithDec(poolCoinTotalSupply, depositCoinA.Amount.ToLegacyDec()); err != nil {
 		return err
 	}
-	if err := types.CheckOverflowWithDec(poolCoinTotalSupply, depositCoinB.Amount.ToDec()); err != nil {
+	if err := types.CheckOverflowWithDec(poolCoinTotalSupply, depositCoinB.Amount.ToLegacyDec()); err != nil {
 		return err
 	}
 	poolCoinMintAmt := sdk.MinDec(
-		poolCoinTotalSupply.MulTruncate(depositCoinA.Amount.ToDec()).QuoTruncate(lastReserveCoinA.Amount.ToDec()),
-		poolCoinTotalSupply.MulTruncate(depositCoinB.Amount.ToDec()).QuoTruncate(lastReserveCoinB.Amount.ToDec()),
+		poolCoinTotalSupply.MulTruncate(depositCoinA.Amount.ToLegacyDec()).QuoTruncate(lastReserveCoinA.Amount.ToLegacyDec()),
+		poolCoinTotalSupply.MulTruncate(depositCoinB.Amount.ToLegacyDec()).QuoTruncate(lastReserveCoinB.Amount.ToLegacyDec()),
 	)
 	mintRate := poolCoinMintAmt.TruncateDec().QuoTruncate(poolCoinTotalSupply)
 	acceptedCoins := sdk.NewCoins(
-		sdk.NewCoin(depositCoins[0].Denom, lastReserveCoinA.Amount.ToDec().Mul(mintRate).TruncateInt()),
-		sdk.NewCoin(depositCoins[1].Denom, lastReserveCoinB.Amount.ToDec().Mul(mintRate).TruncateInt()),
+		sdk.NewCoin(depositCoins[0].Denom, lastReserveCoinA.Amount.ToLegacyDec().Mul(mintRate).TruncateInt()),
+		sdk.NewCoin(depositCoins[1].Denom, lastReserveCoinB.Amount.ToLegacyDec().Mul(mintRate).TruncateInt()),
 	)
-	refundedCoins := depositCoins.Sub(acceptedCoins)
+	refundedCoins := depositCoins.Sub(acceptedCoins...)
 	refundedCoinA := sdk.NewCoin(depositCoinA.Denom, refundedCoins.AmountOf(depositCoinA.Denom))
 	refundedCoinB := sdk.NewCoin(depositCoinB.Denom, refundedCoins.AmountOf(depositCoinB.Denom))
 
@@ -387,12 +387,12 @@ func (k Keeper) ExecuteWithdrawal(ctx sdk.Context, msg types.WithdrawMsgState, b
 			if err := types.CheckOverflow(reserveCoin.Amount, msg.Msg.PoolCoin.Amount); err != nil {
 				return err
 			}
-			if err := types.CheckOverflow(reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToDec().TruncateInt(), poolCoinTotalSupply); err != nil {
+			if err := types.CheckOverflow(reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToLegacyDec().TruncateInt(), poolCoinTotalSupply); err != nil {
 				return err
 			}
 			// WithdrawAmount = ReserveAmount * PoolCoinAmount * WithdrawFeeProportion / TotalSupply
-			withdrawAmtWithFee := reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToDec().TruncateInt().Quo(poolCoinTotalSupply)
-			withdrawAmt := reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToDec().MulTruncate(withdrawProportion).TruncateInt().Quo(poolCoinTotalSupply)
+			withdrawAmtWithFee := reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToLegacyDec().TruncateInt().Quo(poolCoinTotalSupply)
+			withdrawAmt := reserveCoin.Amount.Mul(msg.Msg.PoolCoin.Amount).ToLegacyDec().MulTruncate(withdrawProportion).TruncateInt().Quo(poolCoinTotalSupply)
 			withdrawCoins = append(withdrawCoins, sdk.NewCoin(reserveCoin.Denom, withdrawAmt))
 			withdrawFeeCoins = append(withdrawFeeCoins, sdk.NewCoin(reserveCoin.Denom, withdrawAmtWithFee.Sub(withdrawAmt)))
 		}
@@ -794,7 +794,7 @@ func (k Keeper) ValidateMsgSwapWithinBatch(ctx sdk.Context, msg types.MsgSwapWit
 	reserveCoinAmt := k.GetReserveCoins(ctx, pool).AmountOf(msg.OfferCoin.Denom)
 
 	// Decimal Error, Multiply the Int coin amount by the Decimal Rate and erase the decimal point to order a lower value
-	maximumOrderableAmt := reserveCoinAmt.ToDec().MulTruncate(params.MaxOrderAmountRatio).TruncateInt()
+	maximumOrderableAmt := reserveCoinAmt.ToLegacyDec().MulTruncate(params.MaxOrderAmountRatio).TruncateInt()
 	if msg.OfferCoin.Amount.GT(maximumOrderableAmt) {
 		return types.ErrExceededMaxOrderable
 	}
@@ -803,7 +803,7 @@ func (k Keeper) ValidateMsgSwapWithinBatch(ctx sdk.Context, msg types.MsgSwapWit
 		return types.ErrBadOfferCoinFee
 	}
 
-	if err := types.CheckOverflowWithDec(msg.OfferCoin.Amount.ToDec(), msg.OrderPrice); err != nil {
+	if err := types.CheckOverflowWithDec(msg.OfferCoin.Amount.ToLegacyDec(), msg.OrderPrice); err != nil {
 		return err
 	}
 

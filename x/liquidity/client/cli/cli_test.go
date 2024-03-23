@@ -32,17 +32,17 @@ import (
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
 	paramscutils "github.com/cosmos/cosmos-sdk/x/params/client/utils"
 
-	lapp "github.com/tendermint/liquidity/app"
-	"github.com/tendermint/liquidity/x/liquidity"
-	"github.com/tendermint/liquidity/x/liquidity/client/cli"
-	liquiditytestutil "github.com/tendermint/liquidity/x/liquidity/client/testutil"
-	liquiditytypes "github.com/tendermint/liquidity/x/liquidity/types"
+	lapp "github.com/Victor118/liquidity/app"
+	"github.com/Victor118/liquidity/x/liquidity"
+	"github.com/Victor118/liquidity/x/liquidity/client/cli"
+	liquiditytestutil "github.com/Victor118/liquidity/x/liquidity/client/testutil"
+	liquiditytypes "github.com/Victor118/liquidity/x/liquidity/types"
 
-	tmcli "github.com/tendermint/tendermint/libs/cli"
-	tmjson "github.com/tendermint/tendermint/libs/json"
-	tmlog "github.com/tendermint/tendermint/libs/log"
-	tmtypes "github.com/tendermint/tendermint/types"
-	tmdb "github.com/tendermint/tm-db"
+	tmdb "github.com/cometbft/cometbft-db"
+	tmcli "github.com/cometbft/cometbft/libs/cli"
+	tmjson "github.com/cometbft/cometbft/libs/json"
+	tmlog "github.com/cometbft/cometbft/libs/log"
+	tmtypes "github.com/cometbft/cometbft/types"
 )
 
 type IntegrationTestSuite struct {

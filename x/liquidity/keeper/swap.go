@@ -6,7 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
-	"github.com/tendermint/liquidity/x/liquidity/types"
+	"github.com/Victor118/liquidity/x/liquidity/types"
 )
 
 // Execute Swap of the pool batch, Collect swap messages in batch for transact the same price for each batch and run them on endblock.
@@ -70,8 +70,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint6
 	// get reserve coins from the liquidity pool and calculate the current pool price (p = x / y)
 	reserveCoins := k.GetReserveCoins(ctx, pool)
 
-	X := reserveCoins[0].Amount.ToDec()
-	Y := reserveCoins[1].Amount.ToDec()
+	X := reserveCoins[0].Amount.ToLegacyDec()
+	Y := reserveCoins[1].Amount.ToLegacyDec()
 	currentPoolPrice := X.Quo(Y)
 	denomX := reserveCoins[0].Denom
 	denomY := reserveCoins[1].Denom

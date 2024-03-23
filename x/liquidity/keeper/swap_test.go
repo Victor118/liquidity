@@ -7,16 +7,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
-	"github.com/tendermint/liquidity/app"
-	"github.com/tendermint/liquidity/x/liquidity"
-	"github.com/tendermint/liquidity/x/liquidity/types"
+	"github.com/Victor118/liquidity/app"
+	"github.com/Victor118/liquidity/x/liquidity"
+	"github.com/Victor118/liquidity/x/liquidity/types"
 )
 
 func TestSimulationSwapExecutionFindEdgeCase(t *testing.T) {
 	for seed := int64(0); seed < 20; seed++ {
 		r := rand.New(rand.NewSource(seed))
 
-		simapp, ctx := createTestInput()
+		simapp, ctx := createTestInput(t)
 		params := simapp.LiquidityKeeper.GetParams(ctx)
 
 		// define test denom X, Y for Liquidity Pool
@@ -54,7 +54,7 @@ func TestSwapExecution(t *testing.T) {
 	for seed := int64(0); seed < 50; seed++ {
 		s := rand.NewSource(seed)
 		r := rand.New(s)
-		simapp, ctx := createTestInput()
+		simapp, ctx := createTestInput(t)
 		simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 		params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -211,7 +211,7 @@ func testSwapEdgeCases(t *testing.T, r *rand.Rand, simapp *app.LiquidityApp, ctx
 func TestBadSwapExecution(t *testing.T) {
 	r := rand.New(rand.NewSource(0))
 
-	simapp, ctx := app.CreateTestInput()
+	simapp, ctx := app.CreateTestInput(t)
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 	denomX, denomY := types.AlphabeticalDenomPair("denomX", "denomY")
 
@@ -235,7 +235,7 @@ func TestBadSwapExecution(t *testing.T) {
 	offerCoinFee := types.GetOfferCoinFee(offerCoin, params.SwapFeeRate)
 	testAddr := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(offerCoin.Add(offerCoinFee)))
 
-	currentPrice := X.ToDec().Quo(Y.ToDec())
+	currentPrice := X.ToLegacyDec().Quo(Y.ToLegacyDec())
 	swapMsg := types.NewMsgSwapWithinBatch(testAddr, 0, types.DefaultSwapTypeID, offerCoin, denomY, currentPrice, params.SwapFeeRate)
 	_, err = simapp.LiquidityKeeper.SwapWithinBatch(ctx, swapMsg, 0)
 	require.ErrorIs(t, err, types.ErrPoolNotExists)
@@ -245,7 +245,7 @@ func TestBadSwapExecution(t *testing.T) {
 
 func TestBalancesAfterSwap(t *testing.T) {
 	for price := int64(9800); price < 10000; price++ {
-		simapp, ctx := app.CreateTestInput()
+		simapp, ctx := app.CreateTestInput(t)
 		params := simapp.LiquidityKeeper.GetParams(ctx)
 		denomX, denomY := types.AlphabeticalDenomPair("denomx", "denomy")
 		X, Y := sdk.NewInt(100_000_000), sdk.NewInt(100_000_000)
@@ -262,7 +262,7 @@ func TestBalancesAfterSwap(t *testing.T) {
 
 		liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 
-		offerAmt := aliceCoin.Amount.ToDec().Quo(sdk.MustNewDecFromStr("1.0015")).TruncateInt()
+		offerAmt := aliceCoin.Amount.ToLegacyDec().Quo(sdk.MustNewDecFromStr("1.0015")).TruncateInt()
 		offerCoin := sdk.NewCoin(denomY, offerAmt)
 
 		_, err = simapp.LiquidityKeeper.SwapWithinBatch(ctx, types.NewMsgSwapWithinBatch(
@@ -276,8 +276,8 @@ func TestBalancesAfterSwap(t *testing.T) {
 		require.Truef(t, !deltaX.IsNegative(), "deltaX should not be negative: %s", deltaX)
 		require.Truef(t, deltaY.IsNegative(), "deltaY should be negative: %s", deltaY)
 
-		deltaXWithoutFee := deltaX.ToDec().Quo(sdk.MustNewDecFromStr("0.9985"))
-		deltaYWithoutFee := deltaY.ToDec().Quo(sdk.MustNewDecFromStr("1.0015"))
+		deltaXWithoutFee := deltaX.ToLegacyDec().Quo(sdk.MustNewDecFromStr("0.9985"))
+		deltaYWithoutFee := deltaY.ToLegacyDec().Quo(sdk.MustNewDecFromStr("1.0015"))
 		effectivePrice := deltaXWithoutFee.Quo(deltaYWithoutFee.Neg())
 		priceDiffRatio := orderPrice.Sub(effectivePrice).Abs().Quo(orderPrice)
 		require.Truef(t, priceDiffRatio.LT(sdk.MustNewDecFromStr("0.01")), "effectivePrice differs too much from orderPrice")
@@ -291,7 +291,7 @@ func TestRefundEscrow(t *testing.T) {
 		X := sdk.NewInt(1_000_000)
 		Y := app.GetRandRange(r, 10_000_000_000_000_000, 1_000_000_000_000_000_000)
 
-		simapp, ctx := createTestInput()
+		simapp, ctx := createTestInput(t)
 		params := simapp.LiquidityKeeper.GetParams(ctx)
 
 		addr := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins())
@@ -303,11 +303,11 @@ func TestRefundEscrow(t *testing.T) {
 			poolBalances := simapp.BankKeeper.GetAllBalances(ctx, pool.GetReserveAccount())
 			RX := poolBalances.AmountOf(DenomX)
 			RY := poolBalances.AmountOf(DenomY)
-			poolPrice := RX.ToDec().Quo(RY.ToDec())
+			poolPrice := RX.ToLegacyDec().Quo(RY.ToLegacyDec())
 
-			offerAmt := RY.ToDec().Mul(sdk.NewDecFromIntWithPrec(app.GetRandRange(r, 1, 100_000_000_000_000_000), sdk.Precision))    // RY * (0, 0.1)
-			offerAmtWithFee := offerAmt.Quo(sdk.OneDec().Add(params.SwapFeeRate.QuoInt64(2))).TruncateInt()                          // offerAmt / (1 + swapFeeRate/2)
-			orderPrice := poolPrice.Mul(sdk.NewDecFromIntWithPrec(app.GetRandRange(r, 1, 1_000_000_000_000_000_000), sdk.Precision)) // poolPrice * (0, 1)
+			offerAmt := RY.ToLegacyDec().Mul(sdk.NewDecFromIntWithPrec(app.GetRandRange(r, 1, 100_000_000_000_000_000), sdk.Precision)) // RY * (0, 0.1)
+			offerAmtWithFee := offerAmt.Quo(sdk.OneDec().Add(params.SwapFeeRate.QuoInt64(2))).TruncateInt()                             // offerAmt / (1 + swapFeeRate/2)
+			orderPrice := poolPrice.Mul(sdk.NewDecFromIntWithPrec(app.GetRandRange(r, 1, 1_000_000_000_000_000_000), sdk.Precision))    // poolPrice * (0, 1)
 
 			app.SaveAccount(simapp, ctx, addr, sdk.NewCoins(sdk.NewCoin(DenomY, offerAmt.Ceil().TruncateInt())))
 
@@ -325,7 +325,7 @@ func TestRefundEscrow(t *testing.T) {
 }
 
 func TestSwapWithDepletedPool(t *testing.T) {
-	simapp, ctx, pool, creatorAddr, err := createTestPool(sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1000000))
+	simapp, ctx, pool, creatorAddr, err := createTestPool(t, sdk.NewInt64Coin(DenomX, 1000000), sdk.NewInt64Coin(DenomY, 1000000))
 	require.NoError(t, err)
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 

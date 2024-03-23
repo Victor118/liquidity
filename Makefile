@@ -222,9 +222,11 @@ format:
 
 proto-all: proto-gen proto-swagger-gen update-swagger-docs
 
+PROTO_BUILDER_IMAGE=ghcr.io/cosmos/proto-builder
+
 proto-gen:
-	docker run --rm -v $(CURDIR):/workspace --workdir /workspace bharvest/liquidity-proto-gen sh ./scripts/protocgen.sh
-	go mod tidy
+	@echo "Generating Protobuf files"
+	$(DOCKER) run --rm -v $(CURDIR):/workspace --workdir /workspace $(PROTO_BUILDER_IMAGE) sh ./scripts/protocgen.sh
 
 proto-swagger-gen:
 	docker run --rm -v $(CURDIR):/workspace --workdir /workspace bharvest/liquidity-proto-gen sh ./scripts/protoc-swagger-gen.sh
