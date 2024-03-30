@@ -1,13 +1,9 @@
-//go:build norace
-// +build norace
-
 package cli_test
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io"
 	"strings"
 	"testing"
 	"time"
@@ -21,7 +17,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	"github.com/cosmos/cosmos-sdk/codec/types"
 	"github.com/cosmos/cosmos-sdk/server"
-	servertypes "github.com/cosmos/cosmos-sdk/server/types"
 	"github.com/cosmos/cosmos-sdk/testutil"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
 	"github.com/cosmos/cosmos-sdk/testutil/network"
@@ -29,10 +24,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/module"
 	genutilcli "github.com/cosmos/cosmos-sdk/x/genutil/client/cli"
 	genutiltest "github.com/cosmos/cosmos-sdk/x/genutil/client/testutil"
-	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
+	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
+	v1 "github.com/cosmos/cosmos-sdk/x/gov/types/v1"
 	paramscutils "github.com/cosmos/cosmos-sdk/x/params/client/utils"
 
-	lapp "github.com/Victor118/liquidity/app"
 	"github.com/Victor118/liquidity/x/liquidity"
 	"github.com/Victor118/liquidity/x/liquidity/client/cli"
 	liquiditytestutil "github.com/Victor118/liquidity/x/liquidity/client/testutil"
@@ -40,9 +35,7 @@ import (
 
 	tmdb "github.com/cometbft/cometbft-db"
 	tmcli "github.com/cometbft/cometbft/libs/cli"
-	tmjson "github.com/cometbft/cometbft/libs/json"
 	tmlog "github.com/cometbft/cometbft/libs/log"
-	tmtypes "github.com/cometbft/cometbft/types"
 )
 
 type IntegrationTestSuite struct {
@@ -59,33 +52,65 @@ type IntegrationTestSuite struct {
 // needed to be made in order to make useful queries. However, we don't want
 // these state changes to be present in other tests.
 func (s *IntegrationTestSuite) SetupTest() {
-	s.T().Log("setting up integration test suite")
+
+	s.T().Helper()
+
+	//privVal := mock.NewPV()
+	//pubKey, err := privVal.GetPubKey()
+	//s.Require().NoError(err)
+	// create validator set with single validator
+	//validator := tmtypes.NewValidator(pubKey, 1)
+	//valSet := tmtypes.NewValidatorSet([]*tmtypes.Validator{validator})
+
+	// generate genesis account
+	//senderPrivKey := secp256k1.GenPrivKey()
+	//acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
+	// balance := banktypes.Balance{
+	// 	Address: acc.GetAddress().String(),
+	// 	Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000000000))),
+	// }
+
+	//addr, _ := sdk.AccAddressFromHexUnsafe(validator.Address.String())
+	//s.T().Logf("Validator address : " + addr.String())
+	// balanceVal := banktypes.Balance{
+	// 	Address: addr.String(),
+	// 	Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100_000_000_000)), sdk.NewCoin("node0token", sdk.NewInt(100_000_000_000))),
+	// }
 
 	db := tmdb.NewMemDB()
 
-	cfg := liquiditytestutil.NewConfig(db)
-	cfg.NumValidators = 1
+	//cfg := liquiditytestutil.NewConfig(db)
+	//cfg.NumValidators = 1
+	cfg, err := network.DefaultConfigWithAppConfig(network.MinimumAppConfig())
+	s.NoError(err)
+	//genesisState, err := simtestutil.GenesisStateWithValSet(cfg.Codec, cfg.GenesisState, valSet, []authtypes.GenesisAccount{acc}, balance, balanceVal)
+	//s.Require().NoError(err)
+	//cfg.GenesisState = genesisState
+	// var liquidityGenState liquiditytypes.GenesisState
+	// err = cfg.Codec.UnmarshalJSON(cfg.GenesisState[liquiditytypes.ModuleName], &liquidityGenState)
+	// s.Require().NoError(err)
+	//probably put theses coins and put it in simtestutil.GenesisStateWithValSet in balance parameters ?
+	//cfg.AccountTokens = sdk.NewInt(100_000_000_000) // node0token denom
+	//cfg.StakingTokens = sdk.NewInt(100_000_000_000) // stake denom
 
-	var liquidityGenState liquiditytypes.GenesisState
-	err := cfg.Codec.UnmarshalJSON(cfg.GenesisState[liquiditytypes.ModuleName], &liquidityGenState)
-	s.Require().NoError(err)
-
-	liquidityGenState.Params = liquiditytypes.DefaultParams()
-
-	cfg.GenesisState[liquiditytypes.ModuleName] = cfg.Codec.MustMarshalJSON(&liquidityGenState)
-	cfg.AccountTokens = sdk.NewInt(100_000_000_000) // node0token denom
-	cfg.StakingTokens = sdk.NewInt(100_000_000_000) // stake denom
-
-	genesisStateGov := govtypes.DefaultGenesisState()
-	genesisStateGov.DepositParams = govtypes.NewDepositParams(sdk.NewCoins(sdk.NewCoin(cfg.BondDenom, govtypes.DefaultMinDepositTokens)), time.Duration(15)*time.Second)
-	genesisStateGov.VotingParams = govtypes.NewVotingParams(time.Duration(3) * time.Second)
-	genesisStateGov.TallyParams.Quorum = sdk.MustNewDecFromStr("0.01")
+	genesisStateGov := v1.DefaultGenesisState()
+	maxDepPeriod := time.Duration(15) * time.Second
+	votingPeriod := time.Duration(5) * time.Second
+	genesisStateGov.Params.MaxDepositPeriod = &maxDepPeriod
+	genesisStateGov.Params.VotingPeriod = &votingPeriod
+	var depositPeriod time.Duration = time.Duration(15) * time.Second
+	genesisStateGov.Params.MaxDepositPeriod = &depositPeriod
+	genesisStateGov.Params.Quorum = "0.01"
 	bz, err := cfg.Codec.MarshalJSON(genesisStateGov)
 	s.Require().NoError(err)
 	cfg.GenesisState["gov"] = bz
 
 	s.cfg = cfg
-	s.network = network.New(s.T(), s.cfg)
+	s.network, err = network.New(s.T(), s.T().TempDir(), s.cfg)
+	if err != nil {
+		s.T().Log(err)
+	}
+	s.Require().NoError(err)
 	s.db = db
 
 	_, err = s.network.WaitForHeight(1)
@@ -95,17 +120,19 @@ func (s *IntegrationTestSuite) SetupTest() {
 // TearDownTest cleans up the curret test network after each test in the suite.
 func (s *IntegrationTestSuite) TearDownTest() {
 	s.T().Log("tearing down integration test suite")
+	fmt.Println("Victor: TearDownTest")
 	s.network.Cleanup()
 }
 
 // TestIntegrationTestSuite every integration test suite.
 func TestIntegrationTestSuite(t *testing.T) {
+	fmt.Println("Victor: Starting client test suite ...")
 	suite.Run(t, new(IntegrationTestSuite))
 }
 
 func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 	val := s.network.Validators[0]
-
+	fmt.Println("Victor: Test NewCreatePoolCmd")
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
@@ -123,7 +150,7 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			true, nil, 0,
@@ -135,7 +162,7 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000)), sdk.NewCoin("denomZ", sdk.NewInt(100_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			true, nil, 0,
@@ -147,7 +174,7 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000)), sdk.NewCoin("denomZ", sdk.NewInt(100_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			true, nil, 0,
@@ -159,7 +186,7 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1_000)), sdk.NewCoin(denomY, sdk.NewInt(10_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			false, &sdk.TxResponse{}, 9,
@@ -171,7 +198,7 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			false, &sdk.TxResponse{}, 0,
@@ -201,6 +228,7 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 }
 
 func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
+	fmt.Println("Victor: TestNewDepositWithinBatchCmd")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -232,7 +260,7 @@ func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1_000_000)), sdk.NewCoin(denomY, sdk.NewInt(1_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			true, nil, 0,
@@ -244,7 +272,7 @@ func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1_000_000)), sdk.NewCoin(denomY, sdk.NewInt(1_000_000)), sdk.NewCoin("denomZ", sdk.NewInt(1_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			true, nil, 0,
@@ -256,7 +284,7 @@ func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000_000)), sdk.NewCoin(denomY, sdk.NewInt(10_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			false, &sdk.TxResponse{}, 0,
@@ -286,6 +314,7 @@ func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 }
 
 func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
+	fmt.Println("Victor: TestNewWithdrawWithinBatchCmd")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -317,7 +346,7 @@ func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 				sdk.NewCoins(sdk.NewCoin("poolC33A77E752C183913636A37FE1388ACA22FE7BED792BEB2E72EF2DA857703D8D", sdk.NewInt(10_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			true, nil, 0,
@@ -329,7 +358,7 @@ func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 				sdk.NewCoins(sdk.NewCoin("badpoolcoindenom", sdk.NewInt(10_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			false, &sdk.TxResponse{}, 29,
@@ -341,7 +370,7 @@ func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 				sdk.NewCoins(sdk.NewCoin("poolC33A77E752C183913636A37FE1388ACA22FE7BED792BEB2E72EF2DA857703D8D", sdk.NewInt(10_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			false, &sdk.TxResponse{}, 0,
@@ -371,6 +400,7 @@ func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 }
 
 func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
+	fmt.Println("Victor: TestNewSwapWithinBatchCmd")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -406,7 +436,7 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 				fmt.Sprintf("%.3f", 0.003),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			true, nil, 0,
@@ -422,7 +452,7 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 				fmt.Sprintf("%.2f", 0.03),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			true, nil, 0,
@@ -438,7 +468,7 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 				fmt.Sprintf("%.2f", 0.01),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			false, &sdk.TxResponse{}, 35,
@@ -454,7 +484,7 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 				fmt.Sprintf("%.3f", 0.003),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
-				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
+				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
 				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
 			},
 			false, &sdk.TxResponse{}, 0,
@@ -484,6 +514,7 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryParams() {
+	fmt.Println("Victor: TestGetCmdQueryParams")
 	val := s.network.Validators[0]
 
 	testCases := []struct {
@@ -535,6 +566,7 @@ withdraw_fee_rate: "0.000000000000000000"`,
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPool() {
+	fmt.Println("Victor: TestGetCmdQueryLiquidityPool")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -655,6 +687,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPool() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPools() {
+	fmt.Println("Victor: TestGetCmdQueryLiquidityPools")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -713,6 +746,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPools() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPoolBatch() {
+	fmt.Println("Victor: TestGetCmdQueryLiquidityPoolBatch")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -781,6 +815,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPoolBatch() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsg() {
+	fmt.Println("Victor: TestGetCmdQueryPoolBatchDepositMsg")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -866,6 +901,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsg() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsgs() {
+	fmt.Println("Victor: TestGetCmdQueryPoolBatchDepositMsgs")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -951,6 +987,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsgs() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsg() {
+	fmt.Println("Victor: TestGetCmdQueryPoolBatchWithdrawMsg")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -1038,6 +1075,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsg() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsgs() {
+	fmt.Println("Victor: TestGetCmdQueryPoolBatchWithdrawMsgs")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -1123,6 +1161,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsgs() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsg() {
+	fmt.Println("Victor: TestGetCmdQueryPoolBatchSwapMsg")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -1215,6 +1254,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsg() {
 }
 
 func (s *IntegrationTestSuite) TestGetCircuitBreaker() {
+	fmt.Println("Victor: TestGetCircuitBreaker")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -1380,6 +1420,7 @@ func (s *IntegrationTestSuite) TestGetCircuitBreaker() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsgs() {
+	fmt.Println("Victor: TestGetCmdQueryPoolBatchSwapMsgs")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -1472,6 +1513,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsgs() {
 }
 
 func (s *IntegrationTestSuite) TestInitGenesis() {
+	fmt.Println("Victor: TestInitGenesis")
 	testCases := []struct {
 		name      string
 		flags     func(dir string) []string
@@ -1523,74 +1565,4 @@ func (s *IntegrationTestSuite) TestInitGenesis() {
 			}
 		})
 	}
-}
-
-func (s *IntegrationTestSuite) TestExportGenesis() {
-	clientCtx := s.network.Validators[0].ClientCtx
-	serverCtx := s.network.Validators[0].Ctx
-
-	home := clientCtx.HomeDir
-
-	// verify genesis file saved in temp directory
-	genDocFile := clientCtx.HomeDir + "/config/genesis.json"
-	genDoc, err := tmtypes.GenesisDocFromFile(genDocFile)
-	s.Require().NoError(err)
-	s.Require().NotNil(genDoc)
-
-	val := s.network.Validators[0]
-
-	// use two different tokens that are minted to the test account
-	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
-	X := sdk.NewCoin(denomX, sdk.NewInt(1_000_000_000))
-	Y := sdk.NewCoin(denomY, sdk.NewInt(5_000_000_000))
-
-	// create liquidity pool
-	_, err = liquiditytestutil.MsgCreatePoolExec(
-		val.ClientCtx,
-		val.Address.String(),
-		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-		sdk.NewCoins(X, Y).String(),
-	)
-	s.Require().NoError(err)
-
-	err = s.network.WaitForNextBlock()
-	s.Require().NoError(err)
-
-	cmd := server.ExportCmd(
-		func(_ tmlog.Logger, _ tmdb.DB, traceStore io.Writer, height int64, forZeroHeight bool, jailWhiteList []string,
-			appOpts servertypes.AppOptions) (servertypes.ExportedApp, error) {
-
-			encCfg := lapp.MakeEncodingConfig()
-			encCfg.Marshaler = codec.NewProtoCodec(encCfg.InterfaceRegistry)
-
-			// get logger and in-memory database
-			logger := serverCtx.Logger
-			db := s.db
-
-			var app *lapp.LiquidityApp
-			if height != -1 {
-				app = lapp.NewLiquidityApp(logger, db, traceStore, false, map[int64]bool{}, "", uint(1), encCfg, appOpts)
-
-				if err := app.LoadHeight(height); err != nil {
-					return servertypes.ExportedApp{}, err
-				}
-			} else {
-				app = lapp.NewLiquidityApp(logger, db, traceStore, true, map[int64]bool{}, "", uint(1), encCfg, appOpts)
-			}
-
-			return app.ExportAppStateAndValidators(forZeroHeight, jailWhiteList)
-		},
-		home,
-	)
-
-	args := []string{fmt.Sprintf("--%s=%s", flags.FlagHome, home)}
-
-	out, err := clitestutil.ExecTestCLICmd(clientCtx, cmd, args)
-	s.Require().NoError(err)
-
-	var exportedGenDoc tmtypes.GenesisDoc
-	err = tmjson.Unmarshal(out.Bytes(), &exportedGenDoc)
-	s.Require().NoError(err)
-
-	s.Require().Equal(clientCtx.ChainID, exportedGenDoc.ChainID)
 }

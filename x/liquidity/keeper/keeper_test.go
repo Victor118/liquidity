@@ -27,9 +27,8 @@ type KeeperTestSuite struct {
 	queryClient  types.QueryClient
 }
 
-func (suite *KeeperTestSuite) SetupTest(t *testing.T) {
-	app, ctx := createTestInput(t)
-
+func (suite *KeeperTestSuite) SetupTest() {
+	app, ctx := createTestInput(suite.T())
 	querier := keeper.Querier{Keeper: app.LiquidityKeeper}
 
 	queryHelper := baseapp.NewQueryServerTestHelper(ctx, app.InterfaceRegistry())

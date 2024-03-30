@@ -55,7 +55,6 @@ func (suite *KeeperTestSuite) TestGRPCLiquidityPoolByPoolCoinDenom() {
 	app, ctx, queryClient := suite.app, suite.ctx, suite.queryClient
 	pool, found := app.LiquidityKeeper.GetPool(ctx, suite.pools[0].Id)
 	suite.True(found)
-
 	var req *types.QueryLiquidityPoolByPoolCoinDenomRequest
 	testCases := []struct {
 		msg      string

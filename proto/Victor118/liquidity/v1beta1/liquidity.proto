@@ -56,14 +56,14 @@ message Params {
   // creation.
   string min_init_deposit_amount = 2 [
     (gogoproto.moretags) = "yaml:\"min_init_deposit_amount\"",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
 
   // Initial mint amount of pool coins upon pool creation.
   string init_pool_coin_mint_amount = 3 [
     (gogoproto.moretags) = "yaml:\"init_pool_coin_mint_amount\"",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
 
@@ -71,7 +71,7 @@ message Params {
   // to 0 for no limit. In production, set a limit.
   string max_reserve_coin_amount = 4 [
     (gogoproto.moretags) = "yaml:\"max_reserve_coin_amount\"",
-    (gogoproto.customtype) = "github.com/cosmos/cosmos-sdk/types.Int",
+    (gogoproto.customtype) = "cosmossdk.io/math.Int",
     (gogoproto.nullable) = false
   ];
 

@@ -85,6 +85,7 @@ func (k Keeper) ExecutePoolBatches(ctx sdk.Context) {
 
 	k.IterateAllPoolBatches(ctx, func(poolBatch types.PoolBatch) bool {
 		if !poolBatch.Executed && ctx.BlockHeight()%int64(params.UnitBatchHeight) == 0 {
+
 			executedMsgCount, err := k.SwapExecution(ctx, poolBatch)
 			if err != nil {
 				panic(err)

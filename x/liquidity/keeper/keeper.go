@@ -7,7 +7,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 
 	"github.com/Victor118/liquidity/x/liquidity/types"
 )
@@ -19,22 +18,16 @@ type Keeper struct {
 	bankKeeper    types.BankKeeper
 	accountKeeper types.AccountKeeper
 	distrKeeper   types.DistributionKeeper
-	paramSpace    paramstypes.Subspace
 }
 
 // NewKeeper returns a liquidity keeper. It handles:
 // - creating new ModuleAccounts for each pool ReserveAccount
 // - sending to and from ModuleAccounts
 // - minting, burning PoolCoins
-func NewKeeper(cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace paramstypes.Subspace, bankKeeper types.BankKeeper, accountKeeper types.AccountKeeper, distrKeeper types.DistributionKeeper) Keeper {
+func NewKeeper(cdc codec.BinaryCodec, key storetypes.StoreKey, bankKeeper types.BankKeeper, accountKeeper types.AccountKeeper, distrKeeper types.DistributionKeeper) Keeper {
 	// ensure liquidity module account is set
 	if addr := accountKeeper.GetModuleAddress(types.ModuleName); addr == nil {
 		panic(fmt.Sprintf("%s module account has not been set", types.ModuleName))
-	}
-
-	// set KeyTable if it has not already been set
-	if !paramSpace.HasKeyTable() {
-		paramSpace = paramSpace.WithKeyTable(types.ParamKeyTable())
 	}
 
 	return Keeper{
@@ -43,7 +36,6 @@ func NewKeeper(cdc codec.BinaryCodec, key storetypes.StoreKey, paramSpace params
 		accountKeeper: accountKeeper,
 		distrKeeper:   distrKeeper,
 		cdc:           cdc,
-		paramSpace:    paramSpace,
 	}
 }
 
@@ -54,17 +46,34 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 // GetParams gets the parameters for the liquidity module.
 func (k Keeper) GetParams(ctx sdk.Context) (params types.Params) {
-	k.paramSpace.GetParamSet(ctx, &params)
+	store := ctx.KVStore(k.storeKey)
+	bz := store.Get(types.ParamsKey)
+	if bz == nil {
+		return params
+	}
+
+	k.cdc.MustUnmarshal(bz, &params)
 	return params
 }
 
 // SetParams sets the parameters for the liquidity module.
-func (k Keeper) SetParams(ctx sdk.Context, params types.Params) {
-	k.paramSpace.SetParamSet(ctx, &params)
+func (k Keeper) SetParams(ctx sdk.Context, params types.Params) error {
+	if err := params.Validate(); err != nil {
+		return err
+	}
+
+	store := ctx.KVStore(k.storeKey)
+	bz, err := k.cdc.Marshal(&params)
+	if err != nil {
+		return err
+	}
+	store.Set(types.ParamsKey, bz)
+
+	return nil
 }
 
-// GetCircuitBreakerEnabled returns circuit breaker enabled param from the paramspace.
+// GetCircuitBreakerEnabled returns circuit breaker enabled param .
 func (k Keeper) GetCircuitBreakerEnabled(ctx sdk.Context) (enabled bool) {
-	k.paramSpace.Get(ctx, types.KeyCircuitBreakerEnabled, &enabled)
+	enabled = k.GetParams(ctx).CircuitBreakerEnabled
 	return
 }

@@ -32,7 +32,6 @@ func TestGenesis(t *testing.T) {
 	newGenState := lk.ExportGenesis(ctx)
 	require.Equal(t, sdk.NewDecWithPrec(5, 3), newGenState.Params.SwapFeeRate)
 
-	fmt.Println("newGenState: ", newGenState)
 }
 
 func TestGenesisState(t *testing.T) {

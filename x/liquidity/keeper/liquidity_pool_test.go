@@ -99,6 +99,8 @@ func TestCreatePoolInsufficientAmount(t *testing.T) {
 
 func TestPoolCreationFee(t *testing.T) {
 	simapp, ctx := createTestInput(t)
+	feePool := simapp.DistrKeeper.GetFeePool(ctx)
+	initialFeePoolAmount := feePool.CommunityPool
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
@@ -137,7 +139,8 @@ func TestPoolCreationFee(t *testing.T) {
 
 	// Verify PoolCreationFee pay successfully
 	feePoolBalance = feePoolBalance.Add(params.PoolCreationFee...)
-	require.Equal(t, params.PoolCreationFee, feePoolBalance)
+	feeFromPoolCreation := sdk.NewDecCoinsFromCoins(feePoolBalance...).Sub(initialFeePoolAmount)
+	require.Equal(t, sdk.NewDecCoinsFromCoins(params.PoolCreationFee...), feeFromPoolCreation)
 	require.Equal(t, feePoolBalance, simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc))
 }
 

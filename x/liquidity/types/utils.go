@@ -44,6 +44,7 @@ func GetPoolCoinDenom(poolName string) string {
 
 // GetReserveAcc extracts and returns reserve account from pool coin denom.
 func GetReserveAcc(poolCoinDenom string, len32 bool) (sdk.AccAddress, error) {
+
 	if err := sdk.ValidateDenom(poolCoinDenom); err != nil {
 		return nil, err
 	}
@@ -58,7 +59,7 @@ func GetReserveAcc(poolCoinDenom string, len32 bool) (sdk.AccAddress, error) {
 		// The rules are temporarily added for testing on 32-length bytes addresses of ADR-28 and are subject to change.
 		return sdk.AccAddress(address.Module(ModuleName, []byte(poolCoinDenom))), nil
 	}
-	return sdk.AccAddressFromBech32(poolCoinDenom[:40])
+	return sdk.AccAddressFromHexUnsafe(poolCoinDenom[:40])
 }
 
 // GetCoinsTotalAmount returns total amount of all coins in sdk.Coins.

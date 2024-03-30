@@ -61,12 +61,13 @@ var DefaultConsensusParams = tmtypes.ConsensusParams{
 
 // SetupOptions defines arguments that are passed into `Simapp` constructor.
 type SetupOptions struct {
-	Logger  log.Logger
-	DB      *dbm.MemDB
-	AppOpts servertypes.AppOptions
+	LoadLatest bool
+	Logger     log.Logger
+	DB         *dbm.MemDB
+	AppOpts    servertypes.AppOptions
 }
 
-func setup(t *testing.T, withGenesis bool, invCheckPeriod uint) (*LiquidityApp, GenesisState) {
+func setup(withGenesis bool, invCheckPeriod uint) (*LiquidityApp, GenesisState) {
 	db := dbm.NewMemDB()
 	appOptions := make(simtestutil.AppOptionsMap, 0)
 	appOptions[flags.FlagHome] = DefaultNodeHome
@@ -110,7 +111,7 @@ func Setup(t *testing.T, isCheckTx bool) *LiquidityApp {
 func SetupWithGenesisValSet(t *testing.T, valSet *tmtypes.ValidatorSet, genAccs []authtypes.GenesisAccount, balances ...banktypes.Balance) *LiquidityApp {
 	t.Helper()
 
-	app, genesisState := setup(t, true, 5)
+	app, genesisState := setup(true, 5)
 	genesisState, err := simtestutil.GenesisStateWithValSet(app.AppCodec(), genesisState, valSet, genAccs, balances...)
 	require.NoError(t, err)
 
@@ -218,7 +219,7 @@ func NewLiquidityAppWithCustomOptions(t *testing.T, isCheckTx bool, options Setu
 		Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000000000))),
 	}
 
-	app := NewLiquidityApp(options.Logger, options.DB, nil, true, options.AppOpts)
+	app := NewLiquidityApp(options.Logger, options.DB, nil, options.LoadLatest, options.AppOpts)
 	genesisState := app.DefaultGenesis()
 	genesisState, err = simtestutil.GenesisStateWithValSet(app.AppCodec(), genesisState, valSet, []authtypes.GenesisAccount{acc}, balance)
 	require.NoError(t, err)
@@ -227,7 +228,6 @@ func NewLiquidityAppWithCustomOptions(t *testing.T, isCheckTx bool, options Setu
 		// init chain must be called to stop deliverState from being nil
 		stateBytes, err := tmjson.MarshalIndent(genesisState, "", " ")
 		require.NoError(t, err)
-
 		// Initialize the chain
 		app.InitChain(
 			abci.RequestInitChain{
@@ -287,7 +287,6 @@ func CreateTestInput(t *testing.T) (*LiquidityApp, sdk.Context) {
 	app.LiquidityKeeper = keeper.NewKeeper(
 		appCodec,
 		app.GetKey(types.StoreKey),
-		app.GetSubspace(types.ModuleName),
 		app.BankKeeper,
 		app.AccountKeeper,
 		app.DistrKeeper,

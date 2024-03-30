@@ -168,10 +168,12 @@ func TestBadSwap(t *testing.T) {
 }
 
 func TestCreateDepositWithdrawWithinBatch(t *testing.T) {
+
 	simapp, ctx := createTestInput(t)
+	feePool := simapp.DistrKeeper.GetFeePool(ctx)
+	initialFeePoolAmount := feePool.CommunityPool
 	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
 	params := simapp.LiquidityKeeper.GetParams(ctx)
-
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
 	denomA, denomB := types.AlphabeticalDenomPair(DenomA, DenomB)
@@ -179,14 +181,11 @@ func TestCreateDepositWithdrawWithinBatch(t *testing.T) {
 	X := sdk.NewInt(1000000000)
 	Y := sdk.NewInt(1000000000)
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
-
 	A := sdk.NewInt(1000000000000)
 	B := sdk.NewInt(1000000000000)
 	depositAB := sdk.NewCoins(sdk.NewCoin(denomA, A), sdk.NewCoin(denomB, B))
-
 	// set accounts for creator, depositor, withdrawer, balance for deposit
 	addrs := app.AddTestAddrs(simapp, ctx, 4, params.PoolCreationFee)
-
 	app.SaveAccount(simapp, ctx, addrs[0], deposit.Add(depositAB...)) // pool creator
 	depositX := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomX)
 	depositY := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomY)
@@ -207,7 +206,8 @@ func TestCreateDepositWithdrawWithinBatch(t *testing.T) {
 
 	// Verify PoolCreationFee pay successfully
 	feePoolBalance = feePoolBalance.Add(params.PoolCreationFee...)
-	require.Equal(t, params.PoolCreationFee, feePoolBalance)
+	feeFromPoolCreation := sdk.NewDecCoinsFromCoins(feePoolBalance...).Sub(initialFeePoolAmount)
+	require.Equal(t, sdk.NewDecCoinsFromCoins(params.PoolCreationFee...), feeFromPoolCreation)
 
 	// Fail case, reset deposit balance for pool already exists case
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
@@ -229,7 +229,8 @@ func TestCreateDepositWithdrawWithinBatch(t *testing.T) {
 
 	// Verify PoolCreationFee pay successfully
 	feePoolBalance = simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc)
-	require.Equal(t, params.PoolCreationFee.Add(params.PoolCreationFee...), feePoolBalance)
+	feeFromPoolCreation = sdk.NewDecCoinsFromCoins(feePoolBalance...).Sub(initialFeePoolAmount)
+	require.Equal(t, sdk.NewDecCoinsFromCoins(params.PoolCreationFee.Add(params.PoolCreationFee...)...), feeFromPoolCreation)
 
 	// verify created liquidity pool
 	pools := simapp.LiquidityKeeper.GetAllPools(ctx)

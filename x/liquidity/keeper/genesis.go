@@ -46,7 +46,6 @@ func (k Keeper) ValidateGenesis(ctx sdk.Context, genState types.GenesisState) er
 	if err := genState.Params.Validate(); err != nil {
 		return err
 	}
-
 	cc, _ := ctx.CacheContext()
 	k.SetParams(cc, genState.Params)
 
