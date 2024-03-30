@@ -120,19 +120,17 @@ func (s *IntegrationTestSuite) SetupTest() {
 // TearDownTest cleans up the curret test network after each test in the suite.
 func (s *IntegrationTestSuite) TearDownTest() {
 	s.T().Log("tearing down integration test suite")
-	fmt.Println("Victor: TearDownTest")
 	s.network.Cleanup()
+	time.Sleep(100 * time.Millisecond)
 }
 
 // TestIntegrationTestSuite every integration test suite.
 func TestIntegrationTestSuite(t *testing.T) {
-	fmt.Println("Victor: Starting client test suite ...")
 	suite.Run(t, new(IntegrationTestSuite))
 }
 
 func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 	val := s.network.Validators[0]
-	fmt.Println("Victor: Test NewCreatePoolCmd")
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
 
@@ -228,7 +226,6 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 }
 
 func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
-	fmt.Println("Victor: TestNewDepositWithinBatchCmd")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -314,7 +311,6 @@ func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 }
 
 func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
-	fmt.Println("Victor: TestNewWithdrawWithinBatchCmd")
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -400,7 +396,7 @@ func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 }
 
 func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
-	fmt.Println("Victor: TestNewSwapWithinBatchCmd")
+
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -514,7 +510,7 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryParams() {
-	fmt.Println("Victor: TestGetCmdQueryParams")
+
 	val := s.network.Validators[0]
 
 	testCases := []struct {
@@ -566,7 +562,7 @@ withdraw_fee_rate: "0.000000000000000000"`,
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPool() {
-	fmt.Println("Victor: TestGetCmdQueryLiquidityPool")
+
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -676,7 +672,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPool() {
 				s.Require().Error(err)
 			} else {
 				var resp liquiditytypes.QueryLiquidityPoolResponse
-				err = val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp)
+				err = clientCtx.Codec.UnmarshalJSON(out.Bytes(), &resp)
 				s.Require().NoError(err)
 				s.Require().Equal(uint64(1), resp.GetPool().Id)
 				s.Require().Equal(uint32(1), resp.GetPool().TypeId)
@@ -687,7 +683,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPool() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPools() {
-	fmt.Println("Victor: TestGetCmdQueryLiquidityPools")
+
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -732,7 +728,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPools() {
 				s.Require().Error(err)
 			} else {
 				var resps liquiditytypes.QueryLiquidityPoolsResponse
-				err = val.ClientCtx.Codec.UnmarshalJSON(out.Bytes(), &resps)
+				err = clientCtx.Codec.UnmarshalJSON(out.Bytes(), &resps)
 				s.Require().NoError(err)
 
 				for _, pool := range resps.GetPools() {
@@ -746,7 +742,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPools() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPoolBatch() {
-	fmt.Println("Victor: TestGetCmdQueryLiquidityPoolBatch")
+
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -815,7 +811,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPoolBatch() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsg() {
-	fmt.Println("Victor: TestGetCmdQueryPoolBatchDepositMsg")
+
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -901,7 +897,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsg() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsgs() {
-	fmt.Println("Victor: TestGetCmdQueryPoolBatchDepositMsgs")
+
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -987,7 +983,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsgs() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsg() {
-	fmt.Println("Victor: TestGetCmdQueryPoolBatchWithdrawMsg")
+
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -1075,7 +1071,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsg() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsgs() {
-	fmt.Println("Victor: TestGetCmdQueryPoolBatchWithdrawMsgs")
+
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -1161,7 +1157,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsgs() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsg() {
-	fmt.Println("Victor: TestGetCmdQueryPoolBatchSwapMsg")
+
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -1254,7 +1250,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsg() {
 }
 
 func (s *IntegrationTestSuite) TestGetCircuitBreaker() {
-	fmt.Println("Victor: TestGetCircuitBreaker")
+
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -1288,9 +1284,9 @@ func (s *IntegrationTestSuite) TestGetCircuitBreaker() {
 	)
 	var txRes sdk.TxResponse
 	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(output.Bytes(), &txRes))
-	s.Require().Equal(txRes.Code, uint32(0))
 	s.Require().NoError(err)
 
+	s.Require().Equal(uint32(0), txRes.Code)
 	circuitBreakerEnabled := true
 	circuitBreakerEnabledStr, err := json.Marshal(&circuitBreakerEnabled)
 	if err != nil {
@@ -1420,7 +1416,7 @@ func (s *IntegrationTestSuite) TestGetCircuitBreaker() {
 }
 
 func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsgs() {
-	fmt.Println("Victor: TestGetCmdQueryPoolBatchSwapMsgs")
+
 	val := s.network.Validators[0]
 
 	// use two different tokens that are minted to the test account
@@ -1513,7 +1509,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsgs() {
 }
 
 func (s *IntegrationTestSuite) TestInitGenesis() {
-	fmt.Println("Victor: TestInitGenesis")
+
 	testCases := []struct {
 		name      string
 		flags     func(dir string) []string

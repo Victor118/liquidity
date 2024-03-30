@@ -114,8 +114,8 @@ func MsgSwapWithinBatchExec(clientCtx client.Context, from, poolID, swapTypeID,
 	}, commonArgs...)
 
 	args = append(args, commonArgs...)
-
-	return clitestutil.ExecTestCLICmd(clientCtx, liquiditycli.NewSwapWithinBatchCmd(), args)
+	buf, error := clitestutil.ExecTestCLICmd(clientCtx, liquiditycli.NewSwapWithinBatchCmd(), args)
+	return buf, error
 }
 
 // MsgParamChangeProposalExec creates a transaction for submitting param change proposal

@@ -84,6 +84,7 @@ New liquidity pools can be created only for coin combinations that do not alread
 			}
 
 			if poolTypeID != 1 {
+
 				return types.ErrPoolTypeNotExists
 			}
 
@@ -92,6 +93,7 @@ New liquidity pools can be created only for coin combinations that do not alread
 			}
 
 			msg := types.NewMsgCreatePool(poolCreator, uint32(poolTypeID), depositCoins)
+
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -235,6 +237,7 @@ The appropriate pool coin must be requested from the specified pool.
 
 // Swap offer coin with demand coin from the specified liquidity pool with the given order price.
 func NewSwapWithinBatchCmd() *cobra.Command {
+
 	cmd := &cobra.Command{
 		Use:   "swap [pool-id] [swap-type] [offer-coin] [demand-coin-denom] [order-price] [swap-fee-rate]",
 		Args:  cobra.ExactArgs(6),
@@ -273,14 +276,17 @@ The only supported swap-type is 1. For the detailed swap algorithm, see https://
 			),
 		),
 		RunE: func(cmd *cobra.Command, args []string) error {
+
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
+
 			swapRequester := clientCtx.GetFromAddress()
 
 			// Get pool id
 			poolID, err := strconv.ParseUint(args[0], 10, 64)
+
 			if err != nil {
 				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
 			}
@@ -290,7 +296,6 @@ The only supported swap-type is 1. For the detailed swap algorithm, see https://
 			if err != nil {
 				return fmt.Errorf("swap-type %s not a valid uint, input a valid unsigned 32-bit integer for swap-type", args[2])
 			}
-
 			if swapTypeID != 1 {
 				return types.ErrSwapTypeNotExists
 			}
@@ -300,7 +305,6 @@ The only supported swap-type is 1. For the detailed swap algorithm, see https://
 			if err != nil {
 				return err
 			}
-
 			err = offerCoin.Validate()
 			if err != nil {
 				return err
@@ -315,18 +319,18 @@ The only supported swap-type is 1. For the detailed swap algorithm, see https://
 			if err != nil {
 				return err
 			}
-
 			swapFeeRate, err := sdk.NewDecFromStr(args[5])
 			if err != nil {
 				return err
 			}
-
 			msg := types.NewMsgSwapWithinBatch(swapRequester, poolID, uint32(swapTypeID), offerCoin, args[3], orderPrice, swapFeeRate)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
 
-			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+			error := tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+
+			return error
 		},
 	}
 
