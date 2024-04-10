@@ -9,6 +9,14 @@ import (
 	"github.com/Victor118/liquidity/x/liquidity/types"
 )
 
+func errorMessage(err error) string {
+	if err != nil {
+		return err.Error()
+	} else {
+		return ""
+	}
+}
+
 // Execute Swap of the pool batch, Collect swap messages in batch for transact the same price for each batch and run them on endblock.
 func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint64, error) {
 	// get all swap message batch states that are not executed, not succeeded, and not to be deleted.
@@ -30,13 +38,19 @@ func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint6
 	// set executed states of all messages to true
 	executedMsgCount := uint64(0)
 	var swapMsgStatesNotToBeDeleted []*types.SwapMsgState
+	var expired bool
+	var invalidErr error
 	for _, sms := range swapMsgStates {
+		expired = false
+		invalidErr = nil
 		sms.Executed = true
 		executedMsgCount++
 		if currentHeight > sms.OrderExpiryHeight {
 			sms.ToBeDeleted = true
+			expired = true
 		}
 		if err := k.ValidateMsgSwapWithinBatch(ctx, *sms.Msg, pool); err != nil {
+			invalidErr = err
 			sms.ToBeDeleted = true
 		}
 		if !sms.ToBeDeleted {
@@ -59,6 +73,8 @@ func (k Keeper) SwapExecution(ctx sdk.Context, poolBatch types.PoolBatch) (uint6
 					sdk.NewAttribute(types.AttributeValueReservedOfferCoinFeeAmount, sms.ReservedOfferCoinFee.Amount.String()),
 					sdk.NewAttribute(types.AttributeValueOrderExpiryHeight, strconv.FormatInt(sms.OrderExpiryHeight, 10)),
 					sdk.NewAttribute(types.AttributeValueSuccess, types.Failure),
+					sdk.NewAttribute(types.AttributeValueOrderExpired, strconv.FormatBool(expired)),
+					sdk.NewAttribute(types.AttributeValueInvalidSwapErr, errorMessage(invalidErr)),
 				))
 		}
 	}

@@ -45,6 +45,8 @@ const (
 	AttributeValueExchangedDemandCoinAmount  = "exchanged_demand_coin_amount"
 	AttributeValueReservedOfferCoinFeeAmount = "reserved_offer_coin_fee_amount"
 	AttributeValueOrderExpiryHeight          = "order_expiry_height"
+	AttributeValueOrderExpired               = "order_has_expired"
+	AttributeValueInvalidSwapErr             = "swap_err_message"
 
 	AttributeValueCategory = ModuleName
 
