@@ -701,6 +701,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 					sdk.NewAttribute(types.AttributeValueReservedOfferCoinFeeAmount, sms.ReservedOfferCoinFee.Amount.String()),
 					sdk.NewAttribute(types.AttributeValueOrderExpiryHeight, strconv.FormatInt(sms.OrderExpiryHeight, 10)),
 					sdk.NewAttribute(types.AttributeValueSuccess, types.Failure),
+					sdk.NewAttribute(types.AttributeValueNoMatch, types.Failure),
 				))
 
 		}

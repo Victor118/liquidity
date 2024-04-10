@@ -32,6 +32,7 @@ const (
 	AttributeValueRefundedCoins    = "refunded_coins"
 	AttributeValueAcceptedCoins    = "accepted_coins"
 	AttributeValueSuccess          = "success"
+	AttributeValueNoMatch          = "no_match"
 	AttributeValueWithdrawer       = "withdrawer"
 	AttributeValueWithdrawCoins    = "withdraw_coins"
 	AttributeValueWithdrawFeeCoins = "withdraw_fee_coins"
