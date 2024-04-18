@@ -4,77 +4,77 @@
 
 ## Table of Contents
 
-- [Victor118/liquidity/v1beta1/tx.proto](#Victor118/liquidity/v1beta1/tx.proto)
-    - [MsgCreatePool](#Victor118.liquidity.v1beta1.MsgCreatePool)
-    - [MsgCreatePoolResponse](#Victor118.liquidity.v1beta1.MsgCreatePoolResponse)
-    - [MsgDepositWithinBatch](#Victor118.liquidity.v1beta1.MsgDepositWithinBatch)
-    - [MsgDepositWithinBatchResponse](#Victor118.liquidity.v1beta1.MsgDepositWithinBatchResponse)
-    - [MsgSwapWithinBatch](#Victor118.liquidity.v1beta1.MsgSwapWithinBatch)
-    - [MsgSwapWithinBatchResponse](#Victor118.liquidity.v1beta1.MsgSwapWithinBatchResponse)
-    - [MsgWithdrawWithinBatch](#Victor118.liquidity.v1beta1.MsgWithdrawWithinBatch)
-    - [MsgWithdrawWithinBatchResponse](#Victor118.liquidity.v1beta1.MsgWithdrawWithinBatchResponse)
+- [tendermint/liquidity/v1beta1/tx.proto](#tendermint/liquidity/v1beta1/tx.proto)
+    - [MsgCreatePool](#tendermint.liquidity.v1beta1.MsgCreatePool)
+    - [MsgCreatePoolResponse](#tendermint.liquidity.v1beta1.MsgCreatePoolResponse)
+    - [MsgDepositWithinBatch](#tendermint.liquidity.v1beta1.MsgDepositWithinBatch)
+    - [MsgDepositWithinBatchResponse](#tendermint.liquidity.v1beta1.MsgDepositWithinBatchResponse)
+    - [MsgSwapWithinBatch](#tendermint.liquidity.v1beta1.MsgSwapWithinBatch)
+    - [MsgSwapWithinBatchResponse](#tendermint.liquidity.v1beta1.MsgSwapWithinBatchResponse)
+    - [MsgWithdrawWithinBatch](#tendermint.liquidity.v1beta1.MsgWithdrawWithinBatch)
+    - [MsgWithdrawWithinBatchResponse](#tendermint.liquidity.v1beta1.MsgWithdrawWithinBatchResponse)
   
-    - [Msg](#Victor118.liquidity.v1beta1.Msg)
+    - [Msg](#tendermint.liquidity.v1beta1.Msg)
   
-- [Victor118/liquidity/v1beta1/liquidity.proto](#Victor118/liquidity/v1beta1/liquidity.proto)
-    - [DepositMsgState](#Victor118.liquidity.v1beta1.DepositMsgState)
-    - [Params](#Victor118.liquidity.v1beta1.Params)
-    - [Pool](#Victor118.liquidity.v1beta1.Pool)
-    - [PoolBatch](#Victor118.liquidity.v1beta1.PoolBatch)
-    - [PoolMetadata](#Victor118.liquidity.v1beta1.PoolMetadata)
-    - [PoolType](#Victor118.liquidity.v1beta1.PoolType)
-    - [SwapMsgState](#Victor118.liquidity.v1beta1.SwapMsgState)
-    - [WithdrawMsgState](#Victor118.liquidity.v1beta1.WithdrawMsgState)
+- [tendermint/liquidity/v1beta1/liquidity.proto](#tendermint/liquidity/v1beta1/liquidity.proto)
+    - [DepositMsgState](#tendermint.liquidity.v1beta1.DepositMsgState)
+    - [Params](#tendermint.liquidity.v1beta1.Params)
+    - [Pool](#tendermint.liquidity.v1beta1.Pool)
+    - [PoolBatch](#tendermint.liquidity.v1beta1.PoolBatch)
+    - [PoolMetadata](#tendermint.liquidity.v1beta1.PoolMetadata)
+    - [PoolType](#tendermint.liquidity.v1beta1.PoolType)
+    - [SwapMsgState](#tendermint.liquidity.v1beta1.SwapMsgState)
+    - [WithdrawMsgState](#tendermint.liquidity.v1beta1.WithdrawMsgState)
   
-- [Victor118/liquidity/v1beta1/genesis.proto](#Victor118/liquidity/v1beta1/genesis.proto)
-    - [GenesisState](#Victor118.liquidity.v1beta1.GenesisState)
-    - [PoolRecord](#Victor118.liquidity.v1beta1.PoolRecord)
+- [tendermint/liquidity/v1beta1/genesis.proto](#tendermint/liquidity/v1beta1/genesis.proto)
+    - [GenesisState](#tendermint.liquidity.v1beta1.GenesisState)
+    - [PoolRecord](#tendermint.liquidity.v1beta1.PoolRecord)
   
-- [Victor118/liquidity/v1beta1/query.proto](#Victor118/liquidity/v1beta1/query.proto)
-    - [QueryLiquidityPoolBatchRequest](#Victor118.liquidity.v1beta1.QueryLiquidityPoolBatchRequest)
-    - [QueryLiquidityPoolBatchResponse](#Victor118.liquidity.v1beta1.QueryLiquidityPoolBatchResponse)
-    - [QueryLiquidityPoolByPoolCoinDenomRequest](#Victor118.liquidity.v1beta1.QueryLiquidityPoolByPoolCoinDenomRequest)
-    - [QueryLiquidityPoolByReserveAccRequest](#Victor118.liquidity.v1beta1.QueryLiquidityPoolByReserveAccRequest)
-    - [QueryLiquidityPoolRequest](#Victor118.liquidity.v1beta1.QueryLiquidityPoolRequest)
-    - [QueryLiquidityPoolResponse](#Victor118.liquidity.v1beta1.QueryLiquidityPoolResponse)
-    - [QueryLiquidityPoolsRequest](#Victor118.liquidity.v1beta1.QueryLiquidityPoolsRequest)
-    - [QueryLiquidityPoolsResponse](#Victor118.liquidity.v1beta1.QueryLiquidityPoolsResponse)
-    - [QueryParamsRequest](#Victor118.liquidity.v1beta1.QueryParamsRequest)
-    - [QueryParamsResponse](#Victor118.liquidity.v1beta1.QueryParamsResponse)
-    - [QueryPoolBatchDepositMsgRequest](#Victor118.liquidity.v1beta1.QueryPoolBatchDepositMsgRequest)
-    - [QueryPoolBatchDepositMsgResponse](#Victor118.liquidity.v1beta1.QueryPoolBatchDepositMsgResponse)
-    - [QueryPoolBatchDepositMsgsRequest](#Victor118.liquidity.v1beta1.QueryPoolBatchDepositMsgsRequest)
-    - [QueryPoolBatchDepositMsgsResponse](#Victor118.liquidity.v1beta1.QueryPoolBatchDepositMsgsResponse)
-    - [QueryPoolBatchSwapMsgRequest](#Victor118.liquidity.v1beta1.QueryPoolBatchSwapMsgRequest)
-    - [QueryPoolBatchSwapMsgResponse](#Victor118.liquidity.v1beta1.QueryPoolBatchSwapMsgResponse)
-    - [QueryPoolBatchSwapMsgsRequest](#Victor118.liquidity.v1beta1.QueryPoolBatchSwapMsgsRequest)
-    - [QueryPoolBatchSwapMsgsResponse](#Victor118.liquidity.v1beta1.QueryPoolBatchSwapMsgsResponse)
-    - [QueryPoolBatchWithdrawMsgRequest](#Victor118.liquidity.v1beta1.QueryPoolBatchWithdrawMsgRequest)
-    - [QueryPoolBatchWithdrawMsgResponse](#Victor118.liquidity.v1beta1.QueryPoolBatchWithdrawMsgResponse)
-    - [QueryPoolBatchWithdrawMsgsRequest](#Victor118.liquidity.v1beta1.QueryPoolBatchWithdrawMsgsRequest)
-    - [QueryPoolBatchWithdrawMsgsResponse](#Victor118.liquidity.v1beta1.QueryPoolBatchWithdrawMsgsResponse)
+- [tendermint/liquidity/v1beta1/query.proto](#tendermint/liquidity/v1beta1/query.proto)
+    - [QueryLiquidityPoolBatchRequest](#tendermint.liquidity.v1beta1.QueryLiquidityPoolBatchRequest)
+    - [QueryLiquidityPoolBatchResponse](#tendermint.liquidity.v1beta1.QueryLiquidityPoolBatchResponse)
+    - [QueryLiquidityPoolByPoolCoinDenomRequest](#tendermint.liquidity.v1beta1.QueryLiquidityPoolByPoolCoinDenomRequest)
+    - [QueryLiquidityPoolByReserveAccRequest](#tendermint.liquidity.v1beta1.QueryLiquidityPoolByReserveAccRequest)
+    - [QueryLiquidityPoolRequest](#tendermint.liquidity.v1beta1.QueryLiquidityPoolRequest)
+    - [QueryLiquidityPoolResponse](#tendermint.liquidity.v1beta1.QueryLiquidityPoolResponse)
+    - [QueryLiquidityPoolsRequest](#tendermint.liquidity.v1beta1.QueryLiquidityPoolsRequest)
+    - [QueryLiquidityPoolsResponse](#tendermint.liquidity.v1beta1.QueryLiquidityPoolsResponse)
+    - [QueryParamsRequest](#tendermint.liquidity.v1beta1.QueryParamsRequest)
+    - [QueryParamsResponse](#tendermint.liquidity.v1beta1.QueryParamsResponse)
+    - [QueryPoolBatchDepositMsgRequest](#tendermint.liquidity.v1beta1.QueryPoolBatchDepositMsgRequest)
+    - [QueryPoolBatchDepositMsgResponse](#tendermint.liquidity.v1beta1.QueryPoolBatchDepositMsgResponse)
+    - [QueryPoolBatchDepositMsgsRequest](#tendermint.liquidity.v1beta1.QueryPoolBatchDepositMsgsRequest)
+    - [QueryPoolBatchDepositMsgsResponse](#tendermint.liquidity.v1beta1.QueryPoolBatchDepositMsgsResponse)
+    - [QueryPoolBatchSwapMsgRequest](#tendermint.liquidity.v1beta1.QueryPoolBatchSwapMsgRequest)
+    - [QueryPoolBatchSwapMsgResponse](#tendermint.liquidity.v1beta1.QueryPoolBatchSwapMsgResponse)
+    - [QueryPoolBatchSwapMsgsRequest](#tendermint.liquidity.v1beta1.QueryPoolBatchSwapMsgsRequest)
+    - [QueryPoolBatchSwapMsgsResponse](#tendermint.liquidity.v1beta1.QueryPoolBatchSwapMsgsResponse)
+    - [QueryPoolBatchWithdrawMsgRequest](#tendermint.liquidity.v1beta1.QueryPoolBatchWithdrawMsgRequest)
+    - [QueryPoolBatchWithdrawMsgResponse](#tendermint.liquidity.v1beta1.QueryPoolBatchWithdrawMsgResponse)
+    - [QueryPoolBatchWithdrawMsgsRequest](#tendermint.liquidity.v1beta1.QueryPoolBatchWithdrawMsgsRequest)
+    - [QueryPoolBatchWithdrawMsgsResponse](#tendermint.liquidity.v1beta1.QueryPoolBatchWithdrawMsgsResponse)
   
-    - [Query](#Victor118.liquidity.v1beta1.Query)
+    - [Query](#tendermint.liquidity.v1beta1.Query)
   
 - [Scalar Value Types](#scalar-value-types)
 
 
 
-<a name="Victor118/liquidity/v1beta1/tx.proto"></a>
+<a name="tendermint/liquidity/v1beta1/tx.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## Victor118/liquidity/v1beta1/tx.proto
+## tendermint/liquidity/v1beta1/tx.proto
 
 
 
-<a name="Victor118.liquidity.v1beta1.MsgCreatePool"></a>
+<a name="tendermint.liquidity.v1beta1.MsgCreatePool"></a>
 
 ### MsgCreatePool
 MsgCreatePool defines an sdk.Msg type that supports submitting a create
 liquidity pool tx.
 
 See:
-https://github.com/Victor118/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 
 
 | Field | Type | Label | Description |
@@ -88,7 +88,7 @@ https://github.com/Victor118/liquidity/blob/develop/x/liquidity/spec/04_messages
 
 
 
-<a name="Victor118.liquidity.v1beta1.MsgCreatePoolResponse"></a>
+<a name="tendermint.liquidity.v1beta1.MsgCreatePoolResponse"></a>
 
 ### MsgCreatePoolResponse
 MsgCreatePoolResponse defines the Msg/CreatePool response type.
@@ -98,7 +98,7 @@ MsgCreatePoolResponse defines the Msg/CreatePool response type.
 
 
 
-<a name="Victor118.liquidity.v1beta1.MsgDepositWithinBatch"></a>
+<a name="tendermint.liquidity.v1beta1.MsgDepositWithinBatch"></a>
 
 ### MsgDepositWithinBatch
 `MsgDepositWithinBatch defines` an `sdk.Msg` type that supports submitting
@@ -110,7 +110,7 @@ immediately, and is processed in the `endblock` at the same time as other
 requests.
 
 See:
-https://github.com/Victor118/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 
 
 | Field | Type | Label | Description |
@@ -124,7 +124,7 @@ https://github.com/Victor118/liquidity/blob/develop/x/liquidity/spec/04_messages
 
 
 
-<a name="Victor118.liquidity.v1beta1.MsgDepositWithinBatchResponse"></a>
+<a name="tendermint.liquidity.v1beta1.MsgDepositWithinBatchResponse"></a>
 
 ### MsgDepositWithinBatchResponse
 MsgDepositWithinBatchResponse defines the Msg/DepositWithinBatch response
@@ -135,7 +135,7 @@ type.
 
 
 
-<a name="Victor118.liquidity.v1beta1.MsgSwapWithinBatch"></a>
+<a name="tendermint.liquidity.v1beta1.MsgSwapWithinBatch"></a>
 
 ### MsgSwapWithinBatch
 `MsgSwapWithinBatch` defines an sdk.Msg type that supports submitting a swap
@@ -149,8 +149,8 @@ is processed in the `endblock` at the same time as other requests. You must
 request the same fields as the pool. Only the default `swap_type_id` 1 is
 supported.
 
-See: https://github.com/Victor118/liquidity/tree/develop/doc
-https://github.com/Victor118/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+See: https://github.com/tendermint/liquidity/tree/develop/doc
+https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 
 
 | Field | Type | Label | Description |
@@ -168,7 +168,7 @@ https://github.com/Victor118/liquidity/blob/develop/x/liquidity/spec/04_messages
 
 
 
-<a name="Victor118.liquidity.v1beta1.MsgSwapWithinBatchResponse"></a>
+<a name="tendermint.liquidity.v1beta1.MsgSwapWithinBatchResponse"></a>
 
 ### MsgSwapWithinBatchResponse
 MsgSwapWithinBatchResponse defines the Msg/Swap response type.
@@ -178,7 +178,7 @@ MsgSwapWithinBatchResponse defines the Msg/Swap response type.
 
 
 
-<a name="Victor118.liquidity.v1beta1.MsgWithdrawWithinBatch"></a>
+<a name="tendermint.liquidity.v1beta1.MsgWithdrawWithinBatch"></a>
 
 ### MsgWithdrawWithinBatch
 `MsgWithdrawWithinBatch` defines an `sdk.Msg` type that supports submitting
@@ -190,7 +190,7 @@ immediately, and is processed in the `endblock` at the same time as other
 requests.
 
 See:
-https://github.com/Victor118/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 
 
 | Field | Type | Label | Description |
@@ -204,7 +204,7 @@ https://github.com/Victor118/liquidity/blob/develop/x/liquidity/spec/04_messages
 
 
 
-<a name="Victor118.liquidity.v1beta1.MsgWithdrawWithinBatchResponse"></a>
+<a name="tendermint.liquidity.v1beta1.MsgWithdrawWithinBatchResponse"></a>
 
 ### MsgWithdrawWithinBatchResponse
 MsgWithdrawWithinBatchResponse defines the Msg/WithdrawWithinBatch response
@@ -221,30 +221,30 @@ type.
  <!-- end HasExtensions -->
 
 
-<a name="Victor118.liquidity.v1beta1.Msg"></a>
+<a name="tendermint.liquidity.v1beta1.Msg"></a>
 
 ### Msg
 Msg defines the liquidity Msg service.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `CreatePool` | [MsgCreatePool](#Victor118.liquidity.v1beta1.MsgCreatePool) | [MsgCreatePoolResponse](#Victor118.liquidity.v1beta1.MsgCreatePoolResponse) | Submit a create liquidity pool message. | |
-| `DepositWithinBatch` | [MsgDepositWithinBatch](#Victor118.liquidity.v1beta1.MsgDepositWithinBatch) | [MsgDepositWithinBatchResponse](#Victor118.liquidity.v1beta1.MsgDepositWithinBatchResponse) | Submit a deposit to the liquidity pool batch. | |
-| `WithdrawWithinBatch` | [MsgWithdrawWithinBatch](#Victor118.liquidity.v1beta1.MsgWithdrawWithinBatch) | [MsgWithdrawWithinBatchResponse](#Victor118.liquidity.v1beta1.MsgWithdrawWithinBatchResponse) | Submit a withdraw from the liquidity pool batch. | |
-| `Swap` | [MsgSwapWithinBatch](#Victor118.liquidity.v1beta1.MsgSwapWithinBatch) | [MsgSwapWithinBatchResponse](#Victor118.liquidity.v1beta1.MsgSwapWithinBatchResponse) | Submit a swap to the liquidity pool batch. | |
+| `CreatePool` | [MsgCreatePool](#tendermint.liquidity.v1beta1.MsgCreatePool) | [MsgCreatePoolResponse](#tendermint.liquidity.v1beta1.MsgCreatePoolResponse) | Submit a create liquidity pool message. | |
+| `DepositWithinBatch` | [MsgDepositWithinBatch](#tendermint.liquidity.v1beta1.MsgDepositWithinBatch) | [MsgDepositWithinBatchResponse](#tendermint.liquidity.v1beta1.MsgDepositWithinBatchResponse) | Submit a deposit to the liquidity pool batch. | |
+| `WithdrawWithinBatch` | [MsgWithdrawWithinBatch](#tendermint.liquidity.v1beta1.MsgWithdrawWithinBatch) | [MsgWithdrawWithinBatchResponse](#tendermint.liquidity.v1beta1.MsgWithdrawWithinBatchResponse) | Submit a withdraw from the liquidity pool batch. | |
+| `Swap` | [MsgSwapWithinBatch](#tendermint.liquidity.v1beta1.MsgSwapWithinBatch) | [MsgSwapWithinBatchResponse](#tendermint.liquidity.v1beta1.MsgSwapWithinBatchResponse) | Submit a swap to the liquidity pool batch. | |
 
  <!-- end services -->
 
 
 
-<a name="Victor118/liquidity/v1beta1/liquidity.proto"></a>
+<a name="tendermint/liquidity/v1beta1/liquidity.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## Victor118/liquidity/v1beta1/liquidity.proto
+## tendermint/liquidity/v1beta1/liquidity.proto
 
 
 
-<a name="Victor118.liquidity.v1beta1.DepositMsgState"></a>
+<a name="tendermint.liquidity.v1beta1.DepositMsgState"></a>
 
 ### DepositMsgState
 DepositMsgState defines the state of deposit message that contains state
@@ -258,14 +258,14 @@ information as it is processed in the next batch or batches.
 | `executed` | [bool](#bool) |  | true if executed on this batch, false if not executed |
 | `succeeded` | [bool](#bool) |  | true if executed successfully on this batch, false if failed |
 | `to_be_deleted` | [bool](#bool) |  | true if ready to be deleted on kvstore, false if not ready to be deleted |
-| `msg` | [MsgDepositWithinBatch](#Victor118.liquidity.v1beta1.MsgDepositWithinBatch) |  | MsgDepositWithinBatch |
+| `msg` | [MsgDepositWithinBatch](#tendermint.liquidity.v1beta1.MsgDepositWithinBatch) |  | MsgDepositWithinBatch |
 
 
 
 
 
 
-<a name="Victor118.liquidity.v1beta1.Params"></a>
+<a name="tendermint.liquidity.v1beta1.Params"></a>
 
 ### Params
 Params defines the parameters for the liquidity module.
@@ -273,7 +273,7 @@ Params defines the parameters for the liquidity module.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `pool_types` | [PoolType](#Victor118.liquidity.v1beta1.PoolType) | repeated | list of available pool types |
+| `pool_types` | [PoolType](#tendermint.liquidity.v1beta1.PoolType) | repeated | list of available pool types |
 | `min_init_deposit_amount` | [string](#string) |  | Minimum number of coins to be deposited to the liquidity pool on pool creation. |
 | `init_pool_coin_mint_amount` | [string](#string) |  | Initial mint amount of pool coins upon pool creation. |
 | `max_reserve_coin_amount` | [string](#string) |  | Limit the size of each liquidity pool to minimize risk. In development, set to 0 for no limit. In production, set a limit. |
@@ -283,13 +283,15 @@ Params defines the parameters for the liquidity module.
 | `max_order_amount_ratio` | [string](#string) |  | Maximum ratio of reserve coins that can be ordered at a swap order. |
 | `unit_batch_height` | [uint32](#uint32) |  | The smallest unit batch height for every liquidity pool. |
 | `circuit_breaker_enabled` | [bool](#bool) |  | Circuit breaker enables or disables transaction messages in liquidity module. |
+| `builders_addresses` | [string](#string) | repeated |  |
+| `builders_commission` | [string](#string) |  |  |
 
 
 
 
 
 
-<a name="Victor118.liquidity.v1beta1.Pool"></a>
+<a name="tendermint.liquidity.v1beta1.Pool"></a>
 
 ### Pool
 Pool defines the liquidity pool that contains pool information.
@@ -308,7 +310,7 @@ Pool defines the liquidity pool that contains pool information.
 
 
 
-<a name="Victor118.liquidity.v1beta1.PoolBatch"></a>
+<a name="tendermint.liquidity.v1beta1.PoolBatch"></a>
 
 ### PoolBatch
 PoolBatch defines the batch or batches of a given liquidity pool that
@@ -331,7 +333,7 @@ increments by 1 if the pool id is same.
 
 
 
-<a name="Victor118.liquidity.v1beta1.PoolMetadata"></a>
+<a name="tendermint.liquidity.v1beta1.PoolMetadata"></a>
 
 ### PoolMetadata
 Metadata for the state of each pool for invariant checking after genesis
@@ -349,7 +351,7 @@ export or import.
 
 
 
-<a name="Victor118.liquidity.v1beta1.PoolType"></a>
+<a name="tendermint.liquidity.v1beta1.PoolType"></a>
 
 ### PoolType
 Structure for the pool type to distinguish the characteristics of the reserve
@@ -369,7 +371,7 @@ pools.
 
 
 
-<a name="Victor118.liquidity.v1beta1.SwapMsgState"></a>
+<a name="tendermint.liquidity.v1beta1.SwapMsgState"></a>
 
 ### SwapMsgState
 SwapMsgState defines the state of the swap message that contains state
@@ -387,14 +389,14 @@ information as the message is processed in the next batch or batches.
 | `exchanged_offer_coin` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | offer coin exchanged until now |
 | `remaining_offer_coin` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | offer coin currently remaining to be exchanged |
 | `reserved_offer_coin_fee` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | reserve fee for pays fee in half offer coin |
-| `msg` | [MsgSwapWithinBatch](#Victor118.liquidity.v1beta1.MsgSwapWithinBatch) |  | MsgSwapWithinBatch |
+| `msg` | [MsgSwapWithinBatch](#tendermint.liquidity.v1beta1.MsgSwapWithinBatch) |  | MsgSwapWithinBatch |
 
 
 
 
 
 
-<a name="Victor118.liquidity.v1beta1.WithdrawMsgState"></a>
+<a name="tendermint.liquidity.v1beta1.WithdrawMsgState"></a>
 
 ### WithdrawMsgState
 WithdrawMsgState defines the state of the withdraw message that contains
@@ -408,7 +410,7 @@ state information as the message is processed in the next batch or batches.
 | `executed` | [bool](#bool) |  | true if executed on this batch, false if not executed |
 | `succeeded` | [bool](#bool) |  | true if executed successfully on this batch, false if failed |
 | `to_be_deleted` | [bool](#bool) |  | true if ready to be deleted on kvstore, false if not ready to be deleted |
-| `msg` | [MsgWithdrawWithinBatch](#Victor118.liquidity.v1beta1.MsgWithdrawWithinBatch) |  | MsgWithdrawWithinBatch |
+| `msg` | [MsgWithdrawWithinBatch](#tendermint.liquidity.v1beta1.MsgWithdrawWithinBatch) |  | MsgWithdrawWithinBatch |
 
 
 
@@ -424,14 +426,14 @@ state information as the message is processed in the next batch or batches.
 
 
 
-<a name="Victor118/liquidity/v1beta1/genesis.proto"></a>
+<a name="tendermint/liquidity/v1beta1/genesis.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## Victor118/liquidity/v1beta1/genesis.proto
+## tendermint/liquidity/v1beta1/genesis.proto
 
 
 
-<a name="Victor118.liquidity.v1beta1.GenesisState"></a>
+<a name="tendermint.liquidity.v1beta1.GenesisState"></a>
 
 ### GenesisState
 GenesisState defines the liquidity module's genesis state.
@@ -439,15 +441,15 @@ GenesisState defines the liquidity module's genesis state.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#Victor118.liquidity.v1beta1.Params) |  | params defines all the parameters for the liquidity module. |
-| `pool_records` | [PoolRecord](#Victor118.liquidity.v1beta1.PoolRecord) | repeated |  |
+| `params` | [Params](#tendermint.liquidity.v1beta1.Params) |  | params defines all the parameters for the liquidity module. |
+| `pool_records` | [PoolRecord](#tendermint.liquidity.v1beta1.PoolRecord) | repeated |  |
 
 
 
 
 
 
-<a name="Victor118.liquidity.v1beta1.PoolRecord"></a>
+<a name="tendermint.liquidity.v1beta1.PoolRecord"></a>
 
 ### PoolRecord
 records the state of each pool after genesis export or import, used to check
@@ -456,12 +458,12 @@ variables
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `pool` | [Pool](#Victor118.liquidity.v1beta1.Pool) |  |  |
-| `pool_metadata` | [PoolMetadata](#Victor118.liquidity.v1beta1.PoolMetadata) |  |  |
-| `pool_batch` | [PoolBatch](#Victor118.liquidity.v1beta1.PoolBatch) |  |  |
-| `deposit_msg_states` | [DepositMsgState](#Victor118.liquidity.v1beta1.DepositMsgState) | repeated |  |
-| `withdraw_msg_states` | [WithdrawMsgState](#Victor118.liquidity.v1beta1.WithdrawMsgState) | repeated |  |
-| `swap_msg_states` | [SwapMsgState](#Victor118.liquidity.v1beta1.SwapMsgState) | repeated |  |
+| `pool` | [Pool](#tendermint.liquidity.v1beta1.Pool) |  |  |
+| `pool_metadata` | [PoolMetadata](#tendermint.liquidity.v1beta1.PoolMetadata) |  |  |
+| `pool_batch` | [PoolBatch](#tendermint.liquidity.v1beta1.PoolBatch) |  |  |
+| `deposit_msg_states` | [DepositMsgState](#tendermint.liquidity.v1beta1.DepositMsgState) | repeated |  |
+| `withdraw_msg_states` | [WithdrawMsgState](#tendermint.liquidity.v1beta1.WithdrawMsgState) | repeated |  |
+| `swap_msg_states` | [SwapMsgState](#tendermint.liquidity.v1beta1.SwapMsgState) | repeated |  |
 
 
 
@@ -477,14 +479,14 @@ variables
 
 
 
-<a name="Victor118/liquidity/v1beta1/query.proto"></a>
+<a name="tendermint/liquidity/v1beta1/query.proto"></a>
 <p align="right"><a href="#top">Top</a></p>
 
-## Victor118/liquidity/v1beta1/query.proto
+## tendermint/liquidity/v1beta1/query.proto
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryLiquidityPoolBatchRequest"></a>
+<a name="tendermint.liquidity.v1beta1.QueryLiquidityPoolBatchRequest"></a>
 
 ### QueryLiquidityPoolBatchRequest
 the request type for the QueryLiquidityPoolBatch RPC method. requestable
@@ -500,7 +502,7 @@ including specified pool_id.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryLiquidityPoolBatchResponse"></a>
+<a name="tendermint.liquidity.v1beta1.QueryLiquidityPoolBatchResponse"></a>
 
 ### QueryLiquidityPoolBatchResponse
 the response type for the QueryLiquidityPoolBatchResponse RPC method. Returns
@@ -509,14 +511,14 @@ the liquidity pool batch that corresponds to the requested pool_id.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `batch` | [PoolBatch](#Victor118.liquidity.v1beta1.PoolBatch) |  |  |
+| `batch` | [PoolBatch](#tendermint.liquidity.v1beta1.PoolBatch) |  |  |
 
 
 
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryLiquidityPoolByPoolCoinDenomRequest"></a>
+<a name="tendermint.liquidity.v1beta1.QueryLiquidityPoolByPoolCoinDenomRequest"></a>
 
 ### QueryLiquidityPoolByPoolCoinDenomRequest
 the request type for the QueryLiquidityByPoolCoinDenomPool RPC method.
@@ -532,7 +534,7 @@ Requestable specified pool_coin_denom.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryLiquidityPoolByReserveAccRequest"></a>
+<a name="tendermint.liquidity.v1beta1.QueryLiquidityPoolByReserveAccRequest"></a>
 
 ### QueryLiquidityPoolByReserveAccRequest
 the request type for the QueryLiquidityByReserveAcc RPC method. Requestable
@@ -548,7 +550,7 @@ specified reserve_acc.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryLiquidityPoolRequest"></a>
+<a name="tendermint.liquidity.v1beta1.QueryLiquidityPoolRequest"></a>
 
 ### QueryLiquidityPoolRequest
 the request type for the QueryLiquidityPool RPC method. requestable specified
@@ -564,7 +566,7 @@ pool_id.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryLiquidityPoolResponse"></a>
+<a name="tendermint.liquidity.v1beta1.QueryLiquidityPoolResponse"></a>
 
 ### QueryLiquidityPoolResponse
 the response type for the QueryLiquidityPoolResponse RPC method. Returns the
@@ -573,14 +575,14 @@ liquidity pool that corresponds to the requested pool_id.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `pool` | [Pool](#Victor118.liquidity.v1beta1.Pool) |  |  |
+| `pool` | [Pool](#tendermint.liquidity.v1beta1.Pool) |  |  |
 
 
 
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryLiquidityPoolsRequest"></a>
+<a name="tendermint.liquidity.v1beta1.QueryLiquidityPoolsRequest"></a>
 
 ### QueryLiquidityPoolsRequest
 the request type for the QueryLiquidityPools RPC method. Requestable
@@ -596,7 +598,7 @@ including pagination offset, limit, key.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryLiquidityPoolsResponse"></a>
+<a name="tendermint.liquidity.v1beta1.QueryLiquidityPoolsResponse"></a>
 
 ### QueryLiquidityPoolsResponse
 the response type for the QueryLiquidityPoolsResponse RPC method. This
@@ -606,7 +608,7 @@ contain next_key and total count.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `pools` | [Pool](#Victor118.liquidity.v1beta1.Pool) | repeated |  |
+| `pools` | [Pool](#tendermint.liquidity.v1beta1.Pool) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. not working on this version. |
 
 
@@ -614,7 +616,7 @@ contain next_key and total count.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryParamsRequest"></a>
+<a name="tendermint.liquidity.v1beta1.QueryParamsRequest"></a>
 
 ### QueryParamsRequest
 QueryParamsRequest is request type for the QueryParams RPC method.
@@ -624,7 +626,7 @@ QueryParamsRequest is request type for the QueryParams RPC method.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryParamsResponse"></a>
+<a name="tendermint.liquidity.v1beta1.QueryParamsResponse"></a>
 
 ### QueryParamsResponse
 the response type for the QueryParamsResponse RPC method. This includes
@@ -633,14 +635,14 @@ current parameter of the liquidity module.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `params` | [Params](#Victor118.liquidity.v1beta1.Params) |  | params holds all the parameters of this module. |
+| `params` | [Params](#tendermint.liquidity.v1beta1.Params) |  | params holds all the parameters of this module. |
 
 
 
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryPoolBatchDepositMsgRequest"></a>
+<a name="tendermint.liquidity.v1beta1.QueryPoolBatchDepositMsgRequest"></a>
 
 ### QueryPoolBatchDepositMsgRequest
 the request type for the QueryPoolBatchDeposit RPC method. requestable
@@ -657,7 +659,7 @@ including specified pool_id and msg_index.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryPoolBatchDepositMsgResponse"></a>
+<a name="tendermint.liquidity.v1beta1.QueryPoolBatchDepositMsgResponse"></a>
 
 ### QueryPoolBatchDepositMsgResponse
 the response type for the QueryPoolBatchDepositMsg RPC method. This includes
@@ -666,14 +668,14 @@ a batch swap message of the batch.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `deposit` | [DepositMsgState](#Victor118.liquidity.v1beta1.DepositMsgState) |  |  |
+| `deposit` | [DepositMsgState](#tendermint.liquidity.v1beta1.DepositMsgState) |  |  |
 
 
 
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryPoolBatchDepositMsgsRequest"></a>
+<a name="tendermint.liquidity.v1beta1.QueryPoolBatchDepositMsgsRequest"></a>
 
 ### QueryPoolBatchDepositMsgsRequest
 the request type for the QueryPoolBatchDeposit RPC method. Requestable
@@ -690,7 +692,7 @@ including specified pool_id and pagination offset, limit, key.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryPoolBatchDepositMsgsResponse"></a>
+<a name="tendermint.liquidity.v1beta1.QueryPoolBatchDepositMsgsResponse"></a>
 
 ### QueryPoolBatchDepositMsgsResponse
 the response type for the QueryPoolBatchDeposit RPC method. This includes a
@@ -700,7 +702,7 @@ results that contain next_key and total count.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `deposits` | [DepositMsgState](#Victor118.liquidity.v1beta1.DepositMsgState) | repeated |  |
+| `deposits` | [DepositMsgState](#tendermint.liquidity.v1beta1.DepositMsgState) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. not working on this version. |
 
 
@@ -708,7 +710,7 @@ results that contain next_key and total count.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryPoolBatchSwapMsgRequest"></a>
+<a name="tendermint.liquidity.v1beta1.QueryPoolBatchSwapMsgRequest"></a>
 
 ### QueryPoolBatchSwapMsgRequest
 the request type for the QueryPoolBatchSwap RPC method. Requestable including
@@ -725,7 +727,7 @@ specified pool_id and msg_index.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryPoolBatchSwapMsgResponse"></a>
+<a name="tendermint.liquidity.v1beta1.QueryPoolBatchSwapMsgResponse"></a>
 
 ### QueryPoolBatchSwapMsgResponse
 the response type for the QueryPoolBatchSwapMsg RPC method. This includes a
@@ -734,14 +736,14 @@ batch swap message of the batch.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `swap` | [SwapMsgState](#Victor118.liquidity.v1beta1.SwapMsgState) |  |  |
+| `swap` | [SwapMsgState](#tendermint.liquidity.v1beta1.SwapMsgState) |  |  |
 
 
 
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryPoolBatchSwapMsgsRequest"></a>
+<a name="tendermint.liquidity.v1beta1.QueryPoolBatchSwapMsgsRequest"></a>
 
 ### QueryPoolBatchSwapMsgsRequest
 the request type for the QueryPoolBatchSwapMsgs RPC method. Requestable
@@ -758,7 +760,7 @@ including specified pool_id and pagination offset, limit, key.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryPoolBatchSwapMsgsResponse"></a>
+<a name="tendermint.liquidity.v1beta1.QueryPoolBatchSwapMsgsResponse"></a>
 
 ### QueryPoolBatchSwapMsgsResponse
 the response type for the QueryPoolBatchSwapMsgs RPC method. This includes
@@ -768,7 +770,7 @@ that contain next_key and total count.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `swaps` | [SwapMsgState](#Victor118.liquidity.v1beta1.SwapMsgState) | repeated |  |
+| `swaps` | [SwapMsgState](#tendermint.liquidity.v1beta1.SwapMsgState) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. not working on this version. |
 
 
@@ -776,7 +778,7 @@ that contain next_key and total count.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryPoolBatchWithdrawMsgRequest"></a>
+<a name="tendermint.liquidity.v1beta1.QueryPoolBatchWithdrawMsgRequest"></a>
 
 ### QueryPoolBatchWithdrawMsgRequest
 the request type for the QueryPoolBatchWithdraw RPC method. requestable
@@ -793,7 +795,7 @@ including specified pool_id and msg_index.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryPoolBatchWithdrawMsgResponse"></a>
+<a name="tendermint.liquidity.v1beta1.QueryPoolBatchWithdrawMsgResponse"></a>
 
 ### QueryPoolBatchWithdrawMsgResponse
 the response type for the QueryPoolBatchWithdrawMsg RPC method. This includes
@@ -802,14 +804,14 @@ a batch swap message of the batch.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `withdraw` | [WithdrawMsgState](#Victor118.liquidity.v1beta1.WithdrawMsgState) |  |  |
+| `withdraw` | [WithdrawMsgState](#tendermint.liquidity.v1beta1.WithdrawMsgState) |  |  |
 
 
 
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryPoolBatchWithdrawMsgsRequest"></a>
+<a name="tendermint.liquidity.v1beta1.QueryPoolBatchWithdrawMsgsRequest"></a>
 
 ### QueryPoolBatchWithdrawMsgsRequest
 the request type for the QueryPoolBatchWithdraw RPC method. Requestable
@@ -826,7 +828,7 @@ including specified pool_id and pagination offset, limit, key.
 
 
 
-<a name="Victor118.liquidity.v1beta1.QueryPoolBatchWithdrawMsgsResponse"></a>
+<a name="tendermint.liquidity.v1beta1.QueryPoolBatchWithdrawMsgsResponse"></a>
 
 ### QueryPoolBatchWithdrawMsgsResponse
 the response type for the QueryPoolBatchWithdraw RPC method. This includes a
@@ -836,7 +838,7 @@ results that contain next_key and total count.
 
 | Field | Type | Label | Description |
 | ----- | ---- | ----- | ----------- |
-| `withdraws` | [WithdrawMsgState](#Victor118.liquidity.v1beta1.WithdrawMsgState) | repeated |  |
+| `withdraws` | [WithdrawMsgState](#tendermint.liquidity.v1beta1.WithdrawMsgState) | repeated |  |
 | `pagination` | [cosmos.base.query.v1beta1.PageResponse](#cosmos.base.query.v1beta1.PageResponse) |  | pagination defines the pagination in the response. Not supported on this version. |
 
 
@@ -850,25 +852,25 @@ results that contain next_key and total count.
  <!-- end HasExtensions -->
 
 
-<a name="Victor118.liquidity.v1beta1.Query"></a>
+<a name="tendermint.liquidity.v1beta1.Query"></a>
 
 ### Query
 Query defines the gRPC query service for the liquidity module.
 
 | Method Name | Request Type | Response Type | Description | HTTP Verb | Endpoint |
 | ----------- | ------------ | ------------- | ------------| ------- | -------- |
-| `LiquidityPools` | [QueryLiquidityPoolsRequest](#Victor118.liquidity.v1beta1.QueryLiquidityPoolsRequest) | [QueryLiquidityPoolsResponse](#Victor118.liquidity.v1beta1.QueryLiquidityPoolsResponse) | Get existing liquidity pools. | GET|/cosmos/liquidity/v1beta1/pools|
-| `LiquidityPool` | [QueryLiquidityPoolRequest](#Victor118.liquidity.v1beta1.QueryLiquidityPoolRequest) | [QueryLiquidityPoolResponse](#Victor118.liquidity.v1beta1.QueryLiquidityPoolResponse) | Get specific liquidity pool. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}|
-| `LiquidityPoolByPoolCoinDenom` | [QueryLiquidityPoolByPoolCoinDenomRequest](#Victor118.liquidity.v1beta1.QueryLiquidityPoolByPoolCoinDenomRequest) | [QueryLiquidityPoolResponse](#Victor118.liquidity.v1beta1.QueryLiquidityPoolResponse) | Get specific liquidity pool corresponding to the pool_coin_denom. | GET|/cosmos/liquidity/v1beta1/pools/pool_coin_denom/{pool_coin_denom}|
-| `LiquidityPoolByReserveAcc` | [QueryLiquidityPoolByReserveAccRequest](#Victor118.liquidity.v1beta1.QueryLiquidityPoolByReserveAccRequest) | [QueryLiquidityPoolResponse](#Victor118.liquidity.v1beta1.QueryLiquidityPoolResponse) | Get specific liquidity pool corresponding to the reserve account. | GET|/cosmos/liquidity/v1beta1/pools/reserve_acc/{reserve_acc}|
-| `LiquidityPoolBatch` | [QueryLiquidityPoolBatchRequest](#Victor118.liquidity.v1beta1.QueryLiquidityPoolBatchRequest) | [QueryLiquidityPoolBatchResponse](#Victor118.liquidity.v1beta1.QueryLiquidityPoolBatchResponse) | Get the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch|
-| `PoolBatchSwapMsgs` | [QueryPoolBatchSwapMsgsRequest](#Victor118.liquidity.v1beta1.QueryPoolBatchSwapMsgsRequest) | [QueryPoolBatchSwapMsgsResponse](#Victor118.liquidity.v1beta1.QueryPoolBatchSwapMsgsResponse) | Get all swap messages in the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/swaps|
-| `PoolBatchSwapMsg` | [QueryPoolBatchSwapMsgRequest](#Victor118.liquidity.v1beta1.QueryPoolBatchSwapMsgRequest) | [QueryPoolBatchSwapMsgResponse](#Victor118.liquidity.v1beta1.QueryPoolBatchSwapMsgResponse) | Get a specific swap message in the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/swaps/{msg_index}|
-| `PoolBatchDepositMsgs` | [QueryPoolBatchDepositMsgsRequest](#Victor118.liquidity.v1beta1.QueryPoolBatchDepositMsgsRequest) | [QueryPoolBatchDepositMsgsResponse](#Victor118.liquidity.v1beta1.QueryPoolBatchDepositMsgsResponse) | Get all deposit messages in the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/deposits|
-| `PoolBatchDepositMsg` | [QueryPoolBatchDepositMsgRequest](#Victor118.liquidity.v1beta1.QueryPoolBatchDepositMsgRequest) | [QueryPoolBatchDepositMsgResponse](#Victor118.liquidity.v1beta1.QueryPoolBatchDepositMsgResponse) | Get a specific deposit message in the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/deposits/{msg_index}|
-| `PoolBatchWithdrawMsgs` | [QueryPoolBatchWithdrawMsgsRequest](#Victor118.liquidity.v1beta1.QueryPoolBatchWithdrawMsgsRequest) | [QueryPoolBatchWithdrawMsgsResponse](#Victor118.liquidity.v1beta1.QueryPoolBatchWithdrawMsgsResponse) | Get all withdraw messages in the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/withdraws|
-| `PoolBatchWithdrawMsg` | [QueryPoolBatchWithdrawMsgRequest](#Victor118.liquidity.v1beta1.QueryPoolBatchWithdrawMsgRequest) | [QueryPoolBatchWithdrawMsgResponse](#Victor118.liquidity.v1beta1.QueryPoolBatchWithdrawMsgResponse) | Get a specific withdraw message in the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/withdraws/{msg_index}|
-| `Params` | [QueryParamsRequest](#Victor118.liquidity.v1beta1.QueryParamsRequest) | [QueryParamsResponse](#Victor118.liquidity.v1beta1.QueryParamsResponse) | Get all parameters of the liquidity module. | GET|/cosmos/liquidity/v1beta1/params|
+| `LiquidityPools` | [QueryLiquidityPoolsRequest](#tendermint.liquidity.v1beta1.QueryLiquidityPoolsRequest) | [QueryLiquidityPoolsResponse](#tendermint.liquidity.v1beta1.QueryLiquidityPoolsResponse) | Get existing liquidity pools. | GET|/cosmos/liquidity/v1beta1/pools|
+| `LiquidityPool` | [QueryLiquidityPoolRequest](#tendermint.liquidity.v1beta1.QueryLiquidityPoolRequest) | [QueryLiquidityPoolResponse](#tendermint.liquidity.v1beta1.QueryLiquidityPoolResponse) | Get specific liquidity pool. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}|
+| `LiquidityPoolByPoolCoinDenom` | [QueryLiquidityPoolByPoolCoinDenomRequest](#tendermint.liquidity.v1beta1.QueryLiquidityPoolByPoolCoinDenomRequest) | [QueryLiquidityPoolResponse](#tendermint.liquidity.v1beta1.QueryLiquidityPoolResponse) | Get specific liquidity pool corresponding to the pool_coin_denom. | GET|/cosmos/liquidity/v1beta1/pools/pool_coin_denom/{pool_coin_denom}|
+| `LiquidityPoolByReserveAcc` | [QueryLiquidityPoolByReserveAccRequest](#tendermint.liquidity.v1beta1.QueryLiquidityPoolByReserveAccRequest) | [QueryLiquidityPoolResponse](#tendermint.liquidity.v1beta1.QueryLiquidityPoolResponse) | Get specific liquidity pool corresponding to the reserve account. | GET|/cosmos/liquidity/v1beta1/pools/reserve_acc/{reserve_acc}|
+| `LiquidityPoolBatch` | [QueryLiquidityPoolBatchRequest](#tendermint.liquidity.v1beta1.QueryLiquidityPoolBatchRequest) | [QueryLiquidityPoolBatchResponse](#tendermint.liquidity.v1beta1.QueryLiquidityPoolBatchResponse) | Get the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch|
+| `PoolBatchSwapMsgs` | [QueryPoolBatchSwapMsgsRequest](#tendermint.liquidity.v1beta1.QueryPoolBatchSwapMsgsRequest) | [QueryPoolBatchSwapMsgsResponse](#tendermint.liquidity.v1beta1.QueryPoolBatchSwapMsgsResponse) | Get all swap messages in the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/swaps|
+| `PoolBatchSwapMsg` | [QueryPoolBatchSwapMsgRequest](#tendermint.liquidity.v1beta1.QueryPoolBatchSwapMsgRequest) | [QueryPoolBatchSwapMsgResponse](#tendermint.liquidity.v1beta1.QueryPoolBatchSwapMsgResponse) | Get a specific swap message in the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/swaps/{msg_index}|
+| `PoolBatchDepositMsgs` | [QueryPoolBatchDepositMsgsRequest](#tendermint.liquidity.v1beta1.QueryPoolBatchDepositMsgsRequest) | [QueryPoolBatchDepositMsgsResponse](#tendermint.liquidity.v1beta1.QueryPoolBatchDepositMsgsResponse) | Get all deposit messages in the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/deposits|
+| `PoolBatchDepositMsg` | [QueryPoolBatchDepositMsgRequest](#tendermint.liquidity.v1beta1.QueryPoolBatchDepositMsgRequest) | [QueryPoolBatchDepositMsgResponse](#tendermint.liquidity.v1beta1.QueryPoolBatchDepositMsgResponse) | Get a specific deposit message in the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/deposits/{msg_index}|
+| `PoolBatchWithdrawMsgs` | [QueryPoolBatchWithdrawMsgsRequest](#tendermint.liquidity.v1beta1.QueryPoolBatchWithdrawMsgsRequest) | [QueryPoolBatchWithdrawMsgsResponse](#tendermint.liquidity.v1beta1.QueryPoolBatchWithdrawMsgsResponse) | Get all withdraw messages in the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/withdraws|
+| `PoolBatchWithdrawMsg` | [QueryPoolBatchWithdrawMsgRequest](#tendermint.liquidity.v1beta1.QueryPoolBatchWithdrawMsgRequest) | [QueryPoolBatchWithdrawMsgResponse](#tendermint.liquidity.v1beta1.QueryPoolBatchWithdrawMsgResponse) | Get a specific withdraw message in the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/withdraws/{msg_index}|
+| `Params` | [QueryParamsRequest](#tendermint.liquidity.v1beta1.QueryParamsRequest) | [QueryParamsResponse](#tendermint.liquidity.v1beta1.QueryParamsResponse) | Get all parameters of the liquidity module. | GET|/cosmos/liquidity/v1beta1/params|
 
  <!-- end services -->
 

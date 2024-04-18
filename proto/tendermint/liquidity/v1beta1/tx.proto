@@ -1,10 +1,10 @@
 syntax = "proto3";
-package Victor118.liquidity.v1beta1;
+package tendermint.liquidity.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-option go_package = "github.com/Victor118/liquidity/x/liquidity/types";
+option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
 
 // Msg defines the liquidity Msg service.
 service Msg {
@@ -28,7 +28,7 @@ service Msg {
 // liquidity pool tx.
 //
 // See:
-// https://github.com/Victor118/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+// https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 message MsgCreatePool {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -63,7 +63,7 @@ message MsgCreatePoolResponse {}
 // requests.
 //
 // See:
-// https://github.com/Victor118/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+// https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 message MsgDepositWithinBatch {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -99,7 +99,7 @@ message MsgDepositWithinBatchResponse {}
 // requests.
 //
 // See:
-// https://github.com/Victor118/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+// https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 message MsgWithdrawWithinBatch {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
@@ -133,8 +133,8 @@ message MsgWithdrawWithinBatchResponse {}
 // request the same fields as the pool. Only the default `swap_type_id` 1 is
 // supported.
 //
-// See: https://github.com/Victor118/liquidity/tree/develop/doc
-// https://github.com/Victor118/liquidity/blob/develop/x/liquidity/spec/04_messages.md
+// See: https://github.com/tendermint/liquidity/tree/develop/doc
+// https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 message MsgSwapWithinBatch {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;

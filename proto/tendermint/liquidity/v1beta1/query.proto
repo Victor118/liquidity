@@ -1,12 +1,12 @@
 syntax = "proto3";
-package Victor118.liquidity.v1beta1;
+package tendermint.liquidity.v1beta1;
 
 import "gogoproto/gogo.proto";
-import "Victor118/liquidity/v1beta1/liquidity.proto";
+import "tendermint/liquidity/v1beta1/liquidity.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 
-option go_package = "github.com/Victor118/liquidity/x/liquidity/types";
+option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
 
 // Query defines the gRPC query service for the liquidity module.
 service Query {
