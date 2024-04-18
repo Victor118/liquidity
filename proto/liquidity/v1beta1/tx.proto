@@ -1,10 +1,10 @@
 syntax = "proto3";
-package tendermint.liquidity.v1beta1;
+package liquidity.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 
-option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
+option go_package = "github.com/Victor118/liquidity/x/liquidity/types";
 
 // Msg defines the liquidity Msg service.
 service Msg {

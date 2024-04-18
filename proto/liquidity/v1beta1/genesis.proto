@@ -1,10 +1,10 @@
 syntax = "proto3";
-package tendermint.liquidity.v1beta1;
+package liquidity.v1beta1;
 
-import "tendermint/liquidity/v1beta1/liquidity.proto";
+import "liquidity/v1beta1/liquidity.proto";
 import "gogoproto/gogo.proto";
 
-option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
+option go_package = "github.com/Victor118/liquidity/x/liquidity/types";
 
 // records the state of each pool after genesis export or import, used to check
 // variables
