@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"gopkg.in/yaml.v2"
@@ -43,6 +44,8 @@ var (
 	KeyWithdrawFeeRate        = []byte("WithdrawFeeRate")
 	KeyMaxOrderAmountRatio    = []byte("MaxOrderAmountRatio")
 	KeyCircuitBreakerEnabled  = []byte("CircuitBreakerEnabled")
+	KeyBuildersAddresses      = []byte("BuildersAddresses")
+	KeyBuildersCommission     = []byte("BuildersCommission")
 )
 
 var (
@@ -62,7 +65,9 @@ var (
 	}
 	DefaultPoolTypes = []PoolType{DefaultPoolType}
 
-	MinOfferCoinAmount = sdk.NewInt(100)
+	MinOfferCoinAmount       = sdk.NewInt(100)
+	DefaultBuilderCommission = sdk.NewDecWithPrec(2, 1) // "0.200000000000000000" if there's builders addresses, this commission rate from fees are redirected to builders
+	DefaultBuildersAddresses = []string(nil)
 )
 
 var _ paramstypes.ParamSet = (*Params)(nil)
@@ -85,6 +90,8 @@ func DefaultParams() Params {
 		MaxOrderAmountRatio:    DefaultMaxOrderAmountRatio,
 		UnitBatchHeight:        DefaultUnitBatchHeight,
 		CircuitBreakerEnabled:  DefaultCircuitBreakerEnabled,
+		BuildersAddresses:      DefaultBuildersAddresses,
+		BuildersCommission:     DefaultBuilderCommission,
 	}
 }
 
@@ -101,6 +108,8 @@ func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 		paramstypes.NewParamSetPair(KeyMaxOrderAmountRatio, &p.MaxOrderAmountRatio, validateMaxOrderAmountRatio),
 		paramstypes.NewParamSetPair(KeyUnitBatchHeight, &p.UnitBatchHeight, validateUnitBatchHeight),
 		paramstypes.NewParamSetPair(KeyCircuitBreakerEnabled, &p.CircuitBreakerEnabled, validateCircuitBreakerEnabled),
+		paramstypes.NewParamSetPair(KeyBuildersAddresses, &p.BuildersAddresses, validateBuildersAddresses),
+		paramstypes.NewParamSetPair(KeyBuildersCommission, &p.BuildersCommission, validateBuildersCommission),
 	}
 }
 
@@ -126,11 +135,47 @@ func (p Params) Validate() error {
 		{p.MaxOrderAmountRatio, validateMaxOrderAmountRatio},
 		{p.UnitBatchHeight, validateUnitBatchHeight},
 		{p.CircuitBreakerEnabled, validateCircuitBreakerEnabled},
+		{p.BuildersAddresses, validateBuildersAddresses},
+		{p.BuildersCommission, validateBuildersCommission},
 	} {
 		if err := v.validator(v.value); err != nil {
 			return err
 		}
 	}
+	return nil
+}
+
+func validateBuildersAddresses(i interface{}) error {
+	v, ok := i.([]string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+	for _, addr := range v {
+		if _, err := sdk.AccAddressFromBech32(addr); err != nil {
+			return fmt.Errorf("invalid account builder address: %s", v)
+		}
+	}
+	return nil
+}
+
+func validateBuildersCommission(i interface{}) error {
+	v, ok := i.(sdk.Dec)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v.IsNil() {
+		return fmt.Errorf("builders commission must not be nil")
+	}
+
+	if v.IsNegative() {
+		return fmt.Errorf("builders commission must not be negative: %s", v)
+	}
+
+	if v.GT(sdk.OneDec()) {
+		return fmt.Errorf("builders commission too large: %s", v)
+	}
+
 	return nil
 }
 
@@ -161,7 +206,7 @@ func validatePoolTypes(i interface{}) error {
 }
 
 func validateMinInitDepositAmount(i interface{}) error {
-	v, ok := i.(sdk.Int)
+	v, ok := i.(math.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}

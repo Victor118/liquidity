@@ -5,7 +5,9 @@ import (
 	"math/rand"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/stretchr/testify/require"
 
@@ -142,6 +144,146 @@ func TestPoolCreationFee(t *testing.T) {
 	feeFromPoolCreation := sdk.NewDecCoinsFromCoins(feePoolBalance...).Sub(initialFeePoolAmount)
 	require.Equal(t, sdk.NewDecCoinsFromCoins(params.PoolCreationFee...), feeFromPoolCreation)
 	require.Equal(t, feePoolBalance, simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc))
+}
+
+func TestSendAmountToBuilderWithNoBuilders(t *testing.T) {
+	var coinDenom string = "atom"
+	amount := math.NewInt(10000)
+	simapp, ctx := createTestInput(t)
+	params := types.DefaultParams()
+	simapp.LiquidityKeeper.SetParams(ctx, params)
+	originAccount := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewCoin(coinDenom, amount)))
+	var inputs []banktypes.Input
+	var outputs []banktypes.Output
+
+	sendCoin := func(from, to sdk.AccAddress, coin sdk.Coin) {
+		coins := sdk.NewCoins(coin)
+		if !coins.Empty() && coins.IsValid() {
+			inputs = append(inputs, banktypes.NewInput(from, coins))
+			outputs = append(outputs, banktypes.NewOutput(to, coins))
+		}
+	}
+	simapp.LiquidityKeeper.SendAmountToBuilders(params, originAccount, sdk.NewCoin(coinDenom, amount), sendCoin)
+	require.Equal(t, 0, len(inputs))
+	require.Equal(t, 0, len(outputs))
+
+}
+
+func TestSendAmountToOneBuilder(t *testing.T) {
+	var coinDenom string = "atom"
+	amount := math.NewInt(10000)
+	simapp, ctx := createTestInput(t)
+	params := types.DefaultParams()
+	builderAddr1 := "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp"
+	buildersAddresses := []string{builderAddr1}
+	params.BuildersAddresses = buildersAddresses
+	simapp.LiquidityKeeper.SetParams(ctx, params)
+	originAccount := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewCoin(coinDenom, amount)))
+	var inputs []banktypes.Input
+	var outputs []banktypes.Output
+
+	sendCoin := func(from, to sdk.AccAddress, coin sdk.Coin) {
+		coins := sdk.NewCoins(coin)
+		if !coins.Empty() && coins.IsValid() {
+			inputs = append(inputs, banktypes.NewInput(from, coins))
+			outputs = append(outputs, banktypes.NewOutput(to, coins))
+		}
+	}
+	simapp.LiquidityKeeper.SendAmountToBuilders(params, originAccount, sdk.NewCoin(coinDenom, amount), sendCoin)
+	require.Equal(t, 1, len(inputs))
+	require.Equal(t, 1, len(outputs))
+	input := inputs[0]
+	output := outputs[0]
+	require.Equal(t, originAccount.String(), input.Address)
+	require.Equal(t, coinDenom, input.Coins[0].Denom)
+	require.Equal(t, amount, input.Coins[0].Amount)
+	require.Equal(t, builderAddr1, output.Address)
+	require.Equal(t, coinDenom, output.Coins[0].Denom)
+	require.Equal(t, amount, output.Coins[0].Amount)
+
+}
+
+func TestSendAmountToTwoBuilder(t *testing.T) {
+	var coinDenom string = "atom"
+	amount := math.NewInt(10000)
+	simapp, ctx := createTestInput(t)
+	params := types.DefaultParams()
+	builderAddr1 := "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp"
+	builderAddr2 := "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfzwk37gt"
+	buildersAddresses := []string{builderAddr1, builderAddr2}
+	params.BuildersAddresses = buildersAddresses
+	simapp.LiquidityKeeper.SetParams(ctx, params)
+	originAccount := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewCoin(coinDenom, amount)))
+	var inputs []banktypes.Input
+	var outputs []banktypes.Output
+
+	sendCoin := func(from, to sdk.AccAddress, coin sdk.Coin) {
+		coins := sdk.NewCoins(coin)
+		if !coins.Empty() && coins.IsValid() {
+			inputs = append(inputs, banktypes.NewInput(from, coins))
+			outputs = append(outputs, banktypes.NewOutput(to, coins))
+		}
+	}
+	simapp.LiquidityKeeper.SendAmountToBuilders(params, originAccount, sdk.NewCoin(coinDenom, amount), sendCoin)
+	require.Equal(t, 2, len(inputs))
+	require.Equal(t, 2, len(outputs))
+	input := inputs[0]
+	output := outputs[0]
+	require.Equal(t, originAccount.String(), input.Address)
+	require.Equal(t, coinDenom, input.Coins[0].Denom)
+	require.Equal(t, math.NewInt(5000), input.Coins[0].Amount)
+	require.Equal(t, builderAddr1, output.Address)
+	require.Equal(t, coinDenom, output.Coins[0].Denom)
+	require.Equal(t, math.NewInt(5000), output.Coins[0].Amount)
+	input = inputs[1]
+	output = outputs[1]
+	require.Equal(t, math.NewInt(5000), input.Coins[0].Amount)
+	require.Equal(t, math.NewInt(5000), output.Coins[0].Amount)
+
+}
+
+func TestSendAmountToThreeBuilder(t *testing.T) {
+	var coinDenom string = "atom"
+	amount := math.NewInt(10000)
+	simapp, ctx := createTestInput(t)
+	params := types.DefaultParams()
+	builderAddr1 := "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp"
+	builderAddr2 := "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfzwk37gt"
+	builderAddr3 := "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfhft040s"
+	buildersAddresses := []string{builderAddr1, builderAddr2, builderAddr3}
+	params.BuildersAddresses = buildersAddresses
+	simapp.LiquidityKeeper.SetParams(ctx, params)
+	originAccount := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewCoin(coinDenom, amount)))
+	var inputs []banktypes.Input
+	var outputs []banktypes.Output
+
+	sendCoin := func(from, to sdk.AccAddress, coin sdk.Coin) {
+		coins := sdk.NewCoins(coin)
+		if !coins.Empty() && coins.IsValid() {
+			inputs = append(inputs, banktypes.NewInput(from, coins))
+			outputs = append(outputs, banktypes.NewOutput(to, coins))
+		}
+	}
+	simapp.LiquidityKeeper.SendAmountToBuilders(params, originAccount, sdk.NewCoin(coinDenom, amount), sendCoin)
+	require.Equal(t, 3, len(inputs))
+	require.Equal(t, 3, len(outputs))
+	input := inputs[0]
+	output := outputs[0]
+	require.Equal(t, originAccount.String(), input.Address)
+	require.Equal(t, coinDenom, input.Coins[0].Denom)
+	require.Equal(t, math.NewInt(3333), input.Coins[0].Amount)
+	require.Equal(t, builderAddr1, output.Address)
+	require.Equal(t, coinDenom, output.Coins[0].Denom)
+	require.Equal(t, math.NewInt(3333), output.Coins[0].Amount)
+	input = inputs[1]
+	output = outputs[1]
+	require.Equal(t, math.NewInt(3333), input.Coins[0].Amount)
+	require.Equal(t, math.NewInt(3333), output.Coins[0].Amount)
+	input = inputs[2]
+	output = outputs[2]
+	require.Equal(t, math.NewInt(3333), input.Coins[0].Amount)
+	require.Equal(t, math.NewInt(3333), output.Coins[0].Amount)
+
 }
 
 func TestExecuteDeposit(t *testing.T) {

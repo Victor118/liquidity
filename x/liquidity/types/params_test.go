@@ -37,6 +37,8 @@ withdraw_fee_rate: "0.000000000000000000"
 max_order_amount_ratio: "0.100000000000000000"
 unit_batch_height: 1
 circuit_breaker_enabled: false
+builders_addresses: []
+builders_commission: "0.200000000000000000"
 `
 	require.Equal(t, paramsStr, defaultParams.String())
 }
