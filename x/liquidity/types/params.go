@@ -67,7 +67,20 @@ var (
 
 	MinOfferCoinAmount       = sdk.NewInt(100)
 	DefaultBuilderCommission = sdk.NewDecWithPrec(2, 1) // "0.200000000000000000" if there's builders addresses, this commission rate from fees are redirected to builders
-	DefaultBuildersAddresses = []string(nil)
+	DefaultBuildersAddresses = []WeightedAddress{
+		{
+			Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp",
+			Weight:  sdk.NewDecWithPrec(2, 1),
+		},
+		{
+			Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfzwk37gt",
+			Weight:  sdk.NewDecWithPrec(2, 1),
+		},
+		{
+			Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfhft040s",
+			Weight:  sdk.NewDecWithPrec(6, 1),
+		},
+	}
 )
 
 var _ paramstypes.ParamSet = (*Params)(nil)
@@ -146,15 +159,38 @@ func (p Params) Validate() error {
 }
 
 func validateBuildersAddresses(i interface{}) error {
-	v, ok := i.([]string)
+	v, ok := i.([]WeightedAddress)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
-	for _, addr := range v {
-		if _, err := sdk.AccAddressFromBech32(addr); err != nil {
-			return fmt.Errorf("invalid account builder address: %s", v)
-		}
+
+	// fund community pool when rewards address is empty
+	if len(v) == 0 {
+		return nil
 	}
+
+	weightSum := sdk.ZeroDec()
+	for i, w := range v {
+		// we allow address to be "" to go to community pool
+		if w.Address != "" {
+			_, err := sdk.AccAddressFromBech32(w.Address)
+			if err != nil {
+				return fmt.Errorf("invalid address at %dth", i)
+			}
+		}
+		if !w.Weight.IsPositive() {
+			return fmt.Errorf("non-positive weight at %dth", i)
+		}
+		if w.Weight.GT(math.LegacyNewDec(1)) {
+			return fmt.Errorf("more than 1 weight at %dth", i)
+		}
+		weightSum = weightSum.Add(w.Weight)
+	}
+
+	if !weightSum.Equal(sdk.OneDec()) {
+		return fmt.Errorf("invalid weight sum: %s", weightSum.String())
+	}
+
 	return nil
 }
 

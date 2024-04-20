@@ -151,7 +151,8 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 			decCoin := sdk.NewDecCoinFromCoin(coin)
 			builderComm := decCoin.Amount.Mul(params.BuildersCommission)
 			buildersFeeCoin := sdk.NewCoin(coin.Denom, builderComm.TruncateInt())
-			k.SendAmountToBuilders(params, poolCreator, buildersFeeCoin, sendCoin)
+			remainingCoin := k.SendAmountToBuilders(params, poolCreator, buildersFeeCoin, sendCoin)
+			buildersFeeCoin = buildersFeeCoin.Sub(remainingCoin)
 			communityFees = communityFees.Add(coin.Sub(buildersFeeCoin))
 		} else {
 			communityFees = communityFees.Add(coin)
@@ -630,15 +631,18 @@ func (k Keeper) RefundWithdrawal(ctx sdk.Context, batchMsg types.WithdrawMsgStat
 	return nil
 }
 
-func (k Keeper) SendAmountToBuilders(params types.Params, from sdk.AccAddress, totalCommission sdk.Coin, sendCoin func(from, to sdk.AccAddress, coin sdk.Coin)) {
+func (k Keeper) SendAmountToBuilders(params types.Params, from sdk.AccAddress, totalCommission sdk.Coin, sendCoin func(from, to sdk.AccAddress, coin sdk.Coin)) sdk.Coin {
+	remainingAmount := totalCommission
 	if len(params.BuildersAddresses) > 0 {
-		builderCommPerAcc := totalCommission.Amount.Quo(math.NewInt(int64(len(params.BuildersAddresses))))
+		totalDecCommission := sdk.NewDecCoinFromCoin(totalCommission)
 		for _, builderAddr := range params.BuildersAddresses {
-			builderAcc := sdk.MustAccAddressFromBech32(builderAddr)
-
+			builderCommPerAcc := totalDecCommission.Amount.Mul(builderAddr.Weight).TruncateInt()
+			builderAcc := sdk.MustAccAddressFromBech32(builderAddr.Address)
+			remainingAmount = remainingAmount.SubAmount(builderCommPerAcc)
 			sendCoin(from, builderAcc, sdk.NewCoin(totalCommission.Denom, builderCommPerAcc))
 		}
 	}
+	return remainingAmount
 }
 
 // TransactAndRefundSwapLiquidityPool transacts, refunds, expires, sends coins with escrow, update state by TransactAndRefundSwapLiquidityPool
@@ -685,7 +689,8 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 				builderCommOfferAmount := offerCoinFeeAmt.ToLegacyDec().Mul(params.BuildersCommission).TruncateInt()
 				builderCommDemandAmount := match.ExchangedCoinFeeAmt.Mul(params.BuildersCommission).TruncateInt()
 				offerCoinFeeAmt = match.OfferCoinFeeAmt.Sub(builderCommOfferAmount.ToLegacyDec()).TruncateInt()
-				k.SendAmountToBuilders(params, batchEscrowAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, builderCommOfferAmount), sendCoin)
+				remainingAmount := k.SendAmountToBuilders(params, batchEscrowAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, builderCommOfferAmount), sendCoin)
+				offerCoinFeeAmt = offerCoinFeeAmt.Add(remainingAmount.Amount)
 				k.SendAmountToBuilders(params, poolReserveAcc, sdk.NewCoin(sms.Msg.DemandCoinDenom, builderCommDemandAmount), sendCoin)
 			}
 

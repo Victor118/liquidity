@@ -24,6 +24,7 @@
     - [PoolMetadata](#liquidity.v1beta1.PoolMetadata)
     - [PoolType](#liquidity.v1beta1.PoolType)
     - [SwapMsgState](#liquidity.v1beta1.SwapMsgState)
+    - [WeightedAddress](#liquidity.v1beta1.WeightedAddress)
     - [WithdrawMsgState](#liquidity.v1beta1.WithdrawMsgState)
   
 - [liquidity/v1beta1/genesis.proto](#liquidity/v1beta1/genesis.proto)
@@ -283,7 +284,7 @@ Params defines the parameters for the liquidity module.
 | `max_order_amount_ratio` | [string](#string) |  | Maximum ratio of reserve coins that can be ordered at a swap order. |
 | `unit_batch_height` | [uint32](#uint32) |  | The smallest unit batch height for every liquidity pool. |
 | `circuit_breaker_enabled` | [bool](#bool) |  | Circuit breaker enables or disables transaction messages in liquidity module. |
-| `builders_addresses` | [string](#string) | repeated |  |
+| `builders_addresses` | [WeightedAddress](#liquidity.v1beta1.WeightedAddress) | repeated |  |
 | `builders_commission` | [string](#string) |  |  |
 
 
@@ -390,6 +391,24 @@ information as the message is processed in the next batch or batches.
 | `remaining_offer_coin` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | offer coin currently remaining to be exchanged |
 | `reserved_offer_coin_fee` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | reserve fee for pays fee in half offer coin |
 | `msg` | [MsgSwapWithinBatch](#liquidity.v1beta1.MsgSwapWithinBatch) |  | MsgSwapWithinBatch |
+
+
+
+
+
+
+<a name="liquidity.v1beta1.WeightedAddress"></a>
+
+### WeightedAddress
+WeightedAddress represents an address with a weight assigned to it.
+The weight is used to determine the proportion of the total minted
+tokens to be minted to the address.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  |  |
+| `weight` | [string](#string) |  |  |
 
 
 

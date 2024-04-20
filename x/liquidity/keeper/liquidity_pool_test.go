@@ -150,8 +150,11 @@ func TestPoolCreationFeeWithBuilders(t *testing.T) {
 	feePool := simapp.DistrKeeper.GetFeePool(ctx)
 	params := types.DefaultParams()
 	initialFeePoolAmount := feePool.CommunityPool
-	builderAddr1 := "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp"
-	buildersAddresses := []string{builderAddr1}
+	builderAddr1 := types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp",
+		Weight:  math.LegacyNewDec(1),
+	}
+	buildersAddresses := []types.WeightedAddress{builderAddr1}
 	params.BuildersAddresses = buildersAddresses
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 
@@ -219,8 +222,11 @@ func TestSendAmountToOneBuilder(t *testing.T) {
 	amount := math.NewInt(10000)
 	simapp, ctx := createTestInput(t)
 	params := types.DefaultParams()
-	builderAddr1 := "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp"
-	buildersAddresses := []string{builderAddr1}
+	builderAddr1 := types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp",
+		Weight:  math.LegacyNewDec(1),
+	}
+	buildersAddresses := []types.WeightedAddress{builderAddr1}
 	params.BuildersAddresses = buildersAddresses
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 	originAccount := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewCoin(coinDenom, amount)))
@@ -242,7 +248,7 @@ func TestSendAmountToOneBuilder(t *testing.T) {
 	require.Equal(t, originAccount.String(), input.Address)
 	require.Equal(t, coinDenom, input.Coins[0].Denom)
 	require.Equal(t, amount, input.Coins[0].Amount)
-	require.Equal(t, builderAddr1, output.Address)
+	require.Equal(t, builderAddr1.Address, output.Address)
 	require.Equal(t, coinDenom, output.Coins[0].Denom)
 	require.Equal(t, amount, output.Coins[0].Amount)
 
@@ -253,9 +259,16 @@ func TestSendAmountToTwoBuilder(t *testing.T) {
 	amount := math.NewInt(10000)
 	simapp, ctx := createTestInput(t)
 	params := types.DefaultParams()
-	builderAddr1 := "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp"
-	builderAddr2 := "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfzwk37gt"
-	buildersAddresses := []string{builderAddr1, builderAddr2}
+	builderAddr1 := types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp",
+		Weight:  sdk.NewDecWithPrec(5, 1),
+	}
+	builderAddr2 := types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfzwk37gt",
+		Weight:  sdk.NewDecWithPrec(5, 1),
+	}
+
+	buildersAddresses := []types.WeightedAddress{builderAddr1, builderAddr2}
 	params.BuildersAddresses = buildersAddresses
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 	originAccount := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewCoin(coinDenom, amount)))
@@ -277,7 +290,7 @@ func TestSendAmountToTwoBuilder(t *testing.T) {
 	require.Equal(t, originAccount.String(), input.Address)
 	require.Equal(t, coinDenom, input.Coins[0].Denom)
 	require.Equal(t, math.NewInt(5000), input.Coins[0].Amount)
-	require.Equal(t, builderAddr1, output.Address)
+	require.Equal(t, builderAddr1.Address, output.Address)
 	require.Equal(t, coinDenom, output.Coins[0].Denom)
 	require.Equal(t, math.NewInt(5000), output.Coins[0].Amount)
 	input = inputs[1]
@@ -292,10 +305,20 @@ func TestSendAmountToThreeBuilder(t *testing.T) {
 	amount := math.NewInt(10000)
 	simapp, ctx := createTestInput(t)
 	params := types.DefaultParams()
-	builderAddr1 := "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp"
-	builderAddr2 := "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfzwk37gt"
-	builderAddr3 := "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfhft040s"
-	buildersAddresses := []string{builderAddr1, builderAddr2, builderAddr3}
+
+	builderAddr1 := types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp",
+		Weight:  sdk.NewDecWithPrec(33, 2),
+	}
+	builderAddr2 := types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfzwk37gt",
+		Weight:  sdk.NewDecWithPrec(33, 2),
+	}
+	builderAddr3 := types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfhft040s",
+		Weight:  sdk.NewDecWithPrec(34, 2),
+	}
+	buildersAddresses := []types.WeightedAddress{builderAddr1, builderAddr2, builderAddr3}
 	params.BuildersAddresses = buildersAddresses
 	simapp.LiquidityKeeper.SetParams(ctx, params)
 	originAccount := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewCoin(coinDenom, amount)))
@@ -316,18 +339,139 @@ func TestSendAmountToThreeBuilder(t *testing.T) {
 	output := outputs[0]
 	require.Equal(t, originAccount.String(), input.Address)
 	require.Equal(t, coinDenom, input.Coins[0].Denom)
-	require.Equal(t, math.NewInt(3333), input.Coins[0].Amount)
-	require.Equal(t, builderAddr1, output.Address)
+	require.Equal(t, math.NewInt(3300), input.Coins[0].Amount)
+	require.Equal(t, builderAddr1.Address, output.Address)
 	require.Equal(t, coinDenom, output.Coins[0].Denom)
-	require.Equal(t, math.NewInt(3333), output.Coins[0].Amount)
+	require.Equal(t, math.NewInt(3300), output.Coins[0].Amount)
 	input = inputs[1]
 	output = outputs[1]
-	require.Equal(t, math.NewInt(3333), input.Coins[0].Amount)
-	require.Equal(t, math.NewInt(3333), output.Coins[0].Amount)
+	require.Equal(t, math.NewInt(3300), input.Coins[0].Amount)
+	require.Equal(t, math.NewInt(3300), output.Coins[0].Amount)
 	input = inputs[2]
 	output = outputs[2]
-	require.Equal(t, math.NewInt(3333), input.Coins[0].Amount)
-	require.Equal(t, math.NewInt(3333), output.Coins[0].Amount)
+	require.Equal(t, math.NewInt(3400), input.Coins[0].Amount)
+	require.Equal(t, math.NewInt(3400), output.Coins[0].Amount)
+
+}
+
+func TestSendAmountToThreeBuilderWithRemainingCoin(t *testing.T) {
+	var coinDenom string = "atom"
+	amount := math.NewInt(10)
+	simapp, ctx := createTestInput(t)
+	params := types.DefaultParams()
+
+	builderAddr1 := types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp",
+		Weight:  sdk.NewDecWithPrec(3333, 4),
+	}
+	builderAddr2 := types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfzwk37gt",
+		Weight:  sdk.NewDecWithPrec(3333, 4),
+	}
+	builderAddr3 := types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfhft040s",
+		Weight:  sdk.NewDecWithPrec(3334, 4),
+	}
+	buildersAddresses := []types.WeightedAddress{builderAddr1, builderAddr2, builderAddr3}
+	params.BuildersAddresses = buildersAddresses
+	simapp.LiquidityKeeper.SetParams(ctx, params)
+	originAccount := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewCoin(coinDenom, amount)))
+	var inputs []banktypes.Input
+	var outputs []banktypes.Output
+
+	sendCoin := func(from, to sdk.AccAddress, coin sdk.Coin) {
+		coins := sdk.NewCoins(coin)
+		if !coins.Empty() && coins.IsValid() {
+			inputs = append(inputs, banktypes.NewInput(from, coins))
+			outputs = append(outputs, banktypes.NewOutput(to, coins))
+		}
+	}
+	remainingCoin := simapp.LiquidityKeeper.SendAmountToBuilders(params, originAccount, sdk.NewCoin(coinDenom, amount), sendCoin)
+	require.Equal(t, coinDenom, remainingCoin.Denom)
+	require.Equal(t, math.NewInt(1), remainingCoin.Amount)
+
+	require.Equal(t, 3, len(inputs))
+	require.Equal(t, 3, len(outputs))
+
+	input := inputs[0]
+	output := outputs[0]
+	require.Equal(t, originAccount.String(), input.Address)
+	require.Equal(t, coinDenom, input.Coins[0].Denom)
+	require.Equal(t, math.NewInt(3), input.Coins[0].Amount)
+	require.Equal(t, builderAddr1.Address, output.Address)
+	require.Equal(t, coinDenom, output.Coins[0].Denom)
+	require.Equal(t, math.NewInt(3), output.Coins[0].Amount)
+	input = inputs[1]
+	output = outputs[1]
+	require.Equal(t, math.NewInt(3), input.Coins[0].Amount)
+	require.Equal(t, math.NewInt(3), output.Coins[0].Amount)
+	input = inputs[2]
+	output = outputs[2]
+	require.Equal(t, math.NewInt(3), input.Coins[0].Amount)
+	require.Equal(t, math.NewInt(3), output.Coins[0].Amount)
+
+}
+
+func TestSendAmountToThreeBuilderDifferentWeight(t *testing.T) {
+	var coinDenom string = "atom"
+	amount := math.NewInt(10000)
+	simapp, ctx := createTestInput(t)
+	params := types.DefaultParams()
+
+	builderAddr1 := types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp",
+		Weight:  sdk.NewDecWithPrec(20, 2),
+	}
+	builderAddr2 := types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfzwk37gt",
+		Weight:  sdk.NewDecWithPrec(20, 2),
+	}
+	builderAddr3 := types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfhft040s",
+		Weight:  sdk.NewDecWithPrec(59, 2),
+	}
+	buildersAddresses := []types.WeightedAddress{builderAddr1, builderAddr2, builderAddr3}
+	params.BuildersAddresses = buildersAddresses
+	err := simapp.LiquidityKeeper.SetParams(ctx, params)
+	require.Error(t, err)
+	builderAddr3 = types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfhft040s",
+		Weight:  sdk.NewDecWithPrec(60, 2),
+	}
+	buildersAddresses = []types.WeightedAddress{builderAddr1, builderAddr2, builderAddr3}
+	params.BuildersAddresses = buildersAddresses
+	err = simapp.LiquidityKeeper.SetParams(ctx, params)
+	require.NoError(t, err)
+	originAccount := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewCoin(coinDenom, amount)))
+	var inputs []banktypes.Input
+	var outputs []banktypes.Output
+
+	sendCoin := func(from, to sdk.AccAddress, coin sdk.Coin) {
+		coins := sdk.NewCoins(coin)
+		if !coins.Empty() && coins.IsValid() {
+			inputs = append(inputs, banktypes.NewInput(from, coins))
+			outputs = append(outputs, banktypes.NewOutput(to, coins))
+		}
+	}
+	simapp.LiquidityKeeper.SendAmountToBuilders(params, originAccount, sdk.NewCoin(coinDenom, amount), sendCoin)
+	require.Equal(t, 3, len(inputs))
+	require.Equal(t, 3, len(outputs))
+	input := inputs[0]
+	output := outputs[0]
+	require.Equal(t, originAccount.String(), input.Address)
+	require.Equal(t, coinDenom, input.Coins[0].Denom)
+	require.Equal(t, math.NewInt(2000), input.Coins[0].Amount)
+	require.Equal(t, builderAddr1.Address, output.Address)
+	require.Equal(t, coinDenom, output.Coins[0].Denom)
+	require.Equal(t, math.NewInt(2000), output.Coins[0].Amount)
+	input = inputs[1]
+	output = outputs[1]
+	require.Equal(t, math.NewInt(2000), input.Coins[0].Amount)
+	require.Equal(t, math.NewInt(2000), output.Coins[0].Amount)
+	input = inputs[2]
+	output = outputs[2]
+	require.Equal(t, math.NewInt(6000), input.Coins[0].Amount)
+	require.Equal(t, math.NewInt(6000), output.Coins[0].Amount)
 
 }
 
