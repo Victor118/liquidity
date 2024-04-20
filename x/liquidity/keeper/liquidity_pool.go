@@ -93,6 +93,16 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 	if err := k.ValidateMsgCreatePool(ctx, msg); err != nil {
 		return types.Pool{}, err
 	}
+	var inputs []banktypes.Input
+	var outputs []banktypes.Output
+
+	sendCoin := func(from, to sdk.AccAddress, coin sdk.Coin) {
+		coins := sdk.NewCoins(coin)
+		if !coins.Empty() && coins.IsValid() {
+			inputs = append(inputs, banktypes.NewInput(from, coins))
+			outputs = append(outputs, banktypes.NewOutput(to, coins))
+		}
+	}
 
 	params := k.GetParams(ctx)
 
@@ -126,7 +136,10 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 		}
 	}
 
+	communityFees := sdk.NewCoins()
+
 	for _, coin := range params.PoolCreationFee {
+
 		balance := k.bankKeeper.GetBalance(ctx, poolCreator, coin.Denom)
 		neededAmt := coin.Amount.Add(msg.DepositCoins.AmountOf(coin.Denom))
 		neededCoin := sdk.NewCoin(coin.Denom, neededAmt)
@@ -134,14 +147,28 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 			return types.Pool{}, sdkerrors.Wrapf(
 				types.ErrInsufficientPoolCreationFee, "%s is smaller than %s", balance, neededCoin)
 		}
+		if params.BuildersAddresses != nil && len(params.BuildersAddresses) > 0 {
+			decCoin := sdk.NewDecCoinFromCoin(coin)
+			builderComm := decCoin.Amount.Mul(params.BuildersCommission)
+			buildersFeeCoin := sdk.NewCoin(coin.Denom, builderComm.TruncateInt())
+			k.SendAmountToBuilders(params, poolCreator, buildersFeeCoin, sendCoin)
+			communityFees = communityFees.Add(coin.Sub(buildersFeeCoin))
+		} else {
+			communityFees = communityFees.Add(coin)
+		}
+
+	}
+
+	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
+		return types.Pool{}, err
 	}
 
 	if _, err := k.MintAndSendPoolCoin(ctx, pool, poolCreator, poolCreator, msg.DepositCoins); err != nil {
 		return types.Pool{}, err
 	}
-
+	//send fees to builder
 	// pool creation fees are collected in community pool
-	if err := k.distrKeeper.FundCommunityPool(ctx, params.PoolCreationFee, poolCreator); err != nil {
+	if err := k.distrKeeper.FundCommunityPool(ctx, communityFees, poolCreator); err != nil {
 		return types.Pool{}, err
 	}
 
@@ -633,6 +660,7 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 			outputs = append(outputs, banktypes.NewOutput(to, coins))
 		}
 	}
+	var builders bool = params.BuildersAddresses != nil && len(params.BuildersAddresses) > 0
 	for _, sms := range swapMsgStates {
 		if pool.Id != sms.Msg.PoolId {
 			return fmt.Errorf("broken msg pool consistency")
@@ -652,14 +680,19 @@ func (k Keeper) TransactAndRefundSwapLiquidityPool(ctx sdk.Context, swapMsgState
 			transactedAmt := match.TransactedCoinAmt.TruncateInt()
 			receiveAmt := match.ExchangedDemandCoinAmt.Sub(match.ExchangedCoinFeeAmt).TruncateInt()
 			offerCoinFeeAmt := match.OfferCoinFeeAmt.TruncateInt()
-			builderCommOfferAmount := offerCoinFeeAmt.Quo(math.Int(params.BuildersCommission))
-			builderCommDemandAmount := match.ExchangedCoinFeeAmt.Quo(math.LegacyDec(params.BuildersCommission)).TruncateInt()
-			offerCoinFeeAmt = match.OfferCoinFeeAmt.Sub(builderCommOfferAmount.ToLegacyDec()).TruncateInt()
+
+			if builders {
+				builderCommOfferAmount := offerCoinFeeAmt.ToLegacyDec().Mul(params.BuildersCommission).TruncateInt()
+				builderCommDemandAmount := match.ExchangedCoinFeeAmt.Mul(params.BuildersCommission).TruncateInt()
+				offerCoinFeeAmt = match.OfferCoinFeeAmt.Sub(builderCommOfferAmount.ToLegacyDec()).TruncateInt()
+				k.SendAmountToBuilders(params, batchEscrowAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, builderCommOfferAmount), sendCoin)
+				k.SendAmountToBuilders(params, poolReserveAcc, sdk.NewCoin(sms.Msg.DemandCoinDenom, builderCommDemandAmount), sendCoin)
+			}
+
 			sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, transactedAmt))
 			sendCoin(poolReserveAcc, sms.Msg.GetSwapRequester(), sdk.NewCoin(sms.Msg.DemandCoinDenom, receiveAmt))
 			sendCoin(batchEscrowAcc, poolReserveAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, offerCoinFeeAmt))
-			k.SendAmountToBuilders(params, batchEscrowAcc, sdk.NewCoin(sms.Msg.OfferCoin.Denom, builderCommOfferAmount), sendCoin)
-			k.SendAmountToBuilders(params, poolReserveAcc, sdk.NewCoin(sms.Msg.DemandCoinDenom, builderCommDemandAmount), sendCoin)
+
 			if sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee).IsPositive() && sms.OrderExpiryHeight == ctx.BlockHeight() {
 				sendCoin(batchEscrowAcc, sms.Msg.GetSwapRequester(), sms.RemainingOfferCoin.Add(sms.ReservedOfferCoinFee))
 			}

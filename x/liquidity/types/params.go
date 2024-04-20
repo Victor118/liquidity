@@ -67,7 +67,7 @@ var (
 
 	MinOfferCoinAmount       = sdk.NewInt(100)
 	DefaultBuilderCommission = sdk.NewDecWithPrec(2, 1) // "0.200000000000000000" if there's builders addresses, this commission rate from fees are redirected to builders
-	DefaultBuildersAddresses = []string(nil)
+	DefaultBuildersAddresses = []string{"cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp", "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cfzwk37gt"}
 )
 
 var _ paramstypes.ParamSet = (*Params)(nil)

@@ -8,7 +8,6 @@ import (
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	distrtypes "github.com/cosmos/cosmos-sdk/x/distribution/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/Victor118/liquidity/app"
@@ -133,17 +132,63 @@ func TestPoolCreationFee(t *testing.T) {
 	// Set PoolCreationFee for success
 	params.PoolCreationFee = types.DefaultPoolCreationFee
 	simapp.LiquidityKeeper.SetParams(ctx, params)
-	feePoolAcc := simapp.AccountKeeper.GetModuleAddress(distrtypes.ModuleName)
-	feePoolBalance := simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc)
+
 	msg = types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
-
+	feePool = simapp.DistrKeeper.GetFeePool(ctx)
 	// Verify PoolCreationFee pay successfully
-	feePoolBalance = feePoolBalance.Add(params.PoolCreationFee...)
-	feeFromPoolCreation := sdk.NewDecCoinsFromCoins(feePoolBalance...).Sub(initialFeePoolAmount)
+	//feePoolBalance = feePoolBalance.Add(params.PoolCreationFee...)
+
+	feeFromPoolCreation := feePool.CommunityPool.Sub(initialFeePoolAmount)
 	require.Equal(t, sdk.NewDecCoinsFromCoins(params.PoolCreationFee...), feeFromPoolCreation)
-	require.Equal(t, feePoolBalance, simapp.BankKeeper.GetAllBalances(ctx, feePoolAcc))
+
+}
+
+func TestPoolCreationFeeWithBuilders(t *testing.T) {
+	simapp, ctx := createTestInput(t)
+	feePool := simapp.DistrKeeper.GetFeePool(ctx)
+	params := types.DefaultParams()
+	initialFeePoolAmount := feePool.CommunityPool
+	builderAddr1 := "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp"
+	buildersAddresses := []string{builderAddr1}
+	params.BuildersAddresses = buildersAddresses
+	simapp.LiquidityKeeper.SetParams(ctx, params)
+
+	params = simapp.LiquidityKeeper.GetParams(ctx)
+
+	poolTypeID := types.DefaultPoolTypeID
+	fmt.Printf("Pool creation fee : %v\n", params.PoolCreationFee)
+
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
+	fmt.Printf("Creation addr : %v\n", addrs[0].String())
+	denomA := "uETH"
+	denomB := "uUSD"
+	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
+
+	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)), sdk.NewCoin("stake", sdk.NewInt(40000)))
+	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+
+	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
+	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
+	depositBalance := sdk.NewCoins(depositA, depositB)
+	fmt.Printf("VICTOR: Pool creatio address : %v\n", addrs[0].String())
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
+	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
+	require.NoError(t, err)
+	feePool = simapp.DistrKeeper.GetFeePool(ctx)
+
+	feeFromPoolCreation := feePool.CommunityPool.Sub(initialFeePoolAmount)
+	communityFees := sdk.NewDecCoins()
+	builderFees := sdk.NewCoins()
+	for _, coin := range params.PoolCreationFee {
+		decCoin := sdk.NewDecCoinFromCoin(coin)
+		builderFeeAmount := decCoin.Amount.Mul(params.BuildersCommission).TruncateInt()
+		builderFees = builderFees.Add(sdk.NewCoin(decCoin.Denom, builderFeeAmount))
+		communityFees = communityFees.Add(decCoin.Sub(sdk.NewDecCoin(coin.Denom, builderFeeAmount)))
+	}
+	require.Equal(t, communityFees, feeFromPoolCreation)
+
 }
 
 func TestSendAmountToBuilderWithNoBuilders(t *testing.T) {
