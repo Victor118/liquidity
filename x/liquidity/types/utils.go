@@ -6,7 +6,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/cometbft/cometbft/crypto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
 )
@@ -25,15 +24,13 @@ func SortDenoms(denoms []string) []string {
 	return denoms
 }
 
-// GetPoolReserveAcc returns the address of the pool's reserve account.
-func GetPoolReserveAcc(poolName string, len32 bool) sdk.AccAddress {
-	if len32 {
-		// The rules are temporarily added for testing on 32-length bytes addresses of ADR-28 and are subject to change.
-		poolCoinDenom := GetPoolCoinDenom(poolName)
-		poolCoinDenom = strings.TrimPrefix(poolCoinDenom, PoolCoinDenomPrefix)
-		return sdk.AccAddress(address.Module(ModuleName, []byte(poolCoinDenom)))
-	}
-	return sdk.AccAddress(crypto.AddressHash([]byte(poolName)))
+// GetPoolReserveAcc returns the module address of the pool's reserve account.
+func GetPoolReserveAcc(poolName string) sdk.AccAddress {
+
+	poolCoinDenom := GetPoolCoinDenom(poolName)
+	poolCoinDenom = strings.TrimPrefix(poolCoinDenom, PoolCoinDenomPrefix)
+	return sdk.AccAddress(address.Module(ModuleName, []byte(poolCoinDenom)))
+
 }
 
 // GetPoolCoinDenom returns the denomination of the pool coin.
@@ -43,7 +40,7 @@ func GetPoolCoinDenom(poolName string) string {
 }
 
 // GetReserveAcc extracts and returns reserve account from pool coin denom.
-func GetReserveAcc(poolCoinDenom string, len32 bool) (sdk.AccAddress, error) {
+func GetReserveAcc(poolCoinDenom string) (sdk.AccAddress, error) {
 
 	if err := sdk.ValidateDenom(poolCoinDenom); err != nil {
 		return nil, err
@@ -55,11 +52,9 @@ func GetReserveAcc(poolCoinDenom string, len32 bool) (sdk.AccAddress, error) {
 	if len(poolCoinDenom) != 64 {
 		return nil, ErrInvalidDenom
 	}
-	if len32 {
-		// The rules are temporarily added for testing on 32-length bytes addresses of ADR-28 and are subject to change.
-		return sdk.AccAddress(address.Module(ModuleName, []byte(poolCoinDenom))), nil
-	}
-	return sdk.AccAddressFromHexUnsafe(poolCoinDenom[:40])
+
+	return sdk.AccAddress(address.Module(ModuleName, []byte(poolCoinDenom))), nil
+
 }
 
 // GetCoinsTotalAmount returns total amount of all coins in sdk.Coins.

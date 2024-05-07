@@ -51,7 +51,7 @@ func TestGetReserveAcc(t *testing.T) {
 	}
 
 	for _, tc := range tests {
-		reserveAcc, err := types.GetReserveAcc(tc.poolCoinDenom, false)
+		reserveAcc, err := types.GetReserveAcc(tc.poolCoinDenom)
 		if tc.expPass {
 			require.Equal(t, tc.expectedReserveAcc, reserveAcc)
 		} else {
@@ -133,13 +133,13 @@ func TestGetPoolInformation(t *testing.T) {
 		poolName := types.PoolName(tc.reserveCoinDenoms, tc.poolTypeID)
 		require.Equal(t, tc.expectedPoolName, poolName)
 
-		reserveAcc := types.GetPoolReserveAcc(poolName, tc.len32)
+		reserveAcc := types.GetPoolReserveAcc(poolName)
 		require.Equal(t, tc.expectedReserveAcc, reserveAcc.String())
 
 		poolCoinDenom := types.GetPoolCoinDenom(poolName)
 		require.Equal(t, tc.expectedPoolCoinDenom, poolCoinDenom)
 
-		expectedReserveAcc, err := types.GetReserveAcc(poolCoinDenom, tc.len32)
+		expectedReserveAcc, err := types.GetReserveAcc(poolCoinDenom)
 		require.NoError(t, err)
 		require.Equal(t, tc.expectedReserveAcc, expectedReserveAcc.String())
 	}

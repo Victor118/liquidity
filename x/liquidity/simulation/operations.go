@@ -113,7 +113,7 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 		account := ak.GetAccount(ctx, simAccount.Address)
 		spendable := bk.SpendableCoins(ctx, account.GetAddress())
 		poolName := types.PoolName(reserveCoinDenoms, types.DefaultPoolTypeID)
-		reserveAcc := types.GetPoolReserveAcc(poolName, false)
+		reserveAcc := types.GetPoolReserveAcc(poolName)
 
 		// ensure the liquidity pool doesn't exist
 		_, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
