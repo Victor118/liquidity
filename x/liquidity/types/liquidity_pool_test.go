@@ -65,8 +65,8 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	require.Equal(t, types.ErrBadReserveAccountAddress, pool.Validate())
 
 	pool.ReserveAccountAddress = types.GetPoolReserveAcc(pool.Name()).String()
-	add2, err := sdk.AccAddressFromBech32(pool.ReserveAccountAddress)
-	require.NoError(t, err)
+	add2 := sdk.AccAddress(pool.ReserveAccountAddress)
+
 	require.Equal(t, add2, pool.GetReserveAccount())
 	require.Equal(t, types.ErrEmptyPoolCoinDenom, pool.Validate())
 
@@ -88,8 +88,8 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, pool, poolMarshaled)
 
-	addr, err := sdk.AccAddressFromBech32(pool.ReserveAccountAddress)
-	require.NoError(t, err)
+	addr := sdk.AccAddress(pool.ReserveAccountAddress)
+
 	require.True(t, pool.GetReserveAccount().Equals(addr))
 	require.Equal(t, strings.TrimSpace(pool.String()+"\n"+pool.String()), types.Pools{pool, pool}.String())
 

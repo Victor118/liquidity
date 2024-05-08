@@ -1190,7 +1190,6 @@ func TestGetPoolByReserveAccIndex(t *testing.T) {
 	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
 
-	fmt.Println(pool)
 	poolStored, found := simapp.LiquidityKeeper.GetPool(ctx, pool.Id)
 	require.True(t, found)
 	require.Equal(t, pool, poolStored)

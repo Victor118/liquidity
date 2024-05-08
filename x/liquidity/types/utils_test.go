@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/Victor118/liquidity/x/liquidity/types"
+	"github.com/cosmos/cosmos-sdk/types/address"
 )
 
 func TestAlphabeticalDenomPair(t *testing.T) {
@@ -22,7 +23,7 @@ func TestAlphabeticalDenomPair(t *testing.T) {
 }
 
 func TestGetReserveAcc(t *testing.T) {
-	expectedReserveAcc, _ := sdk.AccAddressFromBech32("cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3")
+	expectedReserveAcc := sdk.AccAddress(address.Module(types.ModuleName, []byte("D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4")))
 	tests := []struct {
 		poolCoinDenom      string
 		expectedReserveAcc sdk.AccAddress
@@ -99,25 +100,22 @@ func TestGetPoolInformation(t *testing.T) {
 			reserveCoinDenoms:     []string{"denomX", "denomY"},
 			poolTypeID:            uint32(1),
 			expectedPoolName:      "denomX/denomY/1",
-			expectedReserveAcc:    "cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3",
+			expectedReserveAcc:    sdk.AccAddress(address.Module(types.ModuleName, []byte("D35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4"))).String(),
 			expectedPoolCoinDenom: "poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4",
-			len32:                 false,
 		},
 		{
 			reserveCoinDenoms:     []string{"stake", "token"},
 			poolTypeID:            uint32(1),
 			expectedPoolName:      "stake/token/1",
-			expectedReserveAcc:    "cosmos1unfxz7l7q0s3gmmthgwe3yljk0thhg57ym3p6u",
+			expectedReserveAcc:    sdk.AccAddress(address.Module(types.ModuleName, []byte("E4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07"))).String(),
 			expectedPoolCoinDenom: "poolE4D2617BFE03E1146F6BBA1D9893F2B3D77BA29E7ED532BB721A39FF1ECC1B07",
-			len32:                 false,
 		},
 		{
 			reserveCoinDenoms:     []string{"uatom", "uusd"},
 			poolTypeID:            uint32(2),
 			expectedPoolName:      "uatom/uusd/2",
-			expectedReserveAcc:    "cosmos1xqm0g09czvdp5c7jk0fmz85u7maz52m040eh8g",
+			expectedReserveAcc:    sdk.AccAddress(address.Module(types.ModuleName, []byte("3036F43CB8131A1A63D2B3D3B11E9CF6FA2A2B6FEC17D5AD283C25C939614A8C"))).String(),
 			expectedPoolCoinDenom: "pool3036F43CB8131A1A63D2B3D3B11E9CF6FA2A2B6FEC17D5AD283C25C939614A8C",
-			len32:                 false,
 		},
 		{
 			reserveCoinDenoms:     []string{"uatom", "usdt"},
@@ -125,12 +123,12 @@ func TestGetPoolInformation(t *testing.T) {
 			expectedPoolName:      "uatom/usdt/3",
 			expectedReserveAcc:    "cosmos1aqvez6g6wejw8hu35kplycf2taqsfkpj3ns3c5v4dhwazfdzhzastyr290",
 			expectedPoolCoinDenom: "pool93E069B333B5ECEBFE24C6E1437E814003248E0DD7FF8B9F82119F4587449BA5",
-			len32:                 true,
 		},
 	}
 
 	for _, tc := range testCases {
 		poolName := types.PoolName(tc.reserveCoinDenoms, tc.poolTypeID)
+		t.Logf("Poolname from reserviceCoinDenoms %v and pool type %d = %s", tc.reserveCoinDenoms, tc.poolTypeID, poolName)
 		require.Equal(t, tc.expectedPoolName, poolName)
 
 		reserveAcc := types.GetPoolReserveAcc(poolName)

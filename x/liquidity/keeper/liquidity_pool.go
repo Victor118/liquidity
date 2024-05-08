@@ -119,6 +119,11 @@ func (k Keeper) CreatePool(ctx sdk.Context, msg *types.MsgCreatePool) (types.Poo
 		PoolCoinDenom:         types.GetPoolCoinDenom(poolName),
 	}
 
+	err := types.CreateModuleAccount(ctx, k.accountKeeper, types.GetPoolReserveAcc(poolName))
+	if err != nil {
+		return types.Pool{}, err
+	}
+
 	poolCreator := msg.GetPoolCreator()
 
 	for _, coin := range msg.DepositCoins {

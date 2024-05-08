@@ -25,6 +25,8 @@ type BankKeeper interface {
 type AccountKeeper interface {
 	GetAccount(ctx sdk.Context, addr sdk.AccAddress) authtypes.AccountI
 	GetModuleAddress(name string) sdk.AccAddress
+	NewAccount(sdk.Context, authtypes.AccountI) authtypes.AccountI
+	SetAccount(ctx sdk.Context, acc authtypes.AccountI)
 }
 
 // DistributionKeeper defines the expected distribution keeper

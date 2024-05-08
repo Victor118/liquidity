@@ -178,11 +178,11 @@ func TestCreateDepositWithdrawWithinBatch(t *testing.T) {
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
 	denomA, denomB := types.AlphabeticalDenomPair(DenomA, DenomB)
 
-	X := sdk.NewInt(1000000000)
-	Y := sdk.NewInt(1000000000)
+	X := sdk.NewInt(10000000000)
+	Y := sdk.NewInt(10000000000)
 	deposit := sdk.NewCoins(sdk.NewCoin(denomX, X), sdk.NewCoin(denomY, Y))
-	A := sdk.NewInt(1000000000000)
-	B := sdk.NewInt(1000000000000)
+	A := sdk.NewInt(10000000000000)
+	B := sdk.NewInt(10000000000000)
 	depositAB := sdk.NewCoins(sdk.NewCoin(denomA, A), sdk.NewCoin(denomB, B))
 	// set accounts for creator, depositor, withdrawer, balance for deposit
 	addrs := app.AddTestAddrs(simapp, ctx, 4, params.PoolCreationFee)
@@ -201,17 +201,18 @@ func TestCreateDepositWithdrawWithinBatch(t *testing.T) {
 	// Success case, create Liquidity pool
 	poolTypeID := types.DefaultPoolTypeID
 	msg := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
-	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
+	pool1Created, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)
-
+	t.Log(pool1Created)
 	// Verify PoolCreationFee pay successfully
 	feePoolBalance = feePoolBalance.Add(params.PoolCreationFee...)
 	feeFromPoolCreation := sdk.NewDecCoinsFromCoins(feePoolBalance...).Sub(initialFeePoolAmount)
 	require.Equal(t, sdk.NewDecCoinsFromCoins(params.PoolCreationFee...), feeFromPoolCreation)
 
 	// Fail case, reset deposit balance for pool already exists case
-	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+	//app.SaveAccount(simapp, ctx, addrs[0], deposit)
 	_, err = simapp.LiquidityKeeper.CreatePool(ctx, msg)
+	t.Log(err)
 	require.ErrorIs(t, err, types.ErrPoolAlreadyExists)
 
 	// reset deposit balance without PoolCreationFee of pool creator

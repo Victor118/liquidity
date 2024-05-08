@@ -86,10 +86,8 @@ func UnmarshalPool(cdc codec.BinaryCodec, value []byte) (liquidityPool Pool, err
 
 // GetReserveAccount returns sdk.AccAddress of the pool's reserve account.
 func (pool Pool) GetReserveAccount() sdk.AccAddress {
-	addr, err := sdk.AccAddressFromBech32(pool.ReserveAccountAddress)
-	if err != nil {
-		panic(err)
-	}
+	addr := sdk.MustAccAddressFromBech32(pool.ReserveAccountAddress)
+
 	return addr
 }
 

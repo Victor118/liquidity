@@ -8,6 +8,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
 // AlphabeticalDenomPair returns denom pairs that are alphabetically sorted.
@@ -31,6 +32,22 @@ func GetPoolReserveAcc(poolName string) sdk.AccAddress {
 	poolCoinDenom = strings.TrimPrefix(poolCoinDenom, PoolCoinDenomPrefix)
 	return sdk.AccAddress(address.Module(ModuleName, []byte(poolCoinDenom)))
 
+}
+
+// CreateModuleAccount creates a module account at the provided address.
+// It overrides an account if it exists at that address, with a non-zero sequence number & pubkey
+// Contract: addr is derived from `address.Module(ModuleName, key)`
+func CreateModuleAccount(ctx sdk.Context, ak AccountKeeper, addr sdk.AccAddress) error {
+
+	acc := ak.NewAccount(
+		ctx,
+		authtypes.NewModuleAccount(
+			authtypes.NewBaseAccountWithAddress(addr),
+			addr.String(),
+		),
+	)
+	ak.SetAccount(ctx, acc)
+	return nil
 }
 
 // GetPoolCoinDenom returns the denomination of the pool coin.
