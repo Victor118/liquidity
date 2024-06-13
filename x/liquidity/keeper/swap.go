@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
 	"github.com/Victor118/liquidity/x/liquidity/types"
 )
@@ -15,6 +17,74 @@ func errorMessage(err error) string {
 	} else {
 		return ""
 	}
+}
+
+func (k Keeper) DirectSwapExecution(ctx sdk.Context, poolId uint64, swapMsg types.MsgDirectSwap) error {
+	pool, found := k.GetPool(ctx, poolId)
+	if !found {
+		return types.ErrPoolNotExists
+	}
+	if k.IsDepletedPool(ctx, pool) {
+		return types.ErrDepletedPool
+	}
+	if err := k.ValidateMsgDirectSwap(ctx, swapMsg, pool); err != nil {
+		return err
+	}
+	params := k.GetParams(ctx)
+	offerCoinFeeAmt := swapMsg.OfferCoin.Amount.ToLegacyDec().Mul(params.SwapFeeRate.Quo(math.LegacyNewDec(2))).TruncateInt()
+	inputAmount := sdk.NewDecCoinFromCoin(swapMsg.OfferCoin)
+	outputAmount, err := k.CalculateOutputAmount(ctx, pool, inputAmount)
+	if err != nil {
+		return err
+	}
+
+	reserveCoins := k.GetReserveCoins(ctx, pool)
+	expectedMinOutputAmount := math.LegacyNewDec(0)
+	exchangedCoinFeeAmount := outputAmount.Mul(params.SwapFeeRate.Quo(math.LegacyNewDec(2)))
+	if inputAmount.Denom == reserveCoins.GetDenomByIndex(0) {
+		expectedMinOutputAmount = inputAmount.Amount.Quo(swapMsg.OrderPrice)
+
+	} else {
+		expectedMinOutputAmount = inputAmount.Amount.Mul(swapMsg.OrderPrice)
+	}
+	fmt.Printf("ExpectedMinAmount %v outputAmount %v", expectedMinOutputAmount, outputAmount)
+	if expectedMinOutputAmount.GT(outputAmount) {
+		return types.ErrMaxSlippage
+	}
+
+	var inputs []banktypes.Input
+	var outputs []banktypes.Output
+	sendCoin := func(from, to sdk.AccAddress, coin sdk.Coin) {
+		coins := sdk.NewCoins(coin)
+		if !coins.Empty() && coins.IsValid() {
+			inputs = append(inputs, banktypes.NewInput(from, coins))
+			outputs = append(outputs, banktypes.NewOutput(to, coins))
+		}
+	}
+	//escrowAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
+	poolReserveAcc := pool.GetReserveAccount()
+	transactedAmt := swapMsg.OfferCoin.Amount.Sub(offerCoinFeeAmt)
+	receiveAmt := outputAmount.Sub(exchangedCoinFeeAmount).TruncateInt()
+
+	var builders bool = params.BuildersAddresses != nil && len(params.BuildersAddresses) > 0
+	if builders {
+		builderCommOfferAmount := offerCoinFeeAmt.ToLegacyDec().Mul(params.BuildersCommission).TruncateInt()
+		builderCommDemandAmount := exchangedCoinFeeAmount.Mul(params.BuildersCommission).TruncateInt()
+		offerCoinFeeAmt = offerCoinFeeAmt.ToLegacyDec().Sub(builderCommOfferAmount.ToLegacyDec()).TruncateInt()
+		remainingAmount := k.SendAmountToBuilders(params, swapMsg.GetSwapRequester(), sdk.NewCoin(swapMsg.OfferCoin.Denom, builderCommOfferAmount), sendCoin)
+		offerCoinFeeAmt = offerCoinFeeAmt.Add(remainingAmount.Amount)
+		k.SendAmountToBuilders(params, poolReserveAcc, sdk.NewCoin(swapMsg.DemandCoinDenom, builderCommDemandAmount), sendCoin)
+	}
+
+	sendCoin(swapMsg.GetSwapRequester(), poolReserveAcc, sdk.NewCoin(swapMsg.OfferCoin.Denom, transactedAmt))
+	sendCoin(poolReserveAcc, swapMsg.GetSwapRequester(), sdk.NewCoin(swapMsg.DemandCoinDenom, receiveAmt))
+	sendCoin(swapMsg.GetSwapRequester(), poolReserveAcc, sdk.NewCoin(swapMsg.OfferCoin.Denom, offerCoinFeeAmt))
+
+	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
+		return err
+	}
+	return nil
+
 }
 
 // Execute Swap of the pool batch, Collect swap messages in batch for transact the same price for each batch and run them on endblock.

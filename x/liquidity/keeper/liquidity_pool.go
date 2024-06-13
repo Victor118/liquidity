@@ -543,6 +543,29 @@ func (k Keeper) GetReserveCoins(ctx sdk.Context, pool types.Pool) (reserveCoins 
 	return
 }
 
+func (k Keeper) CalculateOutputAmount(ctx sdk.Context, pool types.Pool, inputAmount sdk.DecCoin) (math.LegacyDec, error) {
+
+	// get reserve coins from the liquidity pool and calculate the current pool price (p = x / y)
+	reserveCoins := k.GetReserveCoins(ctx, pool)
+	X := reserveCoins[0].Amount.ToLegacyDec()
+	Y := reserveCoins[1].Amount.ToLegacyDec()
+
+	if (inputAmount.Denom != reserveCoins[0].Denom) && (inputAmount.Denom != reserveCoins[1].Denom) {
+		return math.LegacyDec{}, types.ErrInvalidDenom
+	}
+
+	inputReserve := X
+	outputReserve := Y
+	if inputAmount.Denom == reserveCoins[1].Denom {
+		inputReserve = Y
+		outputReserve = X
+	}
+	outputAmount := outputReserve.Mul(inputAmount.Amount)
+	outputAmount = outputAmount.Quo(inputReserve.Add(inputAmount.Amount))
+
+	return outputAmount, nil
+}
+
 // GetPoolMetaData returns metadata of the pool
 func (k Keeper) GetPoolMetaData(ctx sdk.Context, pool types.Pool) types.PoolMetadata {
 	return types.PoolMetadata{
@@ -838,6 +861,30 @@ func (k Keeper) ValidateMsgWithdrawWithinBatch(ctx sdk.Context, msg types.MsgWit
 	if msg.PoolCoin.Amount.GT(poolCoinTotalSupply) {
 		return types.ErrBadPoolCoinAmount
 	}
+	return nil
+}
+
+func (k Keeper) ValidateMsgDirectSwap(ctx sdk.Context, msg types.MsgDirectSwap, pool types.Pool) error {
+	denomA, denomB := types.AlphabeticalDenomPair(msg.OfferCoin.Denom, msg.DemandCoinDenom)
+	if denomA != pool.ReserveCoinDenoms[0] || denomB != pool.ReserveCoinDenoms[1] {
+		return types.ErrNotMatchedReserveCoin
+	}
+
+	params := k.GetParams(ctx)
+
+	// can not exceed max order ratio  of reserve coins that can be ordered at a order
+	reserveCoinAmt := k.GetReserveCoins(ctx, pool).AmountOf(msg.OfferCoin.Denom)
+
+	// Decimal Error, Multiply the Int coin amount by the Decimal Rate and erase the decimal point to order a lower value
+	maximumOrderableAmt := reserveCoinAmt.ToLegacyDec().MulTruncate(params.MaxOrderAmountRatio).TruncateInt()
+	if msg.OfferCoin.Amount.GT(maximumOrderableAmt) {
+		return types.ErrExceededMaxOrderable
+	}
+
+	if err := types.CheckOverflowWithDec(msg.OfferCoin.Amount.ToLegacyDec(), msg.OrderPrice); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -175,7 +175,6 @@ func TestPoolCreationFeeWithBuilders(t *testing.T) {
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
 	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
 	depositBalance := sdk.NewCoins(depositA, depositB)
-	fmt.Printf("VICTOR: Pool creatio address : %v\n", addrs[0].String())
 	msg := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
 	_, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
 	require.NoError(t, err)

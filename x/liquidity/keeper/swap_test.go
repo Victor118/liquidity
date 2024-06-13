@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
@@ -345,6 +346,173 @@ func TestSwapWithDepletedPool(t *testing.T) {
 		0)
 	require.ErrorIs(t, err, types.ErrDepletedPool)
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
+}
+
+func TestDirectSwap(t *testing.T) {
+	simapp, ctx := createTestInput(t)
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+	t.Logf("%v", params)
+	poolTypeID := types.DefaultPoolTypeID
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
+
+	denomA := "uETH"
+	denomB := "uUSD"
+	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
+
+	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(102*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
+	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+
+	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
+	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
+	t.Logf("Initial user account %v , %v", depositA, depositB)
+	depositBalance := sdk.NewCoins(depositA.SubAmount(sdk.NewInt(2*1000000)), depositB)
+
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
+	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
+	require.NoError(t, err)
+	reserveCoins := simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
+	initialX := reserveCoins[0].Amount.ToLegacyDec()
+	initialY := reserveCoins[1].Amount.ToLegacyDec()
+	currentPoolPrice := initialX.Quo(initialY)
+	slippageAmount := currentPoolPrice.Mul(math.LegacyNewDecWithPrec(1, 2))
+	maxOrderPrice := currentPoolPrice.Add(slippageAmount)
+	msgDirectSwap := types.NewMsgDirectSwap(addrs[0], pool.Id, poolTypeID, sdk.NewCoin(denomA, sdk.NewInt(1*1000000)), denomB, maxOrderPrice)
+	error := simapp.LiquidityKeeper.DirectSwapExecution(ctx, pool.Id, *msgDirectSwap)
+	require.NoError(t, error)
+	reserveCoins = simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
+	newX := reserveCoins[0].Amount.ToLegacyDec()
+	newY := reserveCoins[1].Amount.ToLegacyDec()
+	require.Equal(t, newX, math.LegacyNewDec(101000000)) // initial balance + offer coin + offer coin fee
+
+	balanceB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
+	t.Logf("New Balance of uUSD : %v", balanceB)
+	require.Equal(t, newY, initialY.Sub(balanceB.Amount.ToLegacyDec()))
+}
+
+func TestDirectSwapWithBuilders(t *testing.T) {
+	simapp, ctx := createTestInput(t)
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+	builderAddr1 := types.WeightedAddress{
+		Address: "cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp",
+		Weight:  math.LegacyNewDec(1),
+	}
+	buildersAddresses := []types.WeightedAddress{builderAddr1}
+	params.BuildersAddresses = buildersAddresses
+	simapp.LiquidityKeeper.SetParams(ctx, params)
+	t.Logf("%v", params)
+	poolTypeID := types.DefaultPoolTypeID
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
+
+	denomA := "uETH"
+	denomB := "uUSD"
+	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
+
+	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(102*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
+	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+
+	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
+	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
+	t.Logf("Initial user account %v , %v", depositA, depositB)
+	depositBalance := sdk.NewCoins(depositA.SubAmount(sdk.NewInt(2*1000000)), depositB)
+
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
+	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
+	require.NoError(t, err)
+	reserveCoins := simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
+	initialX := reserveCoins[0].Amount.ToLegacyDec()
+	initialY := reserveCoins[1].Amount.ToLegacyDec()
+	currentPoolPrice := initialX.Quo(initialY)
+	slippageAmount := currentPoolPrice.Mul(math.LegacyNewDecWithPrec(1, 2))
+	maxOrderPrice := currentPoolPrice.Add(slippageAmount)
+	msgDirectSwap := types.NewMsgDirectSwap(addrs[0], pool.Id, poolTypeID, sdk.NewCoin(denomA, sdk.NewInt(1*1000000)), denomB, maxOrderPrice)
+	error := simapp.LiquidityKeeper.DirectSwapExecution(ctx, pool.Id, *msgDirectSwap)
+	require.NoError(t, error)
+	reserveCoins = simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
+	newX := reserveCoins[0].Amount.ToLegacyDec()
+	newY := reserveCoins[1].Amount.ToLegacyDec()
+	builderBalanceA := simapp.BankKeeper.GetBalance(ctx, sdk.MustAccAddressFromBech32("cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp"), denomA)
+	builderBalanceB := simapp.BankKeeper.GetBalance(ctx, sdk.MustAccAddressFromBech32("cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp"), denomB)
+	require.True(t, builderBalanceA.Amount.Equal(math.NewInt(300)))
+	require.True(t, builderBalanceB.Amount.Equal(math.NewInt(5940)))
+	require.True(t, builderBalanceB.Amount.GT(math.NewInt(0)))
+	require.Equal(t, newX, math.LegacyNewDec(101000000).Sub(builderBalanceA.Amount.ToLegacyDec())) // initial balance + offer coin + offer coin fee
+
+	balanceB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
+	t.Logf("New Balance of uUSD : %v", balanceB)
+	require.Equal(t, newY, initialY.Sub(balanceB.Amount.ToLegacyDec()).Sub(builderBalanceB.Amount.ToLegacyDec()))
+}
+
+func TestDirectSwapKoMaxOrderRatio(t *testing.T) {
+	simapp, ctx := createTestInput(t)
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+	t.Logf("%v", params)
+	poolTypeID := types.DefaultPoolTypeID
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
+
+	denomA := "uETH"
+	denomB := "uUSD"
+	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
+
+	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(102*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
+	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+
+	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
+	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
+	t.Logf("Initial user account %v , %v", depositA, depositB)
+	depositBalance := sdk.NewCoins(depositA.SubAmount(sdk.NewInt(2*1000000)), depositB)
+
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
+	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
+	require.NoError(t, err)
+	reserveCoins := simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
+	initialX := reserveCoins[0].Amount.ToLegacyDec()
+	initialY := reserveCoins[1].Amount.ToLegacyDec()
+	currentPoolPrice := initialX.Quo(initialY)
+	slippageAmount := currentPoolPrice.Mul(math.LegacyNewDecWithPrec(1, 2))
+	maxOrderPrice := currentPoolPrice.Add(slippageAmount)
+	msgDirectSwap := types.NewMsgDirectSwap(addrs[0], pool.Id, poolTypeID, sdk.NewCoin(denomA, sdk.NewInt(70*1000000)), denomB, maxOrderPrice)
+	error := simapp.LiquidityKeeper.DirectSwapExecution(ctx, pool.Id, *msgDirectSwap)
+	require.Error(t, error)
+	require.Equal(t, error.Error(), "can not exceed max order ratio of reserve coins that can be ordered at a order")
+
+}
+
+func TestDirectSwapKoMaxSlippageReached(t *testing.T) {
+	simapp, ctx := createTestInput(t)
+	simapp.LiquidityKeeper.SetParams(ctx, types.DefaultParams())
+	params := simapp.LiquidityKeeper.GetParams(ctx)
+	t.Logf("%v", params)
+	poolTypeID := types.DefaultPoolTypeID
+	addrs := app.AddTestAddrs(simapp, ctx, 3, params.PoolCreationFee)
+
+	denomA := "uETH"
+	denomB := "uUSD"
+	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
+
+	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(102*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
+	app.SaveAccount(simapp, ctx, addrs[0], deposit)
+
+	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
+	depositB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
+	t.Logf("Initial user account %v , %v", depositA, depositB)
+	depositBalance := sdk.NewCoins(depositA.SubAmount(sdk.NewInt(2*1000000)), depositB)
+
+	msg := types.NewMsgCreatePool(addrs[0], poolTypeID, depositBalance)
+	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, msg)
+	require.NoError(t, err)
+	reserveCoins := simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
+	initialX := reserveCoins[0].Amount.ToLegacyDec()
+	initialY := reserveCoins[1].Amount.ToLegacyDec()
+	currentPoolPrice := initialX.Quo(initialY)
+	//using currentPoolPrice as OfferPrice should provide the error "Max slippage reached"
+	msgDirectSwap := types.NewMsgDirectSwap(addrs[0], pool.Id, poolTypeID, sdk.NewCoin(denomA, sdk.NewInt(1*1000000)), denomB, currentPoolPrice)
+	error := simapp.LiquidityKeeper.DirectSwapExecution(ctx, pool.Id, *msgDirectSwap)
+	require.Error(t, error)
+	require.Equal(t, error.Error(), "Max slippage reached")
+
 }
 
 func createPool(simapp *app.LiquidityApp, ctx sdk.Context, X, Y sdk.Int, denomX, denomY string) (types.Pool, error) {

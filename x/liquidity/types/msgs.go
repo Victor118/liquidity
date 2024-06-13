@@ -226,3 +226,65 @@ func (msg MsgSwapWithinBatch) GetSwapRequester() sdk.AccAddress {
 	}
 	return addr
 }
+
+// NewMsgSwapWithinBatch creates a new MsgSwapWithinBatch.
+func NewMsgDirectSwap(
+	swapRequester sdk.AccAddress,
+	poolID uint64,
+	swapTypeID uint32,
+	offerCoin sdk.Coin,
+	demandCoinDenom string,
+	orderPrice sdk.Dec,
+) *MsgDirectSwap {
+	return &MsgDirectSwap{
+		SwapRequesterAddress: swapRequester.String(),
+		PoolId:               poolID,
+		SwapTypeId:           swapTypeID,
+		OfferCoin:            offerCoin,
+		DemandCoinDenom:      demandCoinDenom,
+		OrderPrice:           orderPrice,
+	}
+}
+
+func (msg MsgDirectSwap) Route() string { return RouterKey }
+
+func (msg MsgDirectSwap) Type() string { return TypeMsgSwapWithinBatch }
+
+func (msg MsgDirectSwap) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.SwapRequesterAddress); err != nil {
+		return ErrInvalidSwapRequesterAddr
+	}
+	if err := msg.OfferCoin.Validate(); err != nil {
+		return err
+	}
+	if !msg.OfferCoin.IsPositive() {
+		return ErrBadOfferCoinAmount
+	}
+	if !msg.OrderPrice.IsPositive() {
+		return ErrBadOrderPrice
+	}
+	if !msg.OfferCoin.Amount.GTE(MinOfferCoinAmount) {
+		return ErrLessThanMinOfferAmount
+	}
+	return nil
+}
+
+func (msg MsgDirectSwap) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
+}
+
+func (msg MsgDirectSwap) GetSigners() []sdk.AccAddress {
+	addr, err := sdk.AccAddressFromBech32(msg.SwapRequesterAddress)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{addr}
+}
+
+func (msg MsgDirectSwap) GetSwapRequester() sdk.AccAddress {
+	addr, err := sdk.AccAddressFromBech32(msg.SwapRequesterAddress)
+	if err != nil {
+		panic(err)
+	}
+	return addr
+}

@@ -9,6 +9,8 @@
     - [MsgCreatePoolResponse](#liquidity.v1beta1.MsgCreatePoolResponse)
     - [MsgDepositWithinBatch](#liquidity.v1beta1.MsgDepositWithinBatch)
     - [MsgDepositWithinBatchResponse](#liquidity.v1beta1.MsgDepositWithinBatchResponse)
+    - [MsgDirectSwap](#liquidity.v1beta1.MsgDirectSwap)
+    - [MsgDirectSwapResponse](#liquidity.v1beta1.MsgDirectSwapResponse)
     - [MsgSwapWithinBatch](#liquidity.v1beta1.MsgSwapWithinBatch)
     - [MsgSwapWithinBatchResponse](#liquidity.v1beta1.MsgSwapWithinBatchResponse)
     - [MsgWithdrawWithinBatch](#liquidity.v1beta1.MsgWithdrawWithinBatch)
@@ -130,6 +132,36 @@ https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_message
 ### MsgDepositWithinBatchResponse
 MsgDepositWithinBatchResponse defines the Msg/DepositWithinBatch response
 type.
+
+
+
+
+
+
+<a name="liquidity.v1beta1.MsgDirectSwap"></a>
+
+### MsgDirectSwap
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `swap_requester_address` | [string](#string) |  | address of swap requester |
+| `pool_id` | [uint64](#uint64) |  | id of swap type, must match the value in the pool. Only `swap_type_id` 1 is supported. |
+| `swap_type_id` | [uint32](#uint32) |  | id of swap type. Must match the value in the pool. |
+| `offer_coin` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | offer sdk.coin for the swap request, must match the denom in the pool. |
+| `demand_coin_denom` | [string](#string) |  | denom of demand coin to be exchanged on the swap request, must match the denom in the pool. |
+| `order_price` | [string](#string) |  | limit order price for the order, the price is the exchange ratio of X/Y where X is the amount of the first coin and Y is the amount of the second coin when their denoms are sorted alphabetically. |
+
+
+
+
+
+
+<a name="liquidity.v1beta1.MsgDirectSwapResponse"></a>
+
+### MsgDirectSwapResponse
+MsgSwapWithinBatchResponse defines the Msg/Swap response type.
 
 
 
