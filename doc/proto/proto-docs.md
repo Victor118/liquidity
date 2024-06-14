@@ -164,6 +164,11 @@ type.
 MsgSwapWithinBatchResponse defines the Msg/Swap response type.
 
 
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `received_amount` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  |  |
+
+
 
 
 

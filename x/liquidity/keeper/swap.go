@@ -19,37 +19,37 @@ func errorMessage(err error) string {
 	}
 }
 
-func (k Keeper) DirectSwapExecution(ctx sdk.Context, poolId uint64, swapMsg types.MsgDirectSwap) error {
+func (k Keeper) DirectSwapExecution(ctx sdk.Context, poolId uint64, offerCoin sdk.Coin, demandDenom string, orderPrice math.LegacyDec, swapRequester sdk.AccAddress) (math.Int, error) {
 	pool, found := k.GetPool(ctx, poolId)
 	if !found {
-		return types.ErrPoolNotExists
+		return math.NewInt(0), types.ErrPoolNotExists
 	}
 	if k.IsDepletedPool(ctx, pool) {
-		return types.ErrDepletedPool
+		return math.NewInt(0), types.ErrDepletedPool
 	}
-	if err := k.ValidateMsgDirectSwap(ctx, swapMsg, pool); err != nil {
-		return err
+	if err := k.ValidateDirectSwap(ctx, offerCoin, demandDenom, orderPrice, pool); err != nil {
+		return math.NewInt(0), err
 	}
 	params := k.GetParams(ctx)
-	offerCoinFeeAmt := swapMsg.OfferCoin.Amount.ToLegacyDec().Mul(params.SwapFeeRate.Quo(math.LegacyNewDec(2))).TruncateInt()
-	inputAmount := sdk.NewDecCoinFromCoin(swapMsg.OfferCoin)
+	offerCoinFeeAmt := offerCoin.Amount.ToLegacyDec().Mul(params.SwapFeeRate.Quo(math.LegacyNewDec(2))).TruncateInt()
+	inputAmount := sdk.NewDecCoinFromCoin(offerCoin)
 	outputAmount, err := k.CalculateOutputAmount(ctx, pool, inputAmount)
 	if err != nil {
-		return err
+		return math.NewInt(0), err
 	}
 
 	reserveCoins := k.GetReserveCoins(ctx, pool)
 	expectedMinOutputAmount := math.LegacyNewDec(0)
 	exchangedCoinFeeAmount := outputAmount.Mul(params.SwapFeeRate.Quo(math.LegacyNewDec(2)))
 	if inputAmount.Denom == reserveCoins.GetDenomByIndex(0) {
-		expectedMinOutputAmount = inputAmount.Amount.Quo(swapMsg.OrderPrice)
+		expectedMinOutputAmount = inputAmount.Amount.Quo(orderPrice)
 
 	} else {
-		expectedMinOutputAmount = inputAmount.Amount.Mul(swapMsg.OrderPrice)
+		expectedMinOutputAmount = inputAmount.Amount.Mul(orderPrice)
 	}
 	fmt.Printf("ExpectedMinAmount %v outputAmount %v", expectedMinOutputAmount, outputAmount)
 	if expectedMinOutputAmount.GT(outputAmount) {
-		return types.ErrMaxSlippage
+		return math.NewInt(0), types.ErrMaxSlippage
 	}
 
 	var inputs []banktypes.Input
@@ -63,7 +63,7 @@ func (k Keeper) DirectSwapExecution(ctx sdk.Context, poolId uint64, swapMsg type
 	}
 	//escrowAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	poolReserveAcc := pool.GetReserveAccount()
-	transactedAmt := swapMsg.OfferCoin.Amount.Sub(offerCoinFeeAmt)
+	transactedAmt := offerCoin.Amount.Sub(offerCoinFeeAmt)
 	receiveAmt := outputAmount.Sub(exchangedCoinFeeAmount).TruncateInt()
 
 	var builders bool = params.BuildersAddresses != nil && len(params.BuildersAddresses) > 0
@@ -71,19 +71,19 @@ func (k Keeper) DirectSwapExecution(ctx sdk.Context, poolId uint64, swapMsg type
 		builderCommOfferAmount := offerCoinFeeAmt.ToLegacyDec().Mul(params.BuildersCommission).TruncateInt()
 		builderCommDemandAmount := exchangedCoinFeeAmount.Mul(params.BuildersCommission).TruncateInt()
 		offerCoinFeeAmt = offerCoinFeeAmt.ToLegacyDec().Sub(builderCommOfferAmount.ToLegacyDec()).TruncateInt()
-		remainingAmount := k.SendAmountToBuilders(params, swapMsg.GetSwapRequester(), sdk.NewCoin(swapMsg.OfferCoin.Denom, builderCommOfferAmount), sendCoin)
+		remainingAmount := k.SendAmountToBuilders(params, swapRequester, sdk.NewCoin(offerCoin.Denom, builderCommOfferAmount), sendCoin)
 		offerCoinFeeAmt = offerCoinFeeAmt.Add(remainingAmount.Amount)
-		k.SendAmountToBuilders(params, poolReserveAcc, sdk.NewCoin(swapMsg.DemandCoinDenom, builderCommDemandAmount), sendCoin)
+		k.SendAmountToBuilders(params, poolReserveAcc, sdk.NewCoin(demandDenom, builderCommDemandAmount), sendCoin)
 	}
 
-	sendCoin(swapMsg.GetSwapRequester(), poolReserveAcc, sdk.NewCoin(swapMsg.OfferCoin.Denom, transactedAmt))
-	sendCoin(poolReserveAcc, swapMsg.GetSwapRequester(), sdk.NewCoin(swapMsg.DemandCoinDenom, receiveAmt))
-	sendCoin(swapMsg.GetSwapRequester(), poolReserveAcc, sdk.NewCoin(swapMsg.OfferCoin.Denom, offerCoinFeeAmt))
+	sendCoin(swapRequester, poolReserveAcc, sdk.NewCoin(offerCoin.Denom, transactedAmt))
+	sendCoin(poolReserveAcc, swapRequester, sdk.NewCoin(demandDenom, receiveAmt))
+	sendCoin(swapRequester, poolReserveAcc, sdk.NewCoin(offerCoin.Denom, offerCoinFeeAmt))
 
 	if err := k.bankKeeper.InputOutputCoins(ctx, inputs, outputs); err != nil {
-		return err
+		return math.NewInt(0), err
 	}
-	return nil
+	return receiveAmt, err
 
 }
 

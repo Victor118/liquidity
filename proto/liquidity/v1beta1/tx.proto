@@ -230,4 +230,9 @@ message MsgDirectSwap{
 }
 
 // MsgSwapWithinBatchResponse defines the Msg/Swap response type.
-message MsgDirectSwapResponse {}
+message MsgDirectSwapResponse {
+  cosmos.base.v1beta1.Coin received_amount = 1 [
+    (gogoproto.nullable) = false,
+    (gogoproto.moretags) = "yaml:\"offer_coin\""
+  ];
+}

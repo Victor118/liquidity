@@ -165,3 +165,36 @@ func (k msgServer) Swap(goCtx context.Context, msg *types.MsgSwapWithinBatch) (*
 
 	return &types.MsgSwapWithinBatchResponse{}, nil
 }
+
+func (k msgServer) DirectSwap(goCtx context.Context, msg *types.MsgDirectSwap) (*types.MsgDirectSwapResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	if k.GetCircuitBreakerEnabled(ctx) {
+		return nil, types.ErrCircuitBreakerEnabled
+	}
+
+	receiveAmount, err := k.Keeper.DirectSwapExecution(ctx, msg.PoolId, msg.OfferCoin, msg.DemandCoinDenom, msg.OrderPrice, msg.GetSwapRequester())
+	if err != nil {
+		return nil, err
+	}
+
+	ctx.EventManager().EmitEvents(sdk.Events{
+		sdk.NewEvent(
+			sdk.EventTypeMessage,
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+		),
+		sdk.NewEvent(
+			types.EventTypeSwapWithinBatch,
+			sdk.NewAttribute(types.AttributeValuePoolId, strconv.FormatUint(msg.PoolId, 10)),
+			sdk.NewAttribute(types.AttributeValueOfferCoinDenom, msg.OfferCoin.Denom),
+			sdk.NewAttribute(types.AttributeValueOfferCoinAmount, msg.OfferCoin.Amount.String()),
+			sdk.NewAttribute(types.AttributeValueDemandCoinDenom, msg.DemandCoinDenom),
+			sdk.NewAttribute(types.AttributeValueOrderPrice, msg.OrderPrice.String()),
+			sdk.NewAttribute(types.AttributeValueExchangedDemandCoinAmount, receiveAmount.String()),
+		),
+	})
+
+	return &types.MsgDirectSwapResponse{
+		ReceivedAmount: sdk.NewCoin(msg.DemandCoinDenom, receiveAmount),
+	}, nil
+}

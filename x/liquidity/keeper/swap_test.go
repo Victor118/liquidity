@@ -377,8 +377,7 @@ func TestDirectSwap(t *testing.T) {
 	currentPoolPrice := initialX.Quo(initialY)
 	slippageAmount := currentPoolPrice.Mul(math.LegacyNewDecWithPrec(1, 2))
 	maxOrderPrice := currentPoolPrice.Add(slippageAmount)
-	msgDirectSwap := types.NewMsgDirectSwap(addrs[0], pool.Id, poolTypeID, sdk.NewCoin(denomA, sdk.NewInt(1*1000000)), denomB, maxOrderPrice)
-	error := simapp.LiquidityKeeper.DirectSwapExecution(ctx, pool.Id, *msgDirectSwap)
+	receivedAmount, error := simapp.LiquidityKeeper.DirectSwapExecution(ctx, pool.Id, sdk.NewCoin(denomA, sdk.NewInt(1*1000000)), denomB, maxOrderPrice, addrs[0])
 	require.NoError(t, error)
 	reserveCoins = simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
 	newX := reserveCoins[0].Amount.ToLegacyDec()
@@ -386,6 +385,7 @@ func TestDirectSwap(t *testing.T) {
 	require.Equal(t, newX, math.LegacyNewDec(101000000)) // initial balance + offer coin + offer coin fee
 
 	balanceB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
+	require.Equal(t, receivedAmount, balanceB.Amount)
 	t.Logf("New Balance of uUSD : %v", balanceB)
 	require.Equal(t, newY, initialY.Sub(balanceB.Amount.ToLegacyDec()))
 }
@@ -426,8 +426,7 @@ func TestDirectSwapWithBuilders(t *testing.T) {
 	currentPoolPrice := initialX.Quo(initialY)
 	slippageAmount := currentPoolPrice.Mul(math.LegacyNewDecWithPrec(1, 2))
 	maxOrderPrice := currentPoolPrice.Add(slippageAmount)
-	msgDirectSwap := types.NewMsgDirectSwap(addrs[0], pool.Id, poolTypeID, sdk.NewCoin(denomA, sdk.NewInt(1*1000000)), denomB, maxOrderPrice)
-	error := simapp.LiquidityKeeper.DirectSwapExecution(ctx, pool.Id, *msgDirectSwap)
+	receivedAmount, error := simapp.LiquidityKeeper.DirectSwapExecution(ctx, pool.Id, sdk.NewCoin(denomA, sdk.NewInt(1*1000000)), denomB, maxOrderPrice, addrs[0])
 	require.NoError(t, error)
 	reserveCoins = simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
 	newX := reserveCoins[0].Amount.ToLegacyDec()
@@ -440,6 +439,7 @@ func TestDirectSwapWithBuilders(t *testing.T) {
 	require.Equal(t, newX, math.LegacyNewDec(101000000).Sub(builderBalanceA.Amount.ToLegacyDec())) // initial balance + offer coin + offer coin fee
 
 	balanceB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
+	require.Equal(t, receivedAmount, balanceB.Amount)
 	t.Logf("New Balance of uUSD : %v", balanceB)
 	require.Equal(t, newY, initialY.Sub(balanceB.Amount.ToLegacyDec()).Sub(builderBalanceB.Amount.ToLegacyDec()))
 }
@@ -473,8 +473,7 @@ func TestDirectSwapKoMaxOrderRatio(t *testing.T) {
 	currentPoolPrice := initialX.Quo(initialY)
 	slippageAmount := currentPoolPrice.Mul(math.LegacyNewDecWithPrec(1, 2))
 	maxOrderPrice := currentPoolPrice.Add(slippageAmount)
-	msgDirectSwap := types.NewMsgDirectSwap(addrs[0], pool.Id, poolTypeID, sdk.NewCoin(denomA, sdk.NewInt(70*1000000)), denomB, maxOrderPrice)
-	error := simapp.LiquidityKeeper.DirectSwapExecution(ctx, pool.Id, *msgDirectSwap)
+	_, error := simapp.LiquidityKeeper.DirectSwapExecution(ctx, pool.Id, sdk.NewCoin(denomA, sdk.NewInt(70*1000000)), denomB, maxOrderPrice, addrs[0])
 	require.Error(t, error)
 	require.Equal(t, error.Error(), "can not exceed max order ratio of reserve coins that can be ordered at a order")
 
@@ -508,8 +507,7 @@ func TestDirectSwapKoMaxSlippageReached(t *testing.T) {
 	initialY := reserveCoins[1].Amount.ToLegacyDec()
 	currentPoolPrice := initialX.Quo(initialY)
 	//using currentPoolPrice as OfferPrice should provide the error "Max slippage reached"
-	msgDirectSwap := types.NewMsgDirectSwap(addrs[0], pool.Id, poolTypeID, sdk.NewCoin(denomA, sdk.NewInt(1*1000000)), denomB, currentPoolPrice)
-	error := simapp.LiquidityKeeper.DirectSwapExecution(ctx, pool.Id, *msgDirectSwap)
+	_, error := simapp.LiquidityKeeper.DirectSwapExecution(ctx, pool.Id, sdk.NewCoin(denomA, sdk.NewInt(1*1000000)), denomB, currentPoolPrice, addrs[0])
 	require.Error(t, error)
 	require.Equal(t, error.Error(), "Max slippage reached")
 

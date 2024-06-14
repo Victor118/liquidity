@@ -864,8 +864,8 @@ func (k Keeper) ValidateMsgWithdrawWithinBatch(ctx sdk.Context, msg types.MsgWit
 	return nil
 }
 
-func (k Keeper) ValidateMsgDirectSwap(ctx sdk.Context, msg types.MsgDirectSwap, pool types.Pool) error {
-	denomA, denomB := types.AlphabeticalDenomPair(msg.OfferCoin.Denom, msg.DemandCoinDenom)
+func (k Keeper) ValidateDirectSwap(ctx sdk.Context, offerCoin sdk.Coin, demandDenom string, orderPrice math.LegacyDec, pool types.Pool) error {
+	denomA, denomB := types.AlphabeticalDenomPair(offerCoin.Denom, demandDenom)
 	if denomA != pool.ReserveCoinDenoms[0] || denomB != pool.ReserveCoinDenoms[1] {
 		return types.ErrNotMatchedReserveCoin
 	}
@@ -873,15 +873,15 @@ func (k Keeper) ValidateMsgDirectSwap(ctx sdk.Context, msg types.MsgDirectSwap, 
 	params := k.GetParams(ctx)
 
 	// can not exceed max order ratio  of reserve coins that can be ordered at a order
-	reserveCoinAmt := k.GetReserveCoins(ctx, pool).AmountOf(msg.OfferCoin.Denom)
+	reserveCoinAmt := k.GetReserveCoins(ctx, pool).AmountOf(offerCoin.Denom)
 
 	// Decimal Error, Multiply the Int coin amount by the Decimal Rate and erase the decimal point to order a lower value
 	maximumOrderableAmt := reserveCoinAmt.ToLegacyDec().MulTruncate(params.MaxOrderAmountRatio).TruncateInt()
-	if msg.OfferCoin.Amount.GT(maximumOrderableAmt) {
+	if offerCoin.Amount.GT(maximumOrderableAmt) {
 		return types.ErrExceededMaxOrderable
 	}
 
-	if err := types.CheckOverflowWithDec(msg.OfferCoin.Amount.ToLegacyDec(), msg.OrderPrice); err != nil {
+	if err := types.CheckOverflowWithDec(offerCoin.Amount.ToLegacyDec(), orderPrice); err != nil {
 		return err
 	}
 
