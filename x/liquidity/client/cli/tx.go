@@ -338,3 +338,71 @@ The only supported swap-type is 1. For the detailed swap algorithm, see https://
 
 	return cmd
 }
+
+func NewDirectSwapCmd() *cobra.Command {
+
+	cmd := &cobra.Command{
+		Use:   "direct-swap [pool-id] [swap-type] [offer-coin] [demand-coin-denom] [order-price]",
+		Args:  cobra.ExactArgs(5),
+		Short: "Direct Swap without batch offer coin with demand coin from the liquidity pool with the given order price",
+		Long:  "Swap offer coin with demand coin from the liquidity pool with the given order price.",
+		RunE: func(cmd *cobra.Command, args []string) error {
+
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			swapRequester := clientCtx.GetFromAddress()
+
+			// Get pool id
+			poolID, err := strconv.ParseUint(args[0], 10, 64)
+
+			if err != nil {
+				return fmt.Errorf("pool-id %s not a valid uint, input a valid unsigned 32-bit integer for pool-id", args[0])
+			}
+
+			// Get swap type
+			swapTypeID, err := strconv.ParseUint(args[1], 10, 32)
+			if err != nil {
+				return fmt.Errorf("swap-type %s not a valid uint, input a valid unsigned 32-bit integer for swap-type", args[2])
+			}
+			if swapTypeID != 1 {
+				return types.ErrSwapTypeNotExists
+			}
+
+			// Get offer coin
+			offerCoin, err := sdk.ParseCoinNormalized(args[2])
+			if err != nil {
+				return err
+			}
+			err = offerCoin.Validate()
+			if err != nil {
+				return err
+			}
+
+			err = sdk.ValidateDenom(args[3])
+			if err != nil {
+				return err
+			}
+
+			orderPrice, err := sdk.NewDecFromStr(args[4])
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgDirectSwap(swapRequester, poolID, uint32(swapTypeID), offerCoin, args[3], orderPrice)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+
+			error := tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+
+			return error
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+	return cmd
+}
