@@ -22,6 +22,8 @@ service Msg {
 
   // Submit a swap to the liquidity pool batch.
   rpc Swap(MsgSwapWithinBatch) returns (MsgSwapWithinBatchResponse);
+
+  rpc DirectSwap(MsgDirectSwap) returns (MsgDirectSwapResponse);
 }
 
 // MsgCreatePool defines an sdk.Msg type that supports submitting a create

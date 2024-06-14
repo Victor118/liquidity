@@ -270,6 +270,7 @@ Msg defines the liquidity Msg service.
 | `DepositWithinBatch` | [MsgDepositWithinBatch](#liquidity.v1beta1.MsgDepositWithinBatch) | [MsgDepositWithinBatchResponse](#liquidity.v1beta1.MsgDepositWithinBatchResponse) | Submit a deposit to the liquidity pool batch. | |
 | `WithdrawWithinBatch` | [MsgWithdrawWithinBatch](#liquidity.v1beta1.MsgWithdrawWithinBatch) | [MsgWithdrawWithinBatchResponse](#liquidity.v1beta1.MsgWithdrawWithinBatchResponse) | Submit a withdraw from the liquidity pool batch. | |
 | `Swap` | [MsgSwapWithinBatch](#liquidity.v1beta1.MsgSwapWithinBatch) | [MsgSwapWithinBatchResponse](#liquidity.v1beta1.MsgSwapWithinBatchResponse) | Submit a swap to the liquidity pool batch. | |
+| `DirectSwap` | [MsgDirectSwap](#liquidity.v1beta1.MsgDirectSwap) | [MsgDirectSwapResponse](#liquidity.v1beta1.MsgDirectSwapResponse) |  | |
 
  <!-- end services -->
 
