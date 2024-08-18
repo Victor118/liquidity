@@ -3,7 +3,7 @@ package liquidity_test
 import (
 	"testing"
 
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -18,7 +18,7 @@ func TestGenesisState(t *testing.T) {
 	types.RegisterLegacyAminoCodec(cdc)
 	simapp := app.Setup(t, false)
 
-	ctx := simapp.BaseApp.NewContext(false, tmproto.Header{})
+	ctx := simapp.BaseApp.NewContext(false)
 	genesis := types.DefaultGenesisState()
 
 	liquidity.InitGenesis(ctx, simapp.LiquidityKeeper, *genesis)
@@ -30,10 +30,10 @@ func TestGenesisState(t *testing.T) {
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair("denomX", "denomY")
 
-	X := sdk.NewInt(1000000000)
-	Y := sdk.NewInt(1000000000)
+	X := math.NewInt(1000000000)
+	Y := math.NewInt(1000000000)
 
-	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
+	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, math.NewInt(10000))
 	poolID := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
 	// begin block, init
@@ -44,9 +44,9 @@ func TestGenesisState(t *testing.T) {
 	ctx = ctx.WithBlockHeight(ctx.BlockHeight() + 1)
 	liquidity.BeginBlocker(ctx, simapp.LiquidityKeeper)
 
-	price, _ := sdk.NewDecFromStr("1.1")
-	offerCoins := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
-	orderPrices := []sdk.Dec{price}
+	price, _ := math.LegacyNewDecFromStr("1.1")
+	offerCoins := []sdk.Coin{sdk.NewCoin(denomX, math.NewInt(10000))}
+	orderPrices := []math.LegacyDec{price}
 	orderAddrs := addrs[1:2]
 	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolID, false)
 	_, _ = app.TestSwapPool(t, simapp, ctx, offerCoins, orderPrices, orderAddrs, poolID, false)
@@ -61,7 +61,7 @@ func TestGenesisState(t *testing.T) {
 
 	simapp2 := app.Setup(t, false)
 
-	ctx2 := simapp2.BaseApp.NewContext(false, tmproto.Header{})
+	ctx2 := simapp2.BaseApp.NewContext(false)
 	ctx2 = ctx2.WithBlockHeight(1)
 
 	simapp2.BankKeeper.InitGenesis(ctx2, bankGenesisExported)

@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"cosmossdk.io/math"
 	"github.com/gogo/protobuf/proto"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
@@ -33,9 +34,9 @@ import (
 	liquiditytestutil "github.com/Victor118/liquidity/x/liquidity/client/testutil"
 	liquiditytypes "github.com/Victor118/liquidity/x/liquidity/types"
 
+	"cosmossdk.io/log"
 	tmdb "github.com/cometbft/cometbft-db"
 	tmcli "github.com/cometbft/cometbft/libs/cli"
-	tmlog "github.com/cometbft/cometbft/libs/log"
 )
 
 type IntegrationTestSuite struct {
@@ -67,14 +68,14 @@ func (s *IntegrationTestSuite) SetupTest() {
 	//acc := authtypes.NewBaseAccount(senderPrivKey.PubKey().Address().Bytes(), senderPrivKey.PubKey(), 0, 0)
 	// balance := banktypes.Balance{
 	// 	Address: acc.GetAddress().String(),
-	// 	Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100000000000000))),
+	// 	Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(100000000000000))),
 	// }
 
 	//addr, _ := sdk.AccAddressFromHexUnsafe(validator.Address.String())
 	//s.T().Logf("Validator address : " + addr.String())
 	// balanceVal := banktypes.Balance{
 	// 	Address: addr.String(),
-	// 	Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(100_000_000_000)), sdk.NewCoin("node0token", sdk.NewInt(100_000_000_000))),
+	// 	Coins:   sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(100_000_000_000)), sdk.NewCoin("node0token", math.NewInt(100_000_000_000))),
 	// }
 
 	db := tmdb.NewMemDB()
@@ -90,8 +91,8 @@ func (s *IntegrationTestSuite) SetupTest() {
 	// err = cfg.Codec.UnmarshalJSON(cfg.GenesisState[liquiditytypes.ModuleName], &liquidityGenState)
 	// s.Require().NoError(err)
 	//probably put theses coins and put it in simtestutil.GenesisStateWithValSet in balance parameters ?
-	//cfg.AccountTokens = sdk.NewInt(100_000_000_000) // node0token denom
-	//cfg.StakingTokens = sdk.NewInt(100_000_000_000) // stake denom
+	//cfg.AccountTokens = math.NewInt(100_000_000_000) // node0token denom
+	//cfg.StakingTokens = math.NewInt(100_000_000_000) // stake denom
 
 	genesisStateGov := v1.DefaultGenesisState()
 	maxDepPeriod := time.Duration(15) * time.Second
@@ -145,11 +146,11 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 			"invalid pool type id",
 			[]string{
 				"invalidpooltypeid",
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
+				sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(100_000_000)), sdk.NewCoin(denomY, math.NewInt(100_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			true, nil, 0,
 		},
@@ -157,11 +158,11 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 			"pool type id is not supported",
 			[]string{
 				fmt.Sprintf("%d", uint32(2)),
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000)), sdk.NewCoin("denomZ", sdk.NewInt(100_000_000))).String(),
+				sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(100_000_000)), sdk.NewCoin(denomY, math.NewInt(100_000_000)), sdk.NewCoin("denomZ", math.NewInt(100_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			true, nil, 0,
 		},
@@ -169,11 +170,11 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 			"invalid number of denoms",
 			[]string{
 				fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000)), sdk.NewCoin("denomZ", sdk.NewInt(100_000_000))).String(),
+				sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(100_000_000)), sdk.NewCoin(denomY, math.NewInt(100_000_000)), sdk.NewCoin("denomZ", math.NewInt(100_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			true, nil, 0,
 		},
@@ -181,11 +182,11 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 			"deposit coin less than minimum deposit amount",
 			[]string{
 				fmt.Sprintf("%d", uint32(1)),
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1_000)), sdk.NewCoin(denomY, sdk.NewInt(10_000_000))).String(),
+				sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(1_000)), sdk.NewCoin(denomY, math.NewInt(10_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			false, &sdk.TxResponse{}, 9,
 		},
@@ -193,11 +194,11 @@ func (s *IntegrationTestSuite) TestNewCreatePoolCmd() {
 			"valid transaction",
 			[]string{
 				fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
+				sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(100_000_000)), sdk.NewCoin(denomY, math.NewInt(100_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			false, &sdk.TxResponse{}, 0,
 		},
@@ -236,7 +237,7 @@ func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
+		sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(100_000_000)), sdk.NewCoin(denomY, math.NewInt(100_000_000))).String(),
 	)
 	s.Require().NoError(err)
 
@@ -254,11 +255,11 @@ func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 			"invalid pool id",
 			[]string{
 				"invalidpoolid",
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1_000_000)), sdk.NewCoin(denomY, sdk.NewInt(1_000_000))).String(),
+				sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(1_000_000)), sdk.NewCoin(denomY, math.NewInt(1_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			true, nil, 0,
 		},
@@ -266,11 +267,11 @@ func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 			"invalid number of denoms",
 			[]string{
 				fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(1_000_000)), sdk.NewCoin(denomY, sdk.NewInt(1_000_000)), sdk.NewCoin("denomZ", sdk.NewInt(1_000_000))).String(),
+				sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(1_000_000)), sdk.NewCoin(denomY, math.NewInt(1_000_000)), sdk.NewCoin("denomZ", math.NewInt(1_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			true, nil, 0,
 		},
@@ -278,11 +279,11 @@ func (s *IntegrationTestSuite) TestNewDepositWithinBatchCmd() {
 			"valid transaction",
 			[]string{
 				fmt.Sprintf("%d", uint32(1)),
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000_000)), sdk.NewCoin(denomY, sdk.NewInt(10_000_000))).String(),
+				sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(10_000_000)), sdk.NewCoin(denomY, math.NewInt(10_000_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			false, &sdk.TxResponse{}, 0,
 		},
@@ -321,7 +322,7 @@ func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
+		sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(100_000_000)), sdk.NewCoin(denomY, math.NewInt(100_000_000))).String(),
 	)
 	s.Require().NoError(err)
 
@@ -339,11 +340,11 @@ func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 			"invalid pool id",
 			[]string{
 				"invalidpoolid",
-				sdk.NewCoins(sdk.NewCoin("poolC33A77E752C183913636A37FE1388ACA22FE7BED792BEB2E72EF2DA857703D8D", sdk.NewInt(10_000))).String(),
+				sdk.NewCoins(sdk.NewCoin("poolC33A77E752C183913636A37FE1388ACA22FE7BED792BEB2E72EF2DA857703D8D", math.NewInt(10_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			true, nil, 0,
 		},
@@ -351,11 +352,11 @@ func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 			"bad pool coin",
 			[]string{
 				fmt.Sprintf("%d", uint32(1)),
-				sdk.NewCoins(sdk.NewCoin("badpoolcoindenom", sdk.NewInt(10_000))).String(),
+				sdk.NewCoins(sdk.NewCoin("badpoolcoindenom", math.NewInt(10_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			false, &sdk.TxResponse{}, 29,
 		},
@@ -363,11 +364,11 @@ func (s *IntegrationTestSuite) TestNewWithdrawWithinBatchCmd() {
 			"valid transaction",
 			[]string{
 				fmt.Sprintf("%d", uint32(1)),
-				sdk.NewCoins(sdk.NewCoin("poolC33A77E752C183913636A37FE1388ACA22FE7BED792BEB2E72EF2DA857703D8D", sdk.NewInt(10_000))).String(),
+				sdk.NewCoins(sdk.NewCoin("poolC33A77E752C183913636A37FE1388ACA22FE7BED792BEB2E72EF2DA857703D8D", math.NewInt(10_000))).String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			false, &sdk.TxResponse{}, 0,
 		},
@@ -407,7 +408,7 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
+		sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(100_000_000)), sdk.NewCoin(denomY, math.NewInt(100_000_000))).String(),
 	)
 	s.Require().NoError(err)
 
@@ -426,14 +427,14 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 			[]string{
 				"invalidpoolid",
 				fmt.Sprintf("%d", uint32(1)),
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000))).String(),
+				sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(10_000))).String(),
 				denomY,
 				fmt.Sprintf("%.2f", 0.02),
 				fmt.Sprintf("%.3f", 0.003),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			true, nil, 0,
 		},
@@ -442,14 +443,14 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 			[]string{
 				fmt.Sprintf("%d", uint32(1)),
 				fmt.Sprintf("%d", uint32(2)),
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000))).String(),
+				sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(10_000))).String(),
 				denomY,
 				fmt.Sprintf("%.2f", 0.02),
 				fmt.Sprintf("%.2f", 0.03),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			true, nil, 0,
 		},
@@ -458,14 +459,14 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 			[]string{
 				fmt.Sprintf("%d", uint32(1)),
 				fmt.Sprintf("%d", uint32(1)),
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000))).String(),
+				sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(10_000))).String(),
 				denomY,
 				fmt.Sprintf("%.2f", 0.02),
 				fmt.Sprintf("%.2f", 0.01),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			false, &sdk.TxResponse{}, 35,
 		},
@@ -474,14 +475,14 @@ func (s *IntegrationTestSuite) TestNewSwapWithinBatchCmd() {
 			[]string{
 				fmt.Sprintf("%d", uint32(1)),
 				fmt.Sprintf("%d", liquiditytypes.DefaultSwapTypeID),
-				sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000))).String(),
+				sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(10_000))).String(),
 				denomY,
 				fmt.Sprintf("%.2f", 1.0),
 				fmt.Sprintf("%.3f", 0.003),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 				fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastAsync),
-				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, sdk.NewInt(10))).String()),
+				fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(s.cfg.BondDenom, math.NewInt(10))).String()),
 			},
 			false, &sdk.TxResponse{}, 0,
 		},
@@ -573,7 +574,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPool() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
+		sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(100_000_000)), sdk.NewCoin(denomY, math.NewInt(100_000_000))).String(),
 	)
 	s.Require().NoError(err)
 
@@ -694,7 +695,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPools() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
+		sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(100_000_000)), sdk.NewCoin(denomY, math.NewInt(100_000_000))).String(),
 	)
 	s.Require().NoError(err)
 
@@ -753,7 +754,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryLiquidityPoolBatch() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
+		sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(100_000_000)), sdk.NewCoin(denomY, math.NewInt(100_000_000))).String(),
 	)
 	s.Require().NoError(err)
 
@@ -822,7 +823,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsg() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
+		sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(100_000_000)), sdk.NewCoin(denomY, math.NewInt(100_000_000))).String(),
 	)
 	s.Require().NoError(err)
 
@@ -834,7 +835,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsg() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000_000)), sdk.NewCoin(denomY, sdk.NewInt(10_000_000))).String(),
+		sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(10_000_000)), sdk.NewCoin(denomY, math.NewInt(10_000_000))).String(),
 	)
 	s.Require().NoError(err)
 
@@ -908,7 +909,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsgs() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
+		sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(100_000_000)), sdk.NewCoin(denomY, math.NewInt(100_000_000))).String(),
 	)
 	s.Require().NoError(err)
 
@@ -920,7 +921,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchDepositMsgs() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000_000)), sdk.NewCoin(denomY, sdk.NewInt(10_000_000))).String(),
+		sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(10_000_000)), sdk.NewCoin(denomY, math.NewInt(10_000_000))).String(),
 	)
 	s.Require().NoError(err)
 
@@ -994,7 +995,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsg() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
+		sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(100_000_000)), sdk.NewCoin(denomY, math.NewInt(100_000_000))).String(),
 	)
 	s.Require().NoError(err)
 
@@ -1007,7 +1008,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsg() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", uint32(1)),
-		sdk.NewCoins(sdk.NewCoin(poolCoinDenom, sdk.NewInt(10_000))).String(),
+		sdk.NewCoins(sdk.NewCoin(poolCoinDenom, math.NewInt(10_000))).String(),
 	)
 	s.Require().NoError(err)
 
@@ -1082,7 +1083,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsgs() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(100_000_000)), sdk.NewCoin(denomY, sdk.NewInt(100_000_000))).String(),
+		sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(100_000_000)), sdk.NewCoin(denomY, math.NewInt(100_000_000))).String(),
 	)
 	s.Require().NoError(err)
 
@@ -1094,7 +1095,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchWithdrawMsgs() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", uint32(1)),
-		sdk.NewCoins(sdk.NewCoin("poolC33A77E752C183913636A37FE1388ACA22FE7BED792BEB2E72EF2DA857703D8D", sdk.NewInt(10_000))).String(),
+		sdk.NewCoins(sdk.NewCoin("poolC33A77E752C183913636A37FE1388ACA22FE7BED792BEB2E72EF2DA857703D8D", math.NewInt(10_000))).String(),
 	)
 	s.Require().NoError(err)
 
@@ -1162,8 +1163,8 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsg() {
 
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
-	X := sdk.NewCoin(denomX, sdk.NewInt(1_000_000_000))
-	Y := sdk.NewCoin(denomY, sdk.NewInt(5_000_000_000))
+	X := sdk.NewCoin(denomX, math.NewInt(1_000_000_000))
+	Y := sdk.NewCoin(denomY, math.NewInt(5_000_000_000))
 
 	// liquidity pool should be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
@@ -1178,7 +1179,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsg() {
 	s.Require().NoError(err)
 
 	// swap coins from the pool
-	offerCoin := sdk.NewCoin(denomY, sdk.NewInt(50_000_000))
+	offerCoin := sdk.NewCoin(denomY, math.NewInt(50_000_000))
 	_, err = liquiditytestutil.MsgSwapWithinBatchExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -1255,8 +1256,8 @@ func (s *IntegrationTestSuite) TestGetCircuitBreaker() {
 
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
-	X := sdk.NewCoin(denomX, sdk.NewInt(1_000_000_000))
-	Y := sdk.NewCoin(denomY, sdk.NewInt(5_000_000_000))
+	X := sdk.NewCoin(denomX, math.NewInt(1_000_000_000))
+	Y := sdk.NewCoin(denomY, math.NewInt(5_000_000_000))
 
 	// liquidity pool should be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
@@ -1271,7 +1272,7 @@ func (s *IntegrationTestSuite) TestGetCircuitBreaker() {
 	s.Require().NoError(err)
 
 	// swap coins from the pool
-	offerCoin := sdk.NewCoin(denomY, sdk.NewInt(50_000_000))
+	offerCoin := sdk.NewCoin(denomY, math.NewInt(50_000_000))
 	output, err := liquiditytestutil.MsgSwapWithinBatchExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -1362,7 +1363,7 @@ func (s *IntegrationTestSuite) TestGetCircuitBreaker() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", liquiditytypes.DefaultPoolTypeID),
-		sdk.NewCoins(sdk.NewCoin(denomX, sdk.NewInt(10_000_000)), sdk.NewCoin(denomY, sdk.NewInt(10_000_000))).String(),
+		sdk.NewCoins(sdk.NewCoin(denomX, math.NewInt(10_000_000)), sdk.NewCoin(denomY, math.NewInt(10_000_000))).String(),
 	)
 	s.Require().NoError(err)
 	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(output.Bytes(), &txRes))
@@ -1375,7 +1376,7 @@ func (s *IntegrationTestSuite) TestGetCircuitBreaker() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", uint32(1)),
-		sdk.NewCoins(sdk.NewCoin(poolCoinDenom, sdk.NewInt(500000))).String(),
+		sdk.NewCoins(sdk.NewCoin(poolCoinDenom, math.NewInt(500000))).String(),
 	)
 	s.Require().NoError(err)
 	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(output.Bytes(), &txRes))
@@ -1385,7 +1386,7 @@ func (s *IntegrationTestSuite) TestGetCircuitBreaker() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", uint32(1)),
-		sdk.NewCoins(sdk.NewCoin(poolCoinDenom, sdk.NewInt(499999))).String(),
+		sdk.NewCoins(sdk.NewCoin(poolCoinDenom, math.NewInt(499999))).String(),
 	)
 	s.Require().NoError(err)
 	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(output.Bytes(), &txRes))
@@ -1396,7 +1397,7 @@ func (s *IntegrationTestSuite) TestGetCircuitBreaker() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", uint32(1)),
-		sdk.NewCoins(sdk.NewCoin(poolCoinDenom, sdk.NewInt(1))).String(),
+		sdk.NewCoins(sdk.NewCoin(poolCoinDenom, math.NewInt(1))).String(),
 	)
 	s.Require().NoError(err)
 	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(output.Bytes(), &txRes))
@@ -1407,7 +1408,7 @@ func (s *IntegrationTestSuite) TestGetCircuitBreaker() {
 		val.ClientCtx,
 		val.Address.String(),
 		fmt.Sprintf("%d", uint32(1)),
-		sdk.NewCoins(sdk.NewCoin(poolCoinDenom, sdk.NewInt(1))).String(),
+		sdk.NewCoins(sdk.NewCoin(poolCoinDenom, math.NewInt(1))).String(),
 	)
 	s.Require().NoError(err)
 	s.Require().NoError(val.ClientCtx.Codec.UnmarshalJSON(output.Bytes(), &txRes))
@@ -1421,8 +1422,8 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsgs() {
 
 	// use two different tokens that are minted to the test account
 	denomX, denomY := liquiditytypes.AlphabeticalDenomPair("node0token", s.network.Config.BondDenom)
-	X := sdk.NewCoin(denomX, sdk.NewInt(1_000_000_000))
-	Y := sdk.NewCoin(denomY, sdk.NewInt(5_000_000_000))
+	X := sdk.NewCoin(denomX, math.NewInt(1_000_000_000))
+	Y := sdk.NewCoin(denomY, math.NewInt(5_000_000_000))
 
 	// liquidity pool should be created prior to test this integration test
 	_, err := liquiditytestutil.MsgCreatePoolExec(
@@ -1437,7 +1438,7 @@ func (s *IntegrationTestSuite) TestGetCmdQueryPoolBatchSwapMsgs() {
 	s.Require().NoError(err)
 
 	// swap coins from the pool
-	offerCoin := sdk.NewCoin(denomY, sdk.NewInt(50_000_000))
+	offerCoin := sdk.NewCoin(denomY, math.NewInt(50_000_000))
 	_, err = liquiditytestutil.MsgSwapWithinBatchExec(
 		val.ClientCtx,
 		val.Address.String(),
@@ -1533,8 +1534,8 @@ func (s *IntegrationTestSuite) TestInitGenesis() {
 			testMbm := module.NewBasicManager(liquidity.AppModuleBasic{})
 
 			home := s.T().TempDir()
-			logger := tmlog.NewNopLogger()
-			cfg, err := genutiltest.CreateDefaultTendermintConfig(home)
+			logger := log.NewNopLogger()
+			cfg, err := genutiltest.CreateDefaultCometConfig(home)
 			s.Require().NoError(err)
 
 			serverCtx := server.NewContext(viper.New(), cfg, logger)

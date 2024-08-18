@@ -20,8 +20,9 @@ import (
 	"github.com/Victor118/liquidity/app/params"
 	liquiditycli "github.com/Victor118/liquidity/x/liquidity/client/cli"
 
-	dbm "github.com/cometbft/cometbft-db"
-	pruningtypes "github.com/cosmos/cosmos-sdk/store/pruning/types"
+	"cosmossdk.io/math"
+	pruningtypes "cosmossdk.io/store/pruning/types"
+	dbm "github.com/cosmos/cosmos-db"
 )
 
 // NewConfig returns config that defines the necessary testing requirements
@@ -51,7 +52,7 @@ func NewAppConstructor(encodingCfg params.EncodingConfig, db *dbm.MemDB) network
 var commonArgs = []string{
 	fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 	fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastSync),
-	fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(10))).String()),
+	fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(10))).String()),
 }
 
 // MsgCreatePoolExec creates a transaction for creating liquidity pool.

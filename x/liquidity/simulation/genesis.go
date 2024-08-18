@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"strings"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/types/simulation"
@@ -34,18 +35,18 @@ func GenLiquidityPoolTypes(r *rand.Rand) (liquidityPoolTypes []types.PoolType) {
 }
 
 // GenMinInitDepositAmount randomized MinInitDepositAmount
-func GenMinInitDepositAmount(r *rand.Rand) sdk.Int {
-	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e7)))
+func GenMinInitDepositAmount(r *rand.Rand) math.Int {
+	return math.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e7)))
 }
 
 // GenInitPoolCoinMintAmount randomized InitPoolCoinMintAmount
-func GenInitPoolCoinMintAmount(r *rand.Rand) sdk.Int {
-	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultInitPoolCoinMintAmount.Int64()), 1e8)))
+func GenInitPoolCoinMintAmount(r *rand.Rand) math.Int {
+	return math.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultInitPoolCoinMintAmount.Int64()), 1e8)))
 }
 
 // GenMaxReserveCoinAmount randomized MaxReserveCoinAmount
-func GenMaxReserveCoinAmount(r *rand.Rand) sdk.Int {
-	return sdk.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultMaxReserveCoinAmount.Int64()), 1e13)))
+func GenMaxReserveCoinAmount(r *rand.Rand) math.Int {
+	return math.NewInt(int64(simulation.RandIntBetween(r, int(types.DefaultMaxReserveCoinAmount.Int64()), 1e13)))
 }
 
 // GenPoolCreationFee randomized PoolCreationFee
@@ -63,7 +64,7 @@ func GenPoolCreationFee(r *rand.Rand) sdk.Coins {
 	sortedDenoms := types.SortDenoms(denoms)
 
 	for i := 0; i < count; i++ {
-		randomCoin := sdk.NewCoin(sortedDenoms[i], sdk.NewInt(int64(simulation.RandIntBetween(r, 1e6, 1e7))))
+		randomCoin := sdk.NewCoin(sortedDenoms[i], math.NewInt(int64(simulation.RandIntBetween(r, 1e6, 1e7))))
 		coins = append(coins, randomCoin)
 	}
 
@@ -71,18 +72,18 @@ func GenPoolCreationFee(r *rand.Rand) sdk.Coins {
 }
 
 // GenSwapFeeRate randomized SwapFeeRate ranging from 0.00001 to 1
-func GenSwapFeeRate(r *rand.Rand) sdk.Dec {
-	return sdk.NewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 1e5)), 5)
+func GenSwapFeeRate(r *rand.Rand) math.LegacyDec {
+	return math.LegacyNewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 1e5)), 5)
 }
 
 // GenWithdrawFeeRate randomized WithdrawFeeRate ranging from 0.00001 to 1
-func GenWithdrawFeeRate(r *rand.Rand) sdk.Dec {
-	return sdk.NewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 1e5)), 5)
+func GenWithdrawFeeRate(r *rand.Rand) math.LegacyDec {
+	return math.LegacyNewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 1e5)), 5)
 }
 
 // GenMaxOrderAmountRatio randomized MaxOrderAmountRatio ranging from 0.00001 to 1
-func GenMaxOrderAmountRatio(r *rand.Rand) sdk.Dec {
-	return sdk.NewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 1e5)), 5)
+func GenMaxOrderAmountRatio(r *rand.Rand) math.LegacyDec {
+	return math.LegacyNewDecWithPrec(int64(simulation.RandIntBetween(r, 1, 1e5)), 5)
 }
 
 // GenUnitBatchHeight randomized UnitBatchHeight ranging from 1 to 20
@@ -94,55 +95,55 @@ func GenUnitBatchHeight(r *rand.Rand) uint32 {
 func RandomizedGenState(simState *module.SimulationState) {
 	var liquidityPoolTypes []types.PoolType
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, LiquidityPoolTypes, &liquidityPoolTypes, simState.Rand,
+		LiquidityPoolTypes, &liquidityPoolTypes, simState.Rand,
 		func(r *rand.Rand) { liquidityPoolTypes = GenLiquidityPoolTypes(r) },
 	)
 
-	var minInitDepositAmount sdk.Int
+	var minInitDepositAmount math.Int
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, MinInitDepositAmount, &minInitDepositAmount, simState.Rand,
+		MinInitDepositAmount, &minInitDepositAmount, simState.Rand,
 		func(r *rand.Rand) { minInitDepositAmount = GenMinInitDepositAmount(r) },
 	)
 
-	var initPoolCoinMintAmount sdk.Int
+	var initPoolCoinMintAmount math.Int
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, InitPoolCoinMintAmount, &initPoolCoinMintAmount, simState.Rand,
+		InitPoolCoinMintAmount, &initPoolCoinMintAmount, simState.Rand,
 		func(r *rand.Rand) { initPoolCoinMintAmount = GenInitPoolCoinMintAmount(r) },
 	)
 
-	var maxReserveCoinAmount sdk.Int
+	var maxReserveCoinAmount math.Int
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, MaxReserveCoinAmount, &maxReserveCoinAmount, simState.Rand,
+		MaxReserveCoinAmount, &maxReserveCoinAmount, simState.Rand,
 		func(r *rand.Rand) { maxReserveCoinAmount = GenMaxReserveCoinAmount(r) },
 	)
 
 	var poolCreationFee sdk.Coins
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, PoolCreationFee, &poolCreationFee, simState.Rand,
+		PoolCreationFee, &poolCreationFee, simState.Rand,
 		func(r *rand.Rand) { poolCreationFee = GenPoolCreationFee(r) },
 	)
 
-	var swapFeeRate sdk.Dec
+	var swapFeeRate math.LegacyDec
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, SwapFeeRate, &swapFeeRate, simState.Rand,
+		SwapFeeRate, &swapFeeRate, simState.Rand,
 		func(r *rand.Rand) { swapFeeRate = GenSwapFeeRate(r) },
 	)
 
-	var withdrawFeeRate sdk.Dec
+	var withdrawFeeRate math.LegacyDec
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, WithdrawFeeRate, &withdrawFeeRate, simState.Rand,
+		WithdrawFeeRate, &withdrawFeeRate, simState.Rand,
 		func(r *rand.Rand) { withdrawFeeRate = GenWithdrawFeeRate(r) },
 	)
 
-	var maxOrderAmountRatio sdk.Dec
+	var maxOrderAmountRatio math.LegacyDec
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, MaxOrderAmountRatio, &maxOrderAmountRatio, simState.Rand,
+		MaxOrderAmountRatio, &maxOrderAmountRatio, simState.Rand,
 		func(r *rand.Rand) { maxOrderAmountRatio = GenMaxOrderAmountRatio(r) },
 	)
 
 	var unitBatchHeight uint32
 	simState.AppParams.GetOrGenerate(
-		simState.Cdc, UnitBatchHeight, &unitBatchHeight, simState.Rand,
+		UnitBatchHeight, &unitBatchHeight, simState.Rand,
 		func(r *rand.Rand) { unitBatchHeight = GenUnitBatchHeight(r) },
 	)
 

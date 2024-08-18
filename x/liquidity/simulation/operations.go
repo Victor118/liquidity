@@ -31,28 +31,28 @@ func WeightedOperations(
 ) simulation.WeightedOperations {
 
 	var weightMsgCreatePool int
-	appParams.GetOrGenerate(cdc, OpWeightMsgCreatePool, &weightMsgCreatePool, nil,
+	appParams.GetOrGenerate(OpWeightMsgCreatePool, &weightMsgCreatePool, nil,
 		func(_ *rand.Rand) {
 			weightMsgCreatePool = liquidityparams.DefaultWeightMsgCreatePool
 		},
 	)
 
 	var weightMsgDepositWithinBatch int
-	appParams.GetOrGenerate(cdc, OpWeightMsgDepositWithinBatch, &weightMsgDepositWithinBatch, nil,
+	appParams.GetOrGenerate(OpWeightMsgDepositWithinBatch, &weightMsgDepositWithinBatch, nil,
 		func(_ *rand.Rand) {
 			weightMsgDepositWithinBatch = liquidityparams.DefaultWeightMsgDepositWithinBatch
 		},
 	)
 
 	var weightMsgMsgWithdrawWithinBatch int
-	appParams.GetOrGenerate(cdc, OpWeightMsgWithdrawWithinBatch, &weightMsgMsgWithdrawWithinBatch, nil,
+	appParams.GetOrGenerate(OpWeightMsgWithdrawWithinBatch, &weightMsgMsgWithdrawWithinBatch, nil,
 		func(_ *rand.Rand) {
 			weightMsgMsgWithdrawWithinBatch = liquidityparams.DefaultWeightMsgWithdrawWithinBatch
 		},
 	)
 
 	var weightMsgSwapWithinBatch int
-	appParams.GetOrGenerate(cdc, OpWeightMsgSwapWithinBatch, &weightMsgSwapWithinBatch, nil,
+	appParams.GetOrGenerate(OpWeightMsgSwapWithinBatch, &weightMsgSwapWithinBatch, nil,
 		func(_ *rand.Rand) {
 			weightMsgSwapWithinBatch = liquidityparams.DefaultWeightMsgSwapWithinBatch
 		},
@@ -170,7 +170,7 @@ func SimulateMsgCreatePool(ak types.AccountKeeper, bk types.BankKeeper, k keeper
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to deliver tx"), nil, err
 		}
 
-		return simtypes.NewOperationMsg(msg, true, "", nil), nil, nil
+		return simtypes.NewOperationMsg(msg, true, ""), nil, nil
 	}
 }
 
@@ -247,7 +247,7 @@ func SimulateMsgDepositWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, 
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to deliver tx"), nil, err
 		}
 
-		return simtypes.NewOperationMsg(msg, true, "", nil), nil, nil
+		return simtypes.NewOperationMsg(msg, true, ""), nil, nil
 	}
 }
 
@@ -315,7 +315,7 @@ func SimulateMsgWithdrawWithinBatch(ak types.AccountKeeper, bk types.BankKeeper,
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to deliver tx"), nil, err
 		}
 
-		return simtypes.NewOperationMsg(msg, true, "", nil), nil, nil
+		return simtypes.NewOperationMsg(msg, true, ""), nil, nil
 	}
 }
 
@@ -386,6 +386,6 @@ func SimulateMsgSwapWithinBatch(ak types.AccountKeeper, bk types.BankKeeper, k k
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "unable to deliver tx"), nil, err
 		}
 
-		return simtypes.NewOperationMsg(msg, true, "", nil), nil, nil
+		return simtypes.NewOperationMsg(msg, true, ""), nil, nil
 	}
 }

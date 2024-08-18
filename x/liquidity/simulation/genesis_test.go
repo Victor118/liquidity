@@ -5,9 +5,9 @@ import (
 	"math/rand"
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/codec"
 	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/stretchr/testify/require"
@@ -30,7 +30,7 @@ func TestRandomizedGenState(t *testing.T) {
 		Rand:         r,
 		NumBonded:    3,
 		Accounts:     simtypes.RandomAccounts(r, 3),
-		InitialStake: sdk.NewInt(1000),
+		InitialStake: math.NewInt(1000),
 		GenState:     make(map[string]json.RawMessage),
 	}
 
@@ -39,12 +39,12 @@ func TestRandomizedGenState(t *testing.T) {
 	var liquidityGenesis types.GenesisState
 	simState.Cdc.MustUnmarshalJSON(simState.GenState[types.ModuleName], &liquidityGenesis)
 
-	dec1, _ := sdk.NewIntFromString("4122540")
-	dec2, _ := sdk.NewIntFromString("11240456")
-	dec3, _ := sdk.NewIntFromString("2040480279449")
-	dec4, _ := sdk.NewDecFromStr("0.448590000000000000")
-	dec5, _ := sdk.NewDecFromStr("0.732160000000000000")
-	dec6, _ := sdk.NewDecFromStr("0.237840000000000000")
+	dec1, _ := math.NewIntFromString("4122540")
+	dec2, _ := math.NewIntFromString("11240456")
+	dec3, _ := math.NewIntFromString("2040480279449")
+	dec4, _ := math.LegacyNewDecFromStr("0.448590000000000000")
+	dec5, _ := math.LegacyNewDecFromStr("0.732160000000000000")
+	dec6, _ := math.LegacyNewDecFromStr("0.237840000000000000")
 
 	require.Equal(t, dec1, liquidityGenesis.Params.MinInitDepositAmount)
 	require.Equal(t, dec2, liquidityGenesis.Params.InitPoolCoinMintAmount)

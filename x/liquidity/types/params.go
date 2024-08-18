@@ -49,13 +49,13 @@ var (
 )
 
 var (
-	DefaultMinInitDepositAmount   = sdk.NewInt(1000000)
-	DefaultInitPoolCoinMintAmount = sdk.NewInt(1000000)
-	DefaultMaxReserveCoinAmount   = sdk.ZeroInt()
-	DefaultSwapFeeRate            = sdk.NewDecWithPrec(3, 3) // "0.003000000000000000"
-	DefaultWithdrawFeeRate        = sdk.ZeroDec()
-	DefaultMaxOrderAmountRatio    = sdk.NewDecWithPrec(1, 1) // "0.100000000000000000"
-	DefaultPoolCreationFee        = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, sdk.NewInt(40000000)))
+	DefaultMinInitDepositAmount   = math.NewInt(1000000)
+	DefaultInitPoolCoinMintAmount = math.NewInt(1000000)
+	DefaultMaxReserveCoinAmount   = math.ZeroInt()
+	DefaultSwapFeeRate            = math.LegacyNewDecWithPrec(3, 3) // "0.003000000000000000"
+	DefaultWithdrawFeeRate        = math.LegacyZeroDec()
+	DefaultMaxOrderAmountRatio    = math.LegacyNewDecWithPrec(1, 1) // "0.100000000000000000"
+	DefaultPoolCreationFee        = sdk.NewCoins(sdk.NewCoin(sdk.DefaultBondDenom, math.NewInt(40000000)))
 	DefaultPoolType               = PoolType{
 		Id:                1,
 		Name:              "StandardLiquidityPool",
@@ -65,8 +65,8 @@ var (
 	}
 	DefaultPoolTypes = []PoolType{DefaultPoolType}
 
-	MinOfferCoinAmount       = sdk.NewInt(100)
-	DefaultBuilderCommission = sdk.NewDecWithPrec(2, 1) // "0.200000000000000000" if there's builders addresses, this commission rate from fees are redirected to builders
+	MinOfferCoinAmount       = math.NewInt(100)
+	DefaultBuilderCommission = math.LegacyNewDecWithPrec(2, 1) // "0.200000000000000000" if there's builders addresses, this commission rate from fees are redirected to builders
 	DefaultBuildersAddresses = []WeightedAddress(nil)
 )
 
@@ -156,7 +156,7 @@ func validateBuildersAddresses(i interface{}) error {
 		return nil
 	}
 
-	weightSum := sdk.ZeroDec()
+	weightSum := math.LegacyZeroDec()
 	for i, w := range v {
 		// we allow address to be "" to go to community pool
 		if w.Address != "" {
@@ -174,7 +174,7 @@ func validateBuildersAddresses(i interface{}) error {
 		weightSum = weightSum.Add(w.Weight)
 	}
 
-	if !weightSum.Equal(sdk.OneDec()) {
+	if !weightSum.Equal(math.LegacyOneDec()) {
 		return fmt.Errorf("invalid weight sum: %s", weightSum.String())
 	}
 
@@ -182,7 +182,7 @@ func validateBuildersAddresses(i interface{}) error {
 }
 
 func validateBuildersCommission(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -195,7 +195,7 @@ func validateBuildersCommission(i interface{}) error {
 		return fmt.Errorf("builders commission must not be negative: %s", v)
 	}
 
-	if v.GT(sdk.OneDec()) {
+	if v.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("builders commission too large: %s", v)
 	}
 
@@ -246,7 +246,7 @@ func validateMinInitDepositAmount(i interface{}) error {
 }
 
 func validateInitPoolCoinMintAmount(i interface{}) error {
-	v, ok := i.(sdk.Int)
+	v, ok := i.(math.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -267,7 +267,7 @@ func validateInitPoolCoinMintAmount(i interface{}) error {
 }
 
 func validateMaxReserveCoinAmount(i interface{}) error {
-	v, ok := i.(sdk.Int)
+	v, ok := i.(math.Int)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -284,7 +284,7 @@ func validateMaxReserveCoinAmount(i interface{}) error {
 }
 
 func validateSwapFeeRate(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -297,7 +297,7 @@ func validateSwapFeeRate(i interface{}) error {
 		return fmt.Errorf("swap fee rate must not be negative: %s", v)
 	}
 
-	if v.GT(sdk.OneDec()) {
+	if v.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("swap fee rate too large: %s", v)
 	}
 
@@ -305,7 +305,7 @@ func validateSwapFeeRate(i interface{}) error {
 }
 
 func validateWithdrawFeeRate(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -318,7 +318,7 @@ func validateWithdrawFeeRate(i interface{}) error {
 		return fmt.Errorf("withdraw fee rate must not be negative: %s", v)
 	}
 
-	if v.GT(sdk.OneDec()) {
+	if v.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("withdraw fee rate too large: %s", v)
 	}
 
@@ -326,7 +326,7 @@ func validateWithdrawFeeRate(i interface{}) error {
 }
 
 func validateMaxOrderAmountRatio(i interface{}) error {
-	v, ok := i.(sdk.Dec)
+	v, ok := i.(math.LegacyDec)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
 	}
@@ -339,7 +339,7 @@ func validateMaxOrderAmountRatio(i interface{}) error {
 		return fmt.Errorf("max order amount ratio must not be negative: %s", v)
 	}
 
-	if v.GT(sdk.OneDec()) {
+	if v.GT(math.LegacyOneDec()) {
 		return fmt.Errorf("max order amount ratio too large: %s", v)
 	}
 

@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/require"
@@ -77,112 +78,112 @@ func TestParams_Validate(t *testing.T) {
 		{
 			"NilMinInitDepositAmount",
 			func(params *types.Params) {
-				params.MinInitDepositAmount = sdk.Int{}
+				params.MinInitDepositAmount = math.Int{}
 			},
 			"minimum initial deposit amount must not be nil",
 		},
 		{
 			"NonPositiveMinInitDepositAmount",
 			func(params *types.Params) {
-				params.MinInitDepositAmount = sdk.NewInt(0)
+				params.MinInitDepositAmount = math.NewInt(0)
 			},
 			"minimum initial deposit amount must be positive: 0",
 		},
 		{
 			"NilInitPoolCoinMintAmount",
 			func(params *types.Params) {
-				params.InitPoolCoinMintAmount = sdk.Int{}
+				params.InitPoolCoinMintAmount = math.Int{}
 			},
 			"initial pool coin mint amount must not be nil",
 		},
 		{
 			"NonPositiveInitPoolCoinMintAmount",
 			func(params *types.Params) {
-				params.InitPoolCoinMintAmount = sdk.ZeroInt()
+				params.InitPoolCoinMintAmount = math.ZeroInt()
 			},
 			"initial pool coin mint amount must be positive: 0",
 		},
 		{
 			"TooSmallInitPoolCoinMintAmount",
 			func(params *types.Params) {
-				params.InitPoolCoinMintAmount = sdk.NewInt(10)
+				params.InitPoolCoinMintAmount = math.NewInt(10)
 			},
 			"initial pool coin mint amount must be greater than or equal to 1000000: 10",
 		},
 		{
 			"NilMaxReserveCoinAmount",
 			func(params *types.Params) {
-				params.MaxReserveCoinAmount = sdk.Int{}
+				params.MaxReserveCoinAmount = math.Int{}
 			},
 			"max reserve coin amount must not be nil",
 		},
 		{
 			"NegativeMaxReserveCoinAmount",
 			func(params *types.Params) {
-				params.MaxReserveCoinAmount = sdk.NewInt(-1)
+				params.MaxReserveCoinAmount = math.NewInt(-1)
 			},
 			"max reserve coin amount must not be negative: -1",
 		},
 		{
 			"NilSwapFeeRate",
 			func(params *types.Params) {
-				params.SwapFeeRate = sdk.Dec{}
+				params.SwapFeeRate = math.LegacyDec{}
 			},
 			"swap fee rate must not be nil",
 		},
 		{
 			"NegativeSwapFeeRate",
 			func(params *types.Params) {
-				params.SwapFeeRate = sdk.NewDec(-1)
+				params.SwapFeeRate = math.LegacyNewDec(-1)
 			},
 			"swap fee rate must not be negative: -1.000000000000000000",
 		},
 		{
 			"TooLargeSwapFeeRate",
 			func(params *types.Params) {
-				params.SwapFeeRate = sdk.NewDec(2)
+				params.SwapFeeRate = math.LegacyNewDec(2)
 			},
 			"swap fee rate too large: 2.000000000000000000",
 		},
 		{
 			"NilWithdrawFeeRate",
 			func(params *types.Params) {
-				params.WithdrawFeeRate = sdk.Dec{}
+				params.WithdrawFeeRate = math.LegacyDec{}
 			},
 			"withdraw fee rate must not be nil",
 		},
 		{
 			"NegativeWithdrawFeeRate",
 			func(params *types.Params) {
-				params.WithdrawFeeRate = sdk.NewDec(-1)
+				params.WithdrawFeeRate = math.LegacyNewDec(-1)
 			},
 			"withdraw fee rate must not be negative: -1.000000000000000000",
 		},
 		{
 			"TooLargeWithdrawFeeRate",
 			func(params *types.Params) {
-				params.WithdrawFeeRate = sdk.NewDec(2)
+				params.WithdrawFeeRate = math.LegacyNewDec(2)
 			},
 			"withdraw fee rate too large: 2.000000000000000000",
 		},
 		{
 			"NilMaxOrderAmountRatio",
 			func(params *types.Params) {
-				params.MaxOrderAmountRatio = sdk.Dec{}
+				params.MaxOrderAmountRatio = math.LegacyDec{}
 			},
 			"max order amount ratio must not be nil",
 		},
 		{
 			"NegativeMaxOrderAmountRatio",
 			func(params *types.Params) {
-				params.MaxOrderAmountRatio = sdk.NewDec(-1)
+				params.MaxOrderAmountRatio = math.LegacyNewDec(-1)
 			},
 			"max order amount ratio must not be negative: -1.000000000000000000",
 		},
 		{
 			"TooLargeMaxOrderAmountRatio",
 			func(params *types.Params) {
-				params.MaxOrderAmountRatio = sdk.NewDec(2)
+				params.MaxOrderAmountRatio = math.LegacyNewDec(2)
 			},
 			"max order amount ratio too large: 2.000000000000000000",
 		},
@@ -211,7 +212,7 @@ func TestParams_Validate(t *testing.T) {
 				params.PoolCreationFee = sdk.Coins{
 					sdk.Coin{
 						Denom:  params.PoolCreationFee.GetDenomByIndex(0),
-						Amount: sdk.ZeroInt(),
+						Amount: math.ZeroInt(),
 					},
 				}
 			},

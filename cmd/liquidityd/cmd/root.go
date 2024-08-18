@@ -5,11 +5,10 @@ import (
 	"io"
 	"os"
 
-	rosettaCmd "cosmossdk.io/tools/rosetta/cmd"
-
-	dbm "github.com/cometbft/cometbft-db"
+	"cosmossdk.io/log"
+	confixcmd "cosmossdk.io/tools/confix/cmd"
 	tmcfg "github.com/cometbft/cometbft/config"
-	"github.com/cometbft/cometbft/libs/log"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -169,8 +168,8 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 		genutilcli.InitCmd(app.ModuleBasics, app.DefaultNodeHome),
 		NewTestnetCmd(app.ModuleBasics, banktypes.GenesisBalancesIterator{}),
 		debug.Cmd(),
-		config.Cmd(),
-		pruning.PruningCmd(newApp),
+		confixcmd.ConfigCommand(),
+		pruning.Cmd(newApp, app.DefaultNodeHome),
 		snapshot.Cmd(newApp),
 	)
 
@@ -178,15 +177,13 @@ func initRootCmd(rootCmd *cobra.Command, encodingConfig params.EncodingConfig) {
 
 	// add keybase, auxiliary RPC, query, genesis, and tx child commands
 	rootCmd.AddCommand(
-		rpc.StatusCommand(),
+		server.StatusCommand(),
 		genesisCommand(encodingConfig),
 		queryCommand(),
 		txCommand(),
-		keys.Commands(app.DefaultNodeHome),
+		keys.Commands(),
 	)
 
-	// add rosetta
-	rootCmd.AddCommand(rosettaCmd.RosettaCommand(encodingConfig.InterfaceRegistry, encodingConfig.Codec))
 }
 
 func addModuleInitFlags(startCmd *cobra.Command) {
@@ -214,9 +211,7 @@ func queryCommand() *cobra.Command {
 	}
 
 	cmd.AddCommand(
-		authcmd.GetAccountCmd(),
 		rpc.ValidatorCommand(),
-		rpc.BlockCommand(),
 		authcmd.QueryTxsByEventsCmd(),
 		authcmd.QueryTxCmd(),
 	)
@@ -244,7 +239,6 @@ func txCommand() *cobra.Command {
 		authcmd.GetBroadcastCommand(),
 		authcmd.GetEncodeCommand(),
 		authcmd.GetDecodeCommand(),
-		authcmd.GetAuxToFeeCommand(),
 	)
 
 	app.ModuleBasics.AddTxCommands(cmd)

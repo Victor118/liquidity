@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
+	"cosmossdk.io/math"
 	abci "github.com/cometbft/cometbft/abci/types"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -70,10 +70,10 @@ func TestSimulateMsgCreatePool(t *testing.T) {
 	params := app.LiquidityKeeper.GetParams(ctx)
 	params.PoolCreationFee = feeCoins
 	app.LiquidityKeeper.SetParams(ctx, params)
-
-	// begin a new block
-	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
-
+	app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height: app.LastBlockHeight() + 1,
+		Hash:   app.LastCommitID().Hash,
+	})
 	// execute operation
 	op := simulation.SimulateMsgCreatePool(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
 	operationMsg, futureOperations, err := op(r, app.BaseApp, ctx, accounts, "")
@@ -103,8 +103,10 @@ func TestSimulateMsgDepositWithinBatch(t *testing.T) {
 	// setup random liquidity pools
 	setupLiquidityPools(t, r, app, ctx, accounts)
 
-	// begin a new block
-	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
+	app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height: app.LastBlockHeight() + 1,
+		Hash:   app.LastCommitID().Hash,
+	})
 
 	// execute operation
 	op := simulation.SimulateMsgDepositWithinBatch(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
@@ -134,8 +136,10 @@ func TestSimulateMsgWithdrawWithinBatch(t *testing.T) {
 	// setup random liquidity pools
 	setupLiquidityPools(t, r, app, ctx, accounts)
 
-	// begin a new block
-	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
+	app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height: app.LastBlockHeight() + 1,
+		Hash:   app.LastCommitID().Hash,
+	})
 
 	// execute operation
 	op := simulation.SimulateMsgWithdrawWithinBatch(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
@@ -165,8 +169,10 @@ func TestSimulateMsgSwapWithinBatch(t *testing.T) {
 	// setup random liquidity pools
 	setupLiquidityPools(t, r, app, ctx, accounts)
 
-	// begin a new block
-	app.BeginBlock(abci.RequestBeginBlock{Header: tmproto.Header{Height: app.LastBlockHeight() + 1, AppHash: app.LastCommitID().Hash}})
+	app.FinalizeBlock(&abci.RequestFinalizeBlock{
+		Height: app.LastBlockHeight() + 1,
+		Hash:   app.LastCommitID().Hash,
+	})
 
 	// execute operation
 	op := simulation.SimulateMsgSwapWithinBatch(app.AccountKeeper, app.BankKeeper, app.LiquidityKeeper)
@@ -187,9 +193,9 @@ func TestSimulateMsgSwapWithinBatch(t *testing.T) {
 func createTestApp(t *testing.T, isCheckTx bool) (*lapp.LiquidityApp, sdk.Context) {
 	app := lapp.Setup(t, false)
 
-	ctx := app.BaseApp.NewContext(isCheckTx, tmproto.Header{})
-	app.MintKeeper.SetParams(ctx, minttypes.DefaultParams())
-	app.MintKeeper.SetMinter(ctx, minttypes.DefaultInitialMinter())
+	ctx := app.BaseApp.NewContext(isCheckTx)
+	app.MintKeeper.Params.Set(ctx, minttypes.DefaultParams())
+	app.MintKeeper.Minter.Set(ctx, minttypes.DefaultInitialMinter())
 
 	return app, ctx
 }
@@ -211,7 +217,7 @@ func getTestingAccounts(t *testing.T, r *rand.Rand, app *lapp.LiquidityApp, ctx 
 }
 
 func setupLiquidityPools(t *testing.T, r *rand.Rand, app *lapp.LiquidityApp, ctx sdk.Context, accounts []simtypes.Account) {
-	params := app.StakingKeeper.GetParams(ctx)
+	params, _ := app.StakingKeeper.GetParams(ctx)
 
 	for _, account := range accounts {
 		// random denom with a length from 4 to 6 characters
@@ -219,26 +225,26 @@ func setupLiquidityPools(t *testing.T, r *rand.Rand, app *lapp.LiquidityApp, ctx
 		denomB := simtypes.RandStringOfLength(r, simtypes.RandIntBetween(r, 4, 6))
 		denomA, denomB = types.AlphabeticalDenomPair(strings.ToLower(denomA), strings.ToLower(denomB))
 
-		fees := sdk.NewCoin(params.GetBondDenom(), sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e10, 1e12))))
+		fees := sdk.NewCoin(params.GetBondDenom(), math.NewInt(int64(simtypes.RandIntBetween(r, 1e10, 1e12))))
 
 		// mint random amounts of denomA and denomB coins
-		mintCoinA := sdk.NewCoin(denomA, sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e14, 1e15))))
-		mintCoinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e14, 1e15))))
+		mintCoinA := sdk.NewCoin(denomA, math.NewInt(int64(simtypes.RandIntBetween(r, 1e14, 1e15))))
+		mintCoinB := sdk.NewCoin(denomB, math.NewInt(int64(simtypes.RandIntBetween(r, 1e14, 1e15))))
 		mintCoins := sdk.NewCoins(mintCoinA, mintCoinB, fees)
 		err := app.BankKeeper.MintCoins(ctx, types.ModuleName, mintCoins)
 		require.NoError(t, err)
 
 		// transfer random amounts to the simulated random account
-		coinA := sdk.NewCoin(denomA, sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e12, 1e14))))
-		coinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e12, 1e14))))
+		coinA := sdk.NewCoin(denomA, math.NewInt(int64(simtypes.RandIntBetween(r, 1e12, 1e14))))
+		coinB := sdk.NewCoin(denomB, math.NewInt(int64(simtypes.RandIntBetween(r, 1e12, 1e14))))
 		coins := sdk.NewCoins(coinA, coinB, fees)
 		err = app.BankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, account.Address, coins)
 		require.NoError(t, err)
 
 		// create liquidity pool with random deposit amounts
 		account := app.AccountKeeper.GetAccount(ctx, account.Address)
-		depositCoinA := sdk.NewCoin(denomA, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e8))))
-		depositCoinB := sdk.NewCoin(denomB, sdk.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e8))))
+		depositCoinA := sdk.NewCoin(denomA, math.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e8))))
+		depositCoinB := sdk.NewCoin(denomB, math.NewInt(int64(simtypes.RandIntBetween(r, int(types.DefaultMinInitDepositAmount.Int64()), 1e8))))
 		depositCoins := sdk.NewCoins(depositCoinA, depositCoinB)
 
 		createPoolMsg := types.NewMsgCreatePool(account.GetAddress(), types.DefaultPoolTypeID, depositCoins)

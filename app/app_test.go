@@ -1,16 +1,17 @@
 package app
 
 import (
-	"os"
 	"testing"
 
+	"cosmossdk.io/log"
+
 	"github.com/Victor118/liquidity/x/liquidity"
-	dbm "github.com/cometbft/cometbft-db"
 	abci "github.com/cometbft/cometbft/abci/types"
-	"github.com/cometbft/cometbft/libs/log"
-	tmproto "github.com/cometbft/cometbft/proto/tendermint/types"
+	dbm "github.com/cosmos/cosmos-db"
 	"github.com/stretchr/testify/require"
 
+	"cosmossdk.io/x/evidence"
+	feegrantmodule "cosmossdk.io/x/feegrant/module"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
@@ -19,11 +20,10 @@ import (
 	authzmodule "github.com/cosmos/cosmos-sdk/x/authz/module"
 	"github.com/cosmos/cosmos-sdk/x/bank"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
-	"github.com/cosmos/cosmos-sdk/x/capability"
+
+	"cosmossdk.io/x/upgrade"
 	"github.com/cosmos/cosmos-sdk/x/crisis"
 	"github.com/cosmos/cosmos-sdk/x/distribution"
-	"github.com/cosmos/cosmos-sdk/x/evidence"
-	feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
@@ -32,7 +32,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	"github.com/cosmos/cosmos-sdk/x/upgrade"
 
 	simtestutil "github.com/cosmos/cosmos-sdk/testutil/sims"
 )
@@ -40,7 +39,7 @@ import (
 func TestLiquidityAppExportAndBlockedAddrs(t *testing.T) {
 
 	db := dbm.NewMemDB()
-	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
+	logger := log.NewTestLogger(t)
 	app := NewLiquidityAppWithCustomOptions(t, false, SetupOptions{
 		LoadLatest: true,
 		Logger:     logger,
@@ -80,7 +79,7 @@ func TestGetMaccPerms(t *testing.T) {
 
 func TestRunMigrations(t *testing.T) {
 	db := dbm.NewMemDB()
-	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
+	logger := log.NewTestLogger(t)
 	app := NewLiquidityApp(logger, db, nil, true, simtestutil.NewAppOptionsWithFlagHome(t.TempDir()))
 	// Create a new baseapp and configurator for the purpose of this test.
 	bApp := baseapp.NewBaseApp(app.Name(), logger, db, app.TxConfig().TxDecoder())
@@ -105,7 +104,7 @@ func TestRunMigrations(t *testing.T) {
 	}
 
 	// Initialize the chain
-	app.InitChain(abci.RequestInitChain{})
+	app.InitChain(&abci.RequestInitChain{})
 	app.Commit()
 
 	testCases := []struct {
@@ -179,7 +178,7 @@ func TestRunMigrations(t *testing.T) {
 			// version for bank as 1, and for all other modules, we put as
 			// their latest ConsensusVersion.
 			_, err = app.ModuleManager.RunMigrations(
-				app.NewContext(true, tmproto.Header{Height: app.LastBlockHeight()}), configurator,
+				app.NewContext(true), configurator,
 				module.VersionMap{
 					"bank":         1,
 					"auth":         auth.AppModule{}.ConsensusVersion(),
@@ -198,7 +197,6 @@ func TestRunMigrations(t *testing.T) {
 					"evidence":     evidence.AppModule{}.ConsensusVersion(),
 					"crisis":       crisis.AppModule{}.ConsensusVersion(),
 					"genutil":      genutil.AppModule{}.ConsensusVersion(),
-					"capability":   capability.AppModule{}.ConsensusVersion(),
 				},
 			)
 			if tc.expRunErr {
@@ -213,7 +211,7 @@ func TestRunMigrations(t *testing.T) {
 }
 func TestUpgradeStateOnGenesis(t *testing.T) {
 	db := dbm.NewMemDB()
-	logger := log.NewTMLogger(log.NewSyncWriter(os.Stdout))
+	logger := log.NewTestLogger(t)
 	app := NewLiquidityAppWithCustomOptions(t, false, SetupOptions{
 		LoadLatest: true,
 		Logger:     logger,
@@ -222,8 +220,8 @@ func TestUpgradeStateOnGenesis(t *testing.T) {
 	})
 
 	// make sure the upgrade keeper has version map in state
-	ctx := app.NewContext(false, tmproto.Header{})
-	vm := app.UpgradeKeeper.GetModuleVersionMap(ctx)
+	ctx := app.NewContext(false)
+	vm, _ := app.UpgradeKeeper.GetModuleVersionMap(ctx)
 	for v, i := range app.ModuleManager.Modules {
 		if i, ok := i.(module.HasConsensusVersion); ok {
 			require.Equal(t, vm[v], i.ConsensusVersion())

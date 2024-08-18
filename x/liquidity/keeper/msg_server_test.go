@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
@@ -27,7 +28,7 @@ func TestMsgCreatePool(t *testing.T) {
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
-	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
+	deposit := sdk.NewCoins(sdk.NewCoin(denomA, math.NewInt(100*1000000)), sdk.NewCoin(denomB, math.NewInt(2000*1000000)))
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
 
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
@@ -68,7 +69,7 @@ func TestMsgDepositWithinBatch(t *testing.T) {
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
-	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
+	deposit := sdk.NewCoins(sdk.NewCoin(denomA, math.NewInt(100*1000000)), sdk.NewCoin(denomB, math.NewInt(2000*1000000)))
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
 	app.SaveAccount(simapp, ctx, addrs[1], deposit)
 
@@ -123,7 +124,7 @@ func TestMsgWithdrawWithinBatch(t *testing.T) {
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
-	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
+	deposit := sdk.NewCoins(sdk.NewCoin(denomA, math.NewInt(100*1000000)), sdk.NewCoin(denomB, math.NewInt(2000*1000000)))
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
 
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
@@ -181,7 +182,7 @@ func TestMsgGetLiquidityPoolMetadata(t *testing.T) {
 	denomB := "uUSD"
 	denomA, denomB = types.AlphabeticalDenomPair(denomA, denomB)
 
-	deposit := sdk.NewCoins(sdk.NewCoin(denomA, sdk.NewInt(100*1000000)), sdk.NewCoin(denomB, sdk.NewInt(2000*1000000)))
+	deposit := sdk.NewCoins(sdk.NewCoin(denomA, math.NewInt(100*1000000)), sdk.NewCoin(denomB, math.NewInt(2000*1000000)))
 	app.SaveAccount(simapp, ctx, addrs[0], deposit)
 
 	depositA := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomA)
@@ -225,9 +226,9 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 	simapp, ctx := app.CreateTestInput(t)
 	params := simapp.LiquidityKeeper.GetParams(ctx)
 
-	depositCoins := sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1_000_000_000)), sdk.NewCoin(DenomY, sdk.NewInt(1_000_000_000)))
+	depositCoins := sdk.NewCoins(sdk.NewCoin(DenomX, math.NewInt(1_000_000_000)), sdk.NewCoin(DenomY, math.NewInt(1_000_000_000)))
 	depositorAddr := app.AddRandomTestAddr(simapp, ctx, depositCoins.Add(params.PoolCreationFee...))
-	user := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1_000_000_000)), sdk.NewCoin(DenomY, sdk.NewInt(1_000_000_000))))
+	user := app.AddRandomTestAddr(simapp, ctx, sdk.NewCoins(sdk.NewCoin(DenomX, math.NewInt(1_000_000_000)), sdk.NewCoin(DenomY, math.NewInt(1_000_000_000))))
 
 	pool, err := simapp.LiquidityKeeper.CreatePool(ctx, &types.MsgCreatePool{
 		PoolCreatorAddress: depositorAddr.String(),
@@ -238,7 +239,7 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 
 	cases := []struct {
 		expectedErr  string // empty means no error expected
-		swapFeeRate  sdk.Dec
+		swapFeeRate  math.LegacyDec
 		msg          *types.MsgSwapWithinBatch
 		afterBalance sdk.Coins
 	}{
@@ -249,10 +250,10 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 				SwapRequesterAddress: user.String(),
 				PoolId:               pool.Id,
 				SwapTypeId:           pool.TypeId,
-				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(10000)),
-				OfferCoinFee:         types.GetOfferCoinFee(sdk.NewCoin(DenomX, sdk.NewInt(10000)), params.SwapFeeRate),
+				OfferCoin:            sdk.NewCoin(DenomX, math.NewInt(10000)),
+				OfferCoinFee:         types.GetOfferCoinFee(sdk.NewCoin(DenomX, math.NewInt(10000)), params.SwapFeeRate),
 				DemandCoinDenom:      DenomY,
-				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+				OrderPrice:           math.LegacyMustNewDecFromStr("1.00002"),
 			},
 			types.MustParseCoinsNormalized("999989985denomX,1000009984denomY"),
 		},
@@ -264,10 +265,10 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 				SwapRequesterAddress: user.String(),
 				PoolId:               pool.Id,
 				SwapTypeId:           pool.TypeId,
-				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(10000)),
-				OfferCoinFee:         sdk.NewCoin(DenomY, sdk.NewInt(15)),
+				OfferCoin:            sdk.NewCoin(DenomX, math.NewInt(10000)),
+				OfferCoinFee:         sdk.NewCoin(DenomY, math.NewInt(15)),
 				DemandCoinDenom:      DenomY,
-				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+				OrderPrice:           math.LegacyMustNewDecFromStr("1.00002"),
 			},
 			types.MustParseCoinsNormalized("1000000000denomX,1000000000denomY"),
 		},
@@ -278,10 +279,10 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 				SwapRequesterAddress: user.String(),
 				PoolId:               pool.Id,
 				SwapTypeId:           pool.TypeId,
-				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(10000)),
-				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(14)),
+				OfferCoin:            sdk.NewCoin(DenomX, math.NewInt(10000)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, math.NewInt(14)),
 				DemandCoinDenom:      DenomY,
-				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+				OrderPrice:           math.LegacyMustNewDecFromStr("1.00002"),
 			},
 			types.MustParseCoinsNormalized("1000000000denomX,1000000000denomY"),
 		},
@@ -292,10 +293,10 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 				SwapRequesterAddress: user.String(),
 				PoolId:               pool.Id,
 				SwapTypeId:           pool.TypeId,
-				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(10000)),
-				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(16)),
+				OfferCoin:            sdk.NewCoin(DenomX, math.NewInt(10000)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, math.NewInt(16)),
 				DemandCoinDenom:      DenomY,
-				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+				OrderPrice:           math.LegacyMustNewDecFromStr("1.00002"),
 			},
 			types.MustParseCoinsNormalized("1000000000denomX,1000000000denomY"),
 		},
@@ -306,10 +307,10 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 				SwapRequesterAddress: user.String(),
 				PoolId:               pool.Id,
 				SwapTypeId:           pool.TypeId,
-				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(10001)),
-				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(16)),
+				OfferCoin:            sdk.NewCoin(DenomX, math.NewInt(10001)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, math.NewInt(16)),
 				DemandCoinDenom:      DenomY,
-				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+				OrderPrice:           math.LegacyMustNewDecFromStr("1.00002"),
 			},
 			types.MustParseCoinsNormalized("999989983denomX,1000009984denomY"),
 		},
@@ -320,10 +321,10 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 				SwapRequesterAddress: user.String(),
 				PoolId:               pool.Id,
 				SwapTypeId:           pool.TypeId,
-				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(100)),
-				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(1)),
+				OfferCoin:            sdk.NewCoin(DenomX, math.NewInt(100)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, math.NewInt(1)),
 				DemandCoinDenom:      DenomY,
-				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+				OrderPrice:           math.LegacyMustNewDecFromStr("1.00002"),
 			},
 			types.MustParseCoinsNormalized("999999899denomX,1000000098denomY"),
 		},
@@ -334,10 +335,10 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 				SwapRequesterAddress: user.String(),
 				PoolId:               pool.Id,
 				SwapTypeId:           pool.TypeId,
-				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(100)),
-				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(0)),
+				OfferCoin:            sdk.NewCoin(DenomX, math.NewInt(100)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, math.NewInt(0)),
 				DemandCoinDenom:      DenomY,
-				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+				OrderPrice:           math.LegacyMustNewDecFromStr("1.00002"),
 			},
 			types.MustParseCoinsNormalized("1000000000denomX,1000000000denomY"),
 		},
@@ -348,10 +349,10 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 				SwapRequesterAddress: user.String(),
 				PoolId:               pool.Id,
 				SwapTypeId:           pool.TypeId,
-				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(1000)),
-				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(2)),
+				OfferCoin:            sdk.NewCoin(DenomX, math.NewInt(1000)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, math.NewInt(2)),
 				DemandCoinDenom:      DenomY,
-				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+				OrderPrice:           math.LegacyMustNewDecFromStr("1.00002"),
 			},
 			types.MustParseCoinsNormalized("999998998denomX,1000000997denomY"),
 		},
@@ -362,24 +363,24 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 				SwapRequesterAddress: user.String(),
 				PoolId:               pool.Id,
 				SwapTypeId:           pool.TypeId,
-				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(1000)),
-				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.NewInt(1)),
+				OfferCoin:            sdk.NewCoin(DenomX, math.NewInt(1000)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, math.NewInt(1)),
 				DemandCoinDenom:      DenomY,
-				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+				OrderPrice:           math.LegacyMustNewDecFromStr("1.00002"),
 			},
 			types.MustParseCoinsNormalized("1000000000denomX,1000000000denomY"),
 		},
 		{
 			"",
-			sdk.ZeroDec(),
+			math.LegacyZeroDec(),
 			&types.MsgSwapWithinBatch{
 				SwapRequesterAddress: user.String(),
 				PoolId:               pool.Id,
 				SwapTypeId:           pool.TypeId,
-				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(1000)),
-				OfferCoinFee:         sdk.NewCoin(DenomX, sdk.ZeroInt()),
+				OfferCoin:            sdk.NewCoin(DenomX, math.NewInt(1000)),
+				OfferCoinFee:         sdk.NewCoin(DenomX, math.ZeroInt()),
 				DemandCoinDenom:      DenomY,
-				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+				OrderPrice:           math.LegacyMustNewDecFromStr("1.00002"),
 			},
 			types.MustParseCoinsNormalized("999999000denomX,1000000999denomY"),
 		},
@@ -390,10 +391,10 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 				SwapRequesterAddress: user.String(),
 				PoolId:               pool.Id,
 				SwapTypeId:           pool.TypeId,
-				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(10000)),
-				OfferCoinFee:         types.GetOfferCoinFee(sdk.NewCoin(DenomX, sdk.NewInt(10000)), params.SwapFeeRate),
+				OfferCoin:            sdk.NewCoin(DenomX, math.NewInt(10000)),
+				OfferCoinFee:         types.GetOfferCoinFee(sdk.NewCoin(DenomX, math.NewInt(10000)), params.SwapFeeRate),
 				DemandCoinDenom:      DenomA,
-				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+				OrderPrice:           math.LegacyMustNewDecFromStr("1.00002"),
 			},
 			types.MustParseCoinsNormalized("1000000000denomX,1000000000denomY"),
 		},
@@ -404,10 +405,10 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 				SwapRequesterAddress: user.String(),
 				PoolId:               pool.Id,
 				SwapTypeId:           pool.TypeId,
-				OfferCoin:            sdk.NewCoin(DenomX, sdk.NewInt(100_000_001)),
-				OfferCoinFee:         types.GetOfferCoinFee(sdk.NewCoin(DenomX, sdk.NewInt(100_000_001)), params.SwapFeeRate),
+				OfferCoin:            sdk.NewCoin(DenomX, math.NewInt(100_000_001)),
+				OfferCoinFee:         types.GetOfferCoinFee(sdk.NewCoin(DenomX, math.NewInt(100_000_001)), params.SwapFeeRate),
 				DemandCoinDenom:      DenomY,
-				OrderPrice:           sdk.MustNewDecFromStr("1.00002"),
+				OrderPrice:           math.LegacyMustNewDecFromStr("1.00002"),
 			},
 			types.MustParseCoinsNormalized("1000000000denomX,1000000000denomY"),
 		},

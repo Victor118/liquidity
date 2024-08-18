@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/Victor118/liquidity/app"
@@ -25,12 +26,12 @@ func createLiquidity(t *testing.T, ctx sdk.Context, simapp *app.LiquidityApp) (
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
 	denomA, denomB := types.AlphabeticalDenomPair("denomA", "denomB")
 
-	X := sdk.NewInt(1000000000)
-	Y := sdk.NewInt(500000000)
-	A := sdk.NewInt(500000000)
-	B := sdk.NewInt(1000000000)
+	X := math.NewInt(1000000000)
+	Y := math.NewInt(500000000)
+	A := math.NewInt(500000000)
+	B := math.NewInt(1000000000)
 
-	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
+	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, math.NewInt(10000))
 	poolID := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 	app.TestCreatePool(t, simapp, ctx, A, B, denomA, denomB, addrs[1])
 
@@ -43,12 +44,12 @@ func createLiquidity(t *testing.T, ctx sdk.Context, simapp *app.LiquidityApp) (
 
 	liquidity.EndBlocker(ctx, simapp.LiquidityKeeper)
 
-	price, _ := sdk.NewDecFromStr("1.1")
-	priceY, _ := sdk.NewDecFromStr("1.2")
-	xOfferCoins := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
-	yOfferCoins := []sdk.Coin{sdk.NewCoin(denomY, sdk.NewInt(5000))}
-	xOrderPrices := []sdk.Dec{price}
-	yOrderPrices := []sdk.Dec{priceY}
+	price, _ := math.LegacyNewDecFromStr("1.1")
+	priceY, _ := math.LegacyNewDecFromStr("1.2")
+	xOfferCoins := []sdk.Coin{sdk.NewCoin(denomX, math.NewInt(10000))}
+	yOfferCoins := []sdk.Coin{sdk.NewCoin(denomY, math.NewInt(5000))}
+	xOrderPrices := []math.LegacyDec{price}
+	yOrderPrices := []math.LegacyDec{priceY}
 	xOrderAddrs := addrs[1:2]
 	yOrderAddrs := addrs[2:3]
 
@@ -60,10 +61,10 @@ func createLiquidity(t *testing.T, ctx sdk.Context, simapp *app.LiquidityApp) (
 	app.TestDepositPool(t, simapp, ctx, X.QuoRaw(10), Y, addrs[1:2], poolID, false)
 	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolID, false)
 	app.TestDepositPool(t, simapp, ctx, X, Y.QuoRaw(10), addrs[2:3], poolID, false)
-	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(50), addrs[1:2], poolID, false)
-	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(500), addrs[1:2], poolID, false)
-	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(50), addrs[2:3], poolID, false)
-	app.TestWithdrawPool(t, simapp, ctx, sdk.NewInt(500), addrs[2:3], poolID, false)
+	app.TestWithdrawPool(t, simapp, ctx, math.NewInt(50), addrs[1:2], poolID, false)
+	app.TestWithdrawPool(t, simapp, ctx, math.NewInt(500), addrs[1:2], poolID, false)
+	app.TestWithdrawPool(t, simapp, ctx, math.NewInt(50), addrs[2:3], poolID, false)
+	app.TestWithdrawPool(t, simapp, ctx, math.NewInt(500), addrs[2:3], poolID, false)
 
 	app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolID, false)
 	app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolID, false)

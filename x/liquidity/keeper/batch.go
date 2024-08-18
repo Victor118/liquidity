@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 
@@ -164,7 +165,7 @@ func (k Keeper) ReleaseEscrowForMultiSend(withdrawer sdk.AccAddress, withdrawCoi
 	input = banktypes.NewInput(k.accountKeeper.GetModuleAddress(types.ModuleName), withdrawCoins)
 	output = banktypes.NewOutput(withdrawer, withdrawCoins)
 
-	if err := banktypes.ValidateInputsOutputs([]banktypes.Input{input}, []banktypes.Output{output}); err != nil {
+	if err := banktypes.ValidateInputOutputs(input, []banktypes.Output{output}); err != nil {
 		return banktypes.Input{}, banktypes.Output{}, err
 	}
 
@@ -271,7 +272,7 @@ func (k Keeper) SwapWithinBatch(ctx sdk.Context, msg *types.MsgSwapWithinBatch, 
 		Succeeded:            false,
 		ToBeDeleted:          false,
 		OrderExpiryHeight:    currentHeight + orderExpirySpanHeight,
-		ExchangedOfferCoin:   sdk.NewCoin(msg.OfferCoin.Denom, sdk.ZeroInt()),
+		ExchangedOfferCoin:   sdk.NewCoin(msg.OfferCoin.Denom, math.ZeroInt()),
 		RemainingOfferCoin:   msg.OfferCoin,
 		ReservedOfferCoinFee: msg.OfferCoinFee,
 		Msg:                  msg,

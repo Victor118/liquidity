@@ -114,6 +114,14 @@ func NewAppModule(cdc codec.Codec, keeper keeper.Keeper, ak types.AccountKeeper,
 	}
 }
 
+// IsOnePerModuleType implements the depinject.OnePerModuleType interface.
+func (am AppModule) IsOnePerModuleType() { // marker
+}
+
+// IsAppModule implements the appmodule.AppModule interface.
+func (am AppModule) IsAppModule() { // marker
+}
+
 // Name returns the liquidity module's name.
 func (AppModule) Name() string {
 	return types.ModuleName
@@ -153,12 +161,12 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 func (AppModule) ConsensusVersion() uint64 { return 2 }
 
 // BeginBlock performs a no-op.
-func (am AppModule) BeginBlock(ctx sdk.Context, _ abci.RequestBeginBlock) {
+func (am AppModule) BeginBlock(ctx sdk.Context) {
 	BeginBlocker(ctx, am.keeper)
 }
 
 // EndBlock returns the end blocker for the liquidity module. It returns no validator updates.
-func (am AppModule) EndBlock(ctx sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
+func (am AppModule) EndBlock(ctx sdk.Context) []abci.ValidatorUpdate {
 	EndBlocker(ctx, am.keeper)
 	return []abci.ValidatorUpdate{}
 }
@@ -176,7 +184,7 @@ func (AppModule) ProposalContents(simState module.SimulationState) []simtypes.We
 }
 
 // RegisterStoreDecoder registers a decoder for liquidity module's types
-func (am AppModule) RegisterStoreDecoder(sdr sdk.StoreDecoderRegistry) {
+func (am AppModule) RegisterStoreDecoder(sdr simtypes.StoreDecoderRegistry) {
 	sdr[types.StoreKey] = simulation.NewDecodeStore(am.cdc)
 }
 

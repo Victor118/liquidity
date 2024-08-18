@@ -10,15 +10,15 @@ import (
 	"os"
 	"path/filepath"
 
+	"cosmossdk.io/math"
+	"github.com/Victor118/liquidity/app"
 	tmconfig "github.com/cometbft/cometbft/config"
 	tmrand "github.com/cometbft/cometbft/libs/rand"
 	"github.com/cometbft/cometbft/types"
 	tmtime "github.com/cometbft/cometbft/types/time"
+	authcodec "github.com/cosmos/cosmos-sdk/x/auth/codec"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-
-	"cosmossdk.io/math"
-	"github.com/Victor118/liquidity/app"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -301,7 +301,8 @@ func initTestnetFiles(
 
 		valTokens := sdk.TokensFromConsensusPower(100, sdk.DefaultPowerReduction)
 		createValMsg, err := stakingtypes.NewMsgCreateValidator(
-			sdk.ValAddress(addr),
+
+			sdk.ValAddress(addr).String(),
 			valPubKeys[i],
 			sdk.NewCoin(sdk.DefaultBondDenom, valTokens),
 			stakingtypes.NewDescription(nodeDirName, "", "", "", ""),
@@ -326,7 +327,7 @@ func initTestnetFiles(
 			WithKeybase(kb).
 			WithTxConfig(clientCtx.TxConfig)
 
-		if err := tx.Sign(txFactory, nodeDirName, txBuilder, true); err != nil {
+		if err := tx.Sign(clientCtx.CmdContext, txFactory, nodeDirName, txBuilder, true); err != nil {
 			return err
 		}
 
@@ -426,12 +427,12 @@ func collectGenFiles(
 		nodeID, valPubKey := nodeIDs[i], valPubKeys[i]
 		initCfg := genutiltypes.NewInitConfig(chainID, gentxsDir, nodeID, valPubKey)
 
-		genDoc, err := types.GenesisDocFromFile(nodeConfig.GenesisFile())
+		appGen, err := genutiltypes.AppGenesisFromFile(nodeConfig.GenesisFile())
 		if err != nil {
 			return err
 		}
 
-		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.Codec, clientCtx.TxConfig, nodeConfig, initCfg, *genDoc, genBalIterator, genutiltypes.DefaultMessageValidator)
+		nodeAppState, err := genutil.GenAppStateFromConfig(clientCtx.Codec, clientCtx.TxConfig, nodeConfig, initCfg, appGen, genBalIterator, genutiltypes.DefaultMessageValidator, authcodec.NewBech32Codec(sdk.Bech32PrefixValAddr))
 		if err != nil {
 			return err
 		}
@@ -502,7 +503,7 @@ func startTestnet(cmd *cobra.Command, args startArgs) error {
 	networkConfig.SigningAlgo = args.algo
 	networkConfig.MinGasPrices = args.minGasPrices
 	networkConfig.NumValidators = args.numValidators
-	networkConfig.EnableTMLogging = args.enableLogging
+	networkConfig.EnableLogging = args.enableLogging
 	networkConfig.RPCAddress = args.rpcAddress
 	networkConfig.APIAddress = args.apiAddress
 	networkConfig.GRPCAddress = args.grpcAddress

@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"cosmossdk.io/math"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -315,11 +316,11 @@ The only supported swap-type is 1. For the detailed swap algorithm, see https://
 				return err
 			}
 
-			orderPrice, err := sdk.NewDecFromStr(args[4])
+			orderPrice, err := math.LegacyNewDecFromStr(args[4])
 			if err != nil {
 				return err
 			}
-			swapFeeRate, err := sdk.NewDecFromStr(args[5])
+			swapFeeRate, err := math.LegacyNewDecFromStr(args[5])
 			if err != nil {
 				return err
 			}
@@ -386,7 +387,7 @@ func NewDirectSwapCmd() *cobra.Command {
 				return err
 			}
 
-			orderPrice, err := sdk.NewDecFromStr(args[4])
+			orderPrice, err := math.LegacyNewDecFromStr(args[4])
 			if err != nil {
 				return err
 			}

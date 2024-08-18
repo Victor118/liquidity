@@ -3,6 +3,7 @@ package keeper_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
@@ -14,10 +15,10 @@ import (
 
 func TestWithdrawRatioInvariant(t *testing.T) {
 	require.NotPanics(t, func() {
-		keeper.WithdrawAmountInvariant(sdk.NewInt(1), sdk.NewInt(1), sdk.NewInt(2), sdk.NewInt(3), sdk.NewInt(1), sdk.NewInt(2), types.DefaultParams().WithdrawFeeRate)
+		keeper.WithdrawAmountInvariant(math.NewInt(1), math.NewInt(1), math.NewInt(2), math.NewInt(3), math.NewInt(1), math.NewInt(2), types.DefaultParams().WithdrawFeeRate)
 	})
 	require.Panics(t, func() {
-		keeper.WithdrawAmountInvariant(sdk.NewInt(1), sdk.NewInt(1), sdk.NewInt(2), sdk.NewInt(5), sdk.NewInt(1), sdk.NewInt(2), types.DefaultParams().WithdrawFeeRate)
+		keeper.WithdrawAmountInvariant(math.NewInt(1), math.NewInt(1), math.NewInt(2), math.NewInt(5), math.NewInt(1), math.NewInt(2), types.DefaultParams().WithdrawFeeRate)
 	})
 }
 
@@ -64,14 +65,14 @@ func TestMintingPoolCoinsInvariant(t *testing.T) {
 		}
 		f(t, func() {
 			keeper.MintingPoolCoinsInvariant(
-				sdk.NewInt(tc.poolCoinSupply),
-				sdk.NewInt(tc.mintingPoolCoin),
-				sdk.NewInt(tc.depositA),
-				sdk.NewInt(tc.depositB),
-				sdk.NewInt(tc.reserveA),
-				sdk.NewInt(tc.reserveB),
-				sdk.NewInt(tc.refundedA),
-				sdk.NewInt(tc.refundedB),
+				math.NewInt(tc.poolCoinSupply),
+				math.NewInt(tc.mintingPoolCoin),
+				math.NewInt(tc.depositA),
+				math.NewInt(tc.depositB),
+				math.NewInt(tc.reserveA),
+				math.NewInt(tc.reserveB),
+				math.NewInt(tc.refundedA),
+				math.NewInt(tc.refundedB),
 			)
 		})
 	}
@@ -83,10 +84,10 @@ func TestLiquidityPoolsEscrowAmountInvariant(t *testing.T) {
 	// define test denom X, Y for Liquidity Pool
 	denomX, denomY := types.AlphabeticalDenomPair(DenomX, DenomY)
 
-	X := sdk.NewInt(1000000000)
-	Y := sdk.NewInt(1000000000)
+	X := math.NewInt(1000000000)
+	Y := math.NewInt(1000000000)
 
-	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, sdk.NewInt(10000))
+	addrs := app.AddTestAddrsIncremental(simapp, ctx, 20, math.NewInt(10000))
 	poolID := app.TestCreatePool(t, simapp, ctx, X, Y, denomX, denomY, addrs[0])
 
 	// begin block, init
@@ -106,12 +107,12 @@ func TestLiquidityPoolsEscrowAmountInvariant(t *testing.T) {
 	_, broken = invariant(ctx)
 	require.False(t, broken)
 
-	price, _ := sdk.NewDecFromStr("1.1")
-	priceY, _ := sdk.NewDecFromStr("1.2")
-	xOfferCoins := []sdk.Coin{sdk.NewCoin(denomX, sdk.NewInt(10000))}
-	yOfferCoins := []sdk.Coin{sdk.NewCoin(denomY, sdk.NewInt(5000))}
-	xOrderPrices := []sdk.Dec{price}
-	yOrderPrices := []sdk.Dec{priceY}
+	price, _ := math.LegacyNewDecFromStr("1.1")
+	priceY, _ := math.LegacyNewDecFromStr("1.2")
+	xOfferCoins := []sdk.Coin{sdk.NewCoin(denomX, math.NewInt(10000))}
+	yOfferCoins := []sdk.Coin{sdk.NewCoin(denomY, math.NewInt(5000))}
+	xOrderPrices := []math.LegacyDec{price}
+	yOrderPrices := []math.LegacyDec{priceY}
 	xOrderAddrs := addrs[1:2]
 	yOrderAddrs := addrs[2:3]
 	app.TestSwapPool(t, simapp, ctx, xOfferCoins, xOrderPrices, xOrderAddrs, poolID, false)

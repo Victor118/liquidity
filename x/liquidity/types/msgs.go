@@ -1,6 +1,7 @@
 package types
 
 import (
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
@@ -170,8 +171,8 @@ func NewMsgSwapWithinBatch(
 	swapTypeID uint32,
 	offerCoin sdk.Coin,
 	demandCoinDenom string,
-	orderPrice sdk.Dec,
-	swapFeeRate sdk.Dec,
+	orderPrice math.LegacyDec,
+	swapFeeRate math.LegacyDec,
 ) *MsgSwapWithinBatch {
 	return &MsgSwapWithinBatch{
 		SwapRequesterAddress: swapRequester.String(),
@@ -234,7 +235,7 @@ func NewMsgDirectSwap(
 	swapTypeID uint32,
 	offerCoin sdk.Coin,
 	demandCoinDenom string,
-	orderPrice sdk.Dec,
+	orderPrice math.LegacyDec,
 ) *MsgDirectSwap {
 	return &MsgDirectSwap{
 		SwapRequesterAddress: swapRequester.String(),

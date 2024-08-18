@@ -3,6 +3,7 @@ package types_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	"github.com/cometbft/cometbft/crypto"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
@@ -27,23 +28,23 @@ func TestMsgCreatePool(t *testing.T) {
 	}{
 		{
 			"",
-			types.NewMsgCreatePool(poolCreator, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+			types.NewMsgCreatePool(poolCreator, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomX, math.NewInt(1000)), sdk.NewCoin(DenomY, math.NewInt(1000)))),
 		},
 		{
 			"invalid index of the pool type",
-			types.NewMsgCreatePool(poolCreator, 0, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+			types.NewMsgCreatePool(poolCreator, 0, sdk.NewCoins(sdk.NewCoin(DenomX, math.NewInt(1000)), sdk.NewCoin(DenomY, math.NewInt(1000)))),
 		},
 		{
 			"invalid pool creator address",
-			types.NewMsgCreatePool(sdk.AccAddress{}, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+			types.NewMsgCreatePool(sdk.AccAddress{}, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomX, math.NewInt(1000)), sdk.NewCoin(DenomY, math.NewInt(1000)))),
 		},
 		{
 			"invalid number of reserve coin",
-			types.NewMsgCreatePool(poolCreator, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+			types.NewMsgCreatePool(poolCreator, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomY, math.NewInt(1000)))),
 		},
 		{
 			"invalid number of reserve coin",
-			types.NewMsgCreatePool(poolCreator, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)), sdk.NewCoin("denomZ", sdk.NewInt(1000)))),
+			types.NewMsgCreatePool(poolCreator, DefaultPoolTypeId, sdk.NewCoins(sdk.NewCoin(DenomX, math.NewInt(1000)), sdk.NewCoin(DenomY, math.NewInt(1000)), sdk.NewCoin("denomZ", math.NewInt(1000)))),
 		},
 	}
 
@@ -74,19 +75,19 @@ func TestMsgDepositWithinBatch(t *testing.T) {
 	}{
 		{
 			"",
-			types.NewMsgDepositWithinBatch(depositor, DefaultPoolId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+			types.NewMsgDepositWithinBatch(depositor, DefaultPoolId, sdk.NewCoins(sdk.NewCoin(DenomX, math.NewInt(1000)), sdk.NewCoin(DenomY, math.NewInt(1000)))),
 		},
 		{
 			"",
-			types.NewMsgDepositWithinBatch(depositor, 0, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+			types.NewMsgDepositWithinBatch(depositor, 0, sdk.NewCoins(sdk.NewCoin(DenomX, math.NewInt(1000)), sdk.NewCoin(DenomY, math.NewInt(1000)))),
 		},
 		{
 			"invalid pool depositor address",
-			types.NewMsgDepositWithinBatch(sdk.AccAddress{}, DefaultPoolId, sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(1000)), sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+			types.NewMsgDepositWithinBatch(sdk.AccAddress{}, DefaultPoolId, sdk.NewCoins(sdk.NewCoin(DenomX, math.NewInt(1000)), sdk.NewCoin(DenomY, math.NewInt(1000)))),
 		},
 		{
 			"invalid number of reserve coin",
-			types.NewMsgDepositWithinBatch(depositor, DefaultPoolId, sdk.NewCoins(sdk.NewCoin(DenomY, sdk.NewInt(1000)))),
+			types.NewMsgDepositWithinBatch(depositor, DefaultPoolId, sdk.NewCoins(sdk.NewCoin(DenomY, math.NewInt(1000)))),
 		},
 	}
 
@@ -118,15 +119,15 @@ func TestMsgWithdrawWithinBatch(t *testing.T) {
 	}{
 		{
 			"",
-			types.NewMsgWithdrawWithinBatch(withdrawer, DefaultPoolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(1000))),
+			types.NewMsgWithdrawWithinBatch(withdrawer, DefaultPoolId, sdk.NewCoin(poolCoinDenom, math.NewInt(1000))),
 		},
 		{
 			"invalid pool withdrawer address",
-			types.NewMsgWithdrawWithinBatch(sdk.AccAddress{}, DefaultPoolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(1000))),
+			types.NewMsgWithdrawWithinBatch(sdk.AccAddress{}, DefaultPoolId, sdk.NewCoin(poolCoinDenom, math.NewInt(1000))),
 		},
 		{
 			"invalid pool coin amount",
-			types.NewMsgWithdrawWithinBatch(withdrawer, DefaultPoolId, sdk.NewCoin(poolCoinDenom, sdk.NewInt(0))),
+			types.NewMsgWithdrawWithinBatch(withdrawer, DefaultPoolId, sdk.NewCoin(poolCoinDenom, math.NewInt(0))),
 		},
 	}
 
@@ -150,8 +151,8 @@ func TestMsgWithdrawWithinBatch(t *testing.T) {
 
 func TestMsgSwapWithinBatch(t *testing.T) {
 	swapRequester := sdk.AccAddress(crypto.AddressHash([]byte("testAccount")))
-	offerCoin := sdk.NewCoin(DenomX, sdk.NewInt(1000))
-	orderPrice, err := sdk.NewDecFromStr("0.1")
+	offerCoin := sdk.NewCoin(DenomX, math.NewInt(1000))
+	orderPrice, err := math.LegacyNewDecFromStr("0.1")
 	require.NoError(t, err)
 
 	cases := []struct {
@@ -168,15 +169,15 @@ func TestMsgSwapWithinBatch(t *testing.T) {
 		},
 		{
 			"invalid offer coin amount",
-			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, sdk.NewCoin(DenomX, sdk.NewInt(0)), DenomY, orderPrice, types.DefaultSwapFeeRate),
+			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, sdk.NewCoin(DenomX, math.NewInt(0)), DenomY, orderPrice, types.DefaultSwapFeeRate),
 		},
 		{
 			"invalid order price",
-			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, offerCoin, DenomY, sdk.ZeroDec(), types.DefaultSwapFeeRate),
+			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, offerCoin, DenomY, math.LegacyZeroDec(), types.DefaultSwapFeeRate),
 		},
 		{
 			"offer amount should be over 100 micro",
-			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, sdk.NewCoin(DenomX, sdk.NewInt(1)), DenomY, orderPrice, types.DefaultSwapFeeRate),
+			types.NewMsgSwapWithinBatch(swapRequester, DefaultPoolId, DefaultSwapTypeId, sdk.NewCoin(DenomX, math.NewInt(1)), DenomY, orderPrice, types.DefaultSwapFeeRate),
 		},
 	}
 
@@ -203,7 +204,7 @@ func TestMsgPanics(t *testing.T) {
 	emptyMsgDeposit := types.MsgDepositWithinBatch{}
 	emptyMsgWithdraw := types.MsgWithdrawWithinBatch{}
 	emptyMsgSwap := types.MsgSwapWithinBatch{}
-	for _, msg := range []sdk.Msg{&emptyMsgCreatePool, &emptyMsgDeposit, &emptyMsgWithdraw, &emptyMsgSwap} {
+	for _, msg := range []sdk.LegacyMsg{&emptyMsgCreatePool, &emptyMsgDeposit, &emptyMsgWithdraw, &emptyMsgSwap} {
 		require.PanicsWithError(t, "empty address string is not allowed", func() { msg.GetSigners() })
 	}
 	for _, tc := range []func() sdk.AccAddress{
@@ -219,11 +220,11 @@ func TestMsgPanics(t *testing.T) {
 func TestMsgValidateBasic(t *testing.T) {
 	validPoolTypeId := DefaultPoolTypeId
 	validAddr := sdk.AccAddress(crypto.AddressHash([]byte("testAccount"))).String()
-	validCoin := sdk.NewCoin(DenomY, sdk.NewInt(10000))
+	validCoin := sdk.NewCoin(DenomY, math.NewInt(10000))
 
-	invalidDenomCoin := sdk.Coin{Denom: "-", Amount: sdk.NewInt(10000)}
-	negativeCoin := sdk.Coin{Denom: DenomX, Amount: sdk.NewInt(-1)}
-	zeroCoin := sdk.Coin{Denom: DenomX, Amount: sdk.ZeroInt()}
+	invalidDenomCoin := sdk.Coin{Denom: "-", Amount: math.NewInt(10000)}
+	negativeCoin := sdk.Coin{Denom: DenomX, Amount: math.NewInt(-1)}
+	zeroCoin := sdk.Coin{Denom: DenomX, Amount: math.ZeroInt()}
 
 	coinsWithInvalidDenom := sdk.Coins{invalidDenomCoin, validCoin}
 	coinsWithNegative := sdk.Coins{negativeCoin, validCoin}
@@ -279,7 +280,7 @@ func TestMsgValidateBasic(t *testing.T) {
 				types.MsgCreatePool{
 					PoolCreatorAddress: validAddr,
 					PoolTypeId:         validPoolTypeId,
-					DepositCoins:       sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(int64(types.MinReserveCoinNum)-1))),
+					DepositCoins:       sdk.NewCoins(sdk.NewCoin(DenomX, math.NewInt(int64(types.MinReserveCoinNum)-1))),
 				},
 				types.ErrNumOfReserveCoin.Error(),
 			},
@@ -287,7 +288,7 @@ func TestMsgValidateBasic(t *testing.T) {
 				types.MsgCreatePool{
 					PoolCreatorAddress: validAddr,
 					PoolTypeId:         validPoolTypeId,
-					DepositCoins:       sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(int64(types.MaxReserveCoinNum)+1))),
+					DepositCoins:       sdk.NewCoins(sdk.NewCoin(DenomX, math.NewInt(int64(types.MaxReserveCoinNum)+1))),
 				},
 				types.ErrNumOfReserveCoin.Error(),
 			},
@@ -324,14 +325,14 @@ func TestMsgValidateBasic(t *testing.T) {
 			{
 				types.MsgDepositWithinBatch{
 					DepositorAddress: validAddr,
-					DepositCoins:     sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(int64(types.MinReserveCoinNum)-1))),
+					DepositCoins:     sdk.NewCoins(sdk.NewCoin(DenomX, math.NewInt(int64(types.MinReserveCoinNum)-1))),
 				},
 				types.ErrNumOfReserveCoin.Error(),
 			},
 			{
 				types.MsgDepositWithinBatch{
 					DepositorAddress: validAddr,
-					DepositCoins:     sdk.NewCoins(sdk.NewCoin(DenomX, sdk.NewInt(int64(types.MaxReserveCoinNum)+1))),
+					DepositCoins:     sdk.NewCoins(sdk.NewCoin(DenomX, math.NewInt(int64(types.MaxReserveCoinNum)+1))),
 				},
 				types.ErrNumOfReserveCoin.Error(),
 			},
@@ -367,8 +368,8 @@ func TestMsgValidateBasic(t *testing.T) {
 		}
 	})
 	t.Run("MsgSwap", func(t *testing.T) {
-		offerCoin := sdk.NewCoin(DenomX, sdk.NewInt(10000))
-		orderPrice := sdk.MustNewDecFromStr("1.0")
+		offerCoin := sdk.NewCoin(DenomX, math.NewInt(10000))
+		orderPrice := math.LegacyMustNewDecFromStr("1.0")
 
 		for _, tc := range []struct {
 			msg    types.MsgSwapWithinBatch
@@ -391,11 +392,11 @@ func TestMsgValidateBasic(t *testing.T) {
 				negativeAmountErrMsg,
 			},
 			{
-				types.MsgSwapWithinBatch{SwapRequesterAddress: validAddr, OfferCoin: offerCoin, OrderPrice: sdk.ZeroDec()},
+				types.MsgSwapWithinBatch{SwapRequesterAddress: validAddr, OfferCoin: offerCoin, OrderPrice: math.LegacyZeroDec()},
 				types.ErrBadOrderPrice.Error(),
 			},
 			{
-				types.MsgSwapWithinBatch{SwapRequesterAddress: validAddr, OfferCoin: sdk.NewCoin(DenomX, sdk.OneInt()), OrderPrice: orderPrice},
+				types.MsgSwapWithinBatch{SwapRequesterAddress: validAddr, OfferCoin: sdk.NewCoin(DenomX, math.OneInt()), OrderPrice: orderPrice},
 				types.ErrLessThanMinOfferAmount.Error(),
 			},
 		} {

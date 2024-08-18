@@ -3,7 +3,7 @@ package types_test
 import (
 	"testing"
 
-	sdk "github.com/cosmos/cosmos-sdk/types"
+	"cosmossdk.io/math"
 	"github.com/stretchr/testify/require"
 
 	"github.com/Victor118/liquidity/x/liquidity/types"
@@ -19,7 +19,7 @@ func TestValidateGenesis(t *testing.T) {
 			"InvalidParams",
 			func(genState *types.GenesisState) {
 				params := types.DefaultParams()
-				params.SwapFeeRate = sdk.NewDec(-1)
+				params.SwapFeeRate = math.LegacyNewDec(-1)
 				genState.Params = params
 			},
 			"swap fee rate must not be negative: -1.000000000000000000",

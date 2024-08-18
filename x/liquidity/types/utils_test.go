@@ -3,6 +3,7 @@ package types_test
 import (
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
@@ -146,19 +147,19 @@ func TestGetPoolInformation(t *testing.T) {
 func TestGetCoinsTotalAmount(t *testing.T) {
 	testCases := []struct {
 		coins        sdk.Coins
-		expectResult sdk.Int
+		expectResult math.Int
 	}{
 		{
-			coins:        sdk.NewCoins(sdk.NewCoin("uCoinA", sdk.NewInt(100)), sdk.NewCoin("uCoinB", sdk.NewInt(100))),
-			expectResult: sdk.NewInt(200),
+			coins:        sdk.NewCoins(sdk.NewCoin("uCoinA", math.NewInt(100)), sdk.NewCoin("uCoinB", math.NewInt(100))),
+			expectResult: math.NewInt(200),
 		},
 		{
-			coins:        sdk.NewCoins(sdk.NewCoin("uCoinA", sdk.NewInt(100)), sdk.NewCoin("uCoinB", sdk.NewInt(300))),
-			expectResult: sdk.NewInt(400),
+			coins:        sdk.NewCoins(sdk.NewCoin("uCoinA", math.NewInt(100)), sdk.NewCoin("uCoinB", math.NewInt(300))),
+			expectResult: math.NewInt(400),
 		},
 		{
-			coins:        sdk.NewCoins(sdk.NewCoin("uCoinA", sdk.NewInt(500))),
-			expectResult: sdk.NewInt(500),
+			coins:        sdk.NewCoins(sdk.NewCoin("uCoinA", math.NewInt(500))),
+			expectResult: math.NewInt(500),
 		},
 	}
 
@@ -171,32 +172,32 @@ func TestGetCoinsTotalAmount(t *testing.T) {
 func TestValidateReserveCoinLimit(t *testing.T) {
 	testCases := []struct {
 		name                 string
-		maxReserveCoinAmount sdk.Int
+		maxReserveCoinAmount math.Int
 		depositCoins         sdk.Coins
 		expectErr            bool
 	}{
 		{
 			name:                 "valid case",
-			maxReserveCoinAmount: sdk.ZeroInt(), // 0 means unlimited amount
-			depositCoins:         sdk.NewCoins(sdk.NewCoin("uCoinA", sdk.NewInt(100_000_000_000)), sdk.NewCoin("uCoinB", sdk.NewInt(100))),
+			maxReserveCoinAmount: math.ZeroInt(), // 0 means unlimited amount
+			depositCoins:         sdk.NewCoins(sdk.NewCoin("uCoinA", math.NewInt(100_000_000_000)), sdk.NewCoin("uCoinB", math.NewInt(100))),
 			expectErr:            false,
 		},
 		{
 			name:                 "valid case",
-			maxReserveCoinAmount: sdk.NewInt(1_000_000_000_000),
-			depositCoins:         sdk.NewCoins(sdk.NewCoin("uCoinA", sdk.NewInt(500_000_000_000)), sdk.NewCoin("uCoinB", sdk.NewInt(500_000_000_000))),
+			maxReserveCoinAmount: math.NewInt(1_000_000_000_000),
+			depositCoins:         sdk.NewCoins(sdk.NewCoin("uCoinA", math.NewInt(500_000_000_000)), sdk.NewCoin("uCoinB", math.NewInt(500_000_000_000))),
 			expectErr:            false,
 		},
 		{
 			name:                 "negative value of max reserve coin amount",
-			maxReserveCoinAmount: sdk.NewInt(-100),
-			depositCoins:         sdk.NewCoins(sdk.NewCoin("uCoinA", sdk.NewInt(100_000_000_000)), sdk.NewCoin("uCoinB", sdk.NewInt(100))),
+			maxReserveCoinAmount: math.NewInt(-100),
+			depositCoins:         sdk.NewCoins(sdk.NewCoin("uCoinA", math.NewInt(100_000_000_000)), sdk.NewCoin("uCoinB", math.NewInt(100))),
 			expectErr:            true,
 		},
 		{
 			name:                 "cannot exceed reserve coin limit amount",
-			maxReserveCoinAmount: sdk.NewInt(1_000_000_000_000),
-			depositCoins:         sdk.NewCoins(sdk.NewCoin("uCoinA", sdk.NewInt(1_000_000_000_000)), sdk.NewCoin("uCoinB", sdk.NewInt(100))),
+			maxReserveCoinAmount: math.NewInt(1_000_000_000_000),
+			depositCoins:         sdk.NewCoins(sdk.NewCoin("uCoinA", math.NewInt(1_000_000_000_000)), sdk.NewCoin("uCoinB", math.NewInt(100))),
 			expectErr:            true,
 		},
 	}
@@ -219,56 +220,56 @@ func TestGetOfferCoinFee(t *testing.T) {
 	testCases := []struct {
 		name               string
 		offerCoin          sdk.Coin
-		swapFeeRate        sdk.Dec
+		swapFeeRate        math.LegacyDec
 		expectOfferCoinFee sdk.Coin
 	}{
 		{
 			name:               "case1",
-			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(1)),
+			offerCoin:          sdk.NewCoin(testDenom, math.NewInt(1)),
 			swapFeeRate:        types.DefaultSwapFeeRate,
-			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(1)),
+			expectOfferCoinFee: sdk.NewCoin(testDenom, math.NewInt(1)),
 		},
 		{
 			name:               "case2",
-			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(10)),
+			offerCoin:          sdk.NewCoin(testDenom, math.NewInt(10)),
 			swapFeeRate:        types.DefaultSwapFeeRate,
-			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(1)),
+			expectOfferCoinFee: sdk.NewCoin(testDenom, math.NewInt(1)),
 		},
 		{
 			name:               "case3",
-			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(100)),
+			offerCoin:          sdk.NewCoin(testDenom, math.NewInt(100)),
 			swapFeeRate:        types.DefaultSwapFeeRate,
-			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(1)),
+			expectOfferCoinFee: sdk.NewCoin(testDenom, math.NewInt(1)),
 		},
 		{
 			name:               "case4",
-			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(1000)),
+			offerCoin:          sdk.NewCoin(testDenom, math.NewInt(1000)),
 			swapFeeRate:        types.DefaultSwapFeeRate,
-			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(2)),
+			expectOfferCoinFee: sdk.NewCoin(testDenom, math.NewInt(2)),
 		},
 		{
 			name:               "case5",
-			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(10000)),
+			offerCoin:          sdk.NewCoin(testDenom, math.NewInt(10000)),
 			swapFeeRate:        types.DefaultSwapFeeRate,
-			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(15)),
+			expectOfferCoinFee: sdk.NewCoin(testDenom, math.NewInt(15)),
 		},
 		{
 			name:               "case6",
-			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(10001)),
+			offerCoin:          sdk.NewCoin(testDenom, math.NewInt(10001)),
 			swapFeeRate:        types.DefaultSwapFeeRate,
-			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(16)),
+			expectOfferCoinFee: sdk.NewCoin(testDenom, math.NewInt(16)),
 		},
 		{
 			name:               "case7",
-			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(10700)),
+			offerCoin:          sdk.NewCoin(testDenom, math.NewInt(10700)),
 			swapFeeRate:        types.DefaultSwapFeeRate,
-			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(17)),
+			expectOfferCoinFee: sdk.NewCoin(testDenom, math.NewInt(17)),
 		},
 		{
 			name:               "case8",
-			offerCoin:          sdk.NewCoin(testDenom, sdk.NewInt(10000)),
-			swapFeeRate:        sdk.ZeroDec(),
-			expectOfferCoinFee: sdk.NewCoin(testDenom, sdk.NewInt(0)),
+			offerCoin:          sdk.NewCoin(testDenom, math.NewInt(10000)),
+			swapFeeRate:        math.LegacyZeroDec(),
+			expectOfferCoinFee: sdk.NewCoin(testDenom, math.NewInt(0)),
 		},
 	}
 
@@ -282,20 +283,20 @@ func TestGetOfferCoinFee(t *testing.T) {
 func TestCheckOverflow(t *testing.T) {
 	testCases := []struct {
 		name      string
-		a         sdk.Int
-		b         sdk.Int
+		a         math.Int
+		b         math.Int
 		expectErr error
 	}{
 		{
 			name:      "valid case",
-			a:         sdk.NewInt(10000),
-			b:         sdk.NewInt(100),
+			a:         math.NewInt(10000),
+			b:         math.NewInt(100),
 			expectErr: nil,
 		},
 		{
 			name:      "overflow case",
-			a:         sdk.NewInt(1_000_000_000_000_000_000).MulRaw(1_000_000),
-			b:         sdk.NewInt(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000),
+			a:         math.NewInt(1_000_000_000_000_000_000).MulRaw(1_000_000),
+			b:         math.NewInt(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000).MulRaw(1_000_000_000_000_000_000),
 			expectErr: types.ErrOverflowAmount,
 		},
 	}
@@ -311,20 +312,20 @@ func TestCheckOverflow(t *testing.T) {
 func TestCheckOverflowWithDec(t *testing.T) {
 	testCases := []struct {
 		name      string
-		a         sdk.Dec
-		b         sdk.Dec
+		a         math.LegacyDec
+		b         math.LegacyDec
 		expectErr error
 	}{
 		{
 			name:      "valid case",
-			a:         sdk.MustNewDecFromStr("1.0"),
-			b:         sdk.MustNewDecFromStr("0.0000001"),
+			a:         math.LegacyMustNewDecFromStr("1.0"),
+			b:         math.LegacyMustNewDecFromStr("0.0000001"),
 			expectErr: nil,
 		},
 		{
 			name:      "overflow case",
-			a:         sdk.MustNewDecFromStr("100000000000000000000000000000000000000000000000000000000000.0").MulInt64(10),
-			b:         sdk.MustNewDecFromStr("0.000000000000000001"),
+			a:         math.LegacyMustNewDecFromStr("100000000000000000000000000000000000000000000000000000000000.0").MulInt64(10),
+			b:         math.LegacyMustNewDecFromStr("0.000000000000000001"),
 			expectErr: types.ErrOverflowAmount,
 		},
 	}

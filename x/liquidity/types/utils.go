@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strings"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/address"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -75,8 +76,8 @@ func GetReserveAcc(poolCoinDenom string) (sdk.AccAddress, error) {
 }
 
 // GetCoinsTotalAmount returns total amount of all coins in sdk.Coins.
-func GetCoinsTotalAmount(coins sdk.Coins) sdk.Int {
-	totalAmount := sdk.ZeroInt()
+func GetCoinsTotalAmount(coins sdk.Coins) math.Int {
+	totalAmount := math.ZeroInt()
 	for _, coin := range coins {
 		totalAmount = totalAmount.Add(coin.Amount)
 	}
@@ -84,7 +85,7 @@ func GetCoinsTotalAmount(coins sdk.Coins) sdk.Int {
 }
 
 // ValidateReserveCoinLimit checks if total amounts of depositCoins exceed maxReserveCoinAmount.
-func ValidateReserveCoinLimit(maxReserveCoinAmount sdk.Int, depositCoins sdk.Coins) error {
+func ValidateReserveCoinLimit(maxReserveCoinAmount math.Int, depositCoins sdk.Coins) error {
 	totalAmount := GetCoinsTotalAmount(depositCoins)
 	if maxReserveCoinAmount.IsZero() {
 		return nil
@@ -95,9 +96,9 @@ func ValidateReserveCoinLimit(maxReserveCoinAmount sdk.Int, depositCoins sdk.Coi
 	}
 }
 
-func GetOfferCoinFee(offerCoin sdk.Coin, swapFeeRate sdk.Dec) sdk.Coin {
+func GetOfferCoinFee(offerCoin sdk.Coin, swapFeeRate math.LegacyDec) sdk.Coin {
 	if swapFeeRate.IsZero() {
-		return sdk.NewCoin(offerCoin.Denom, sdk.ZeroInt())
+		return sdk.NewCoin(offerCoin.Denom, math.ZeroInt())
 	}
 	// apply half-ratio swap fee rate and ceiling
 	// see https://github.com/tendermint/liquidity/issues/41 for details
@@ -112,7 +113,7 @@ func MustParseCoinsNormalized(coinStr string) sdk.Coins {
 	return coins
 }
 
-func CheckOverflow(a, b sdk.Int) (err error) {
+func CheckOverflow(a, b math.Int) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = ErrOverflowAmount
@@ -124,7 +125,7 @@ func CheckOverflow(a, b sdk.Int) (err error) {
 	return nil
 }
 
-func CheckOverflowWithDec(a, b sdk.Dec) (err error) {
+func CheckOverflowWithDec(a, b math.LegacyDec) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
 			err = ErrOverflowAmount

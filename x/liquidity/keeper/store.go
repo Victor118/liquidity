@@ -4,6 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	gogotypes "github.com/gogo/protobuf/types"
 
+	storetypes "cosmossdk.io/store/types"
 	"github.com/Victor118/liquidity/x/liquidity/types"
 )
 
@@ -40,7 +41,7 @@ func (k Keeper) DeletePool(ctx sdk.Context, pool types.Pool) {
 func (k Keeper) IterateAllPools(ctx sdk.Context, cb func(pool types.Pool) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 
-	iterator := sdk.KVStorePrefixIterator(store, types.PoolKeyPrefix)
+	iterator := storetypes.KVStorePrefixIterator(store, types.PoolKeyPrefix)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -156,7 +157,7 @@ func (k Keeper) GetAllPoolBatches(ctx sdk.Context) (poolBatches []types.PoolBatc
 func (k Keeper) IterateAllPoolBatches(ctx sdk.Context, cb func(poolBatch types.PoolBatch) (stop bool)) {
 	store := ctx.KVStore(k.storeKey)
 
-	iterator := sdk.KVStorePrefixIterator(store, types.PoolBatchKeyPrefix)
+	iterator := storetypes.KVStorePrefixIterator(store, types.PoolBatchKeyPrefix)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -231,7 +232,7 @@ func (k Keeper) IterateAllPoolBatchDepositMsgStates(ctx sdk.Context, poolBatch t
 	store := ctx.KVStore(k.storeKey)
 
 	prefix := types.GetPoolBatchDepositMsgStatesPrefix(poolBatch.PoolId)
-	iterator := sdk.KVStorePrefixIterator(store, prefix)
+	iterator := storetypes.KVStorePrefixIterator(store, prefix)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -247,7 +248,7 @@ func (k Keeper) IterateAllDepositMsgStates(ctx sdk.Context, cb func(state types.
 	store := ctx.KVStore(k.storeKey)
 
 	prefix := types.PoolBatchDepositMsgStateIndexKeyPrefix
-	iterator := sdk.KVStorePrefixIterator(store, prefix)
+	iterator := storetypes.KVStorePrefixIterator(store, prefix)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -302,7 +303,7 @@ func (k Keeper) GetAllRemainingPoolBatchDepositMsgStates(ctx sdk.Context, poolBa
 // delete deposit batch msgs of the liquidity pool batch which has state ToBeDeleted
 func (k Keeper) DeleteAllReadyPoolBatchDepositMsgStates(ctx sdk.Context, poolBatch types.PoolBatch) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.GetPoolBatchDepositMsgStatesPrefix(poolBatch.PoolId))
+	iterator := storetypes.KVStorePrefixIterator(store, types.GetPoolBatchDepositMsgStatesPrefix(poolBatch.PoolId))
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		state := types.MustUnmarshalDepositMsgState(k.cdc, iterator.Value())
@@ -362,7 +363,7 @@ func (k Keeper) IterateAllPoolBatchWithdrawMsgStates(ctx sdk.Context, poolBatch 
 	store := ctx.KVStore(k.storeKey)
 
 	prefix := types.GetPoolBatchWithdrawMsgsPrefix(poolBatch.PoolId)
-	iterator := sdk.KVStorePrefixIterator(store, prefix)
+	iterator := storetypes.KVStorePrefixIterator(store, prefix)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -378,7 +379,7 @@ func (k Keeper) IterateAllWithdrawMsgStates(ctx sdk.Context, cb func(state types
 	store := ctx.KVStore(k.storeKey)
 
 	prefix := types.PoolBatchWithdrawMsgStateIndexKeyPrefix
-	iterator := sdk.KVStorePrefixIterator(store, prefix)
+	iterator := storetypes.KVStorePrefixIterator(store, prefix)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -432,7 +433,7 @@ func (k Keeper) GetAllRemainingPoolBatchWithdrawMsgStates(ctx sdk.Context, poolB
 // delete withdraw batch msgs of the liquidity pool batch which has state ToBeDeleted
 func (k Keeper) DeleteAllReadyPoolBatchWithdrawMsgStates(ctx sdk.Context, poolBatch types.PoolBatch) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.GetPoolBatchWithdrawMsgsPrefix(poolBatch.PoolId))
+	iterator := storetypes.KVStorePrefixIterator(store, types.GetPoolBatchWithdrawMsgsPrefix(poolBatch.PoolId))
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		state := types.MustUnmarshalWithdrawMsgState(k.cdc, iterator.Value())
@@ -475,7 +476,7 @@ func (k Keeper) IterateAllPoolBatchSwapMsgStates(ctx sdk.Context, poolBatch type
 	store := ctx.KVStore(k.storeKey)
 
 	prefix := types.GetPoolBatchSwapMsgStatesPrefix(poolBatch.PoolId)
-	iterator := sdk.KVStorePrefixIterator(store, prefix)
+	iterator := storetypes.KVStorePrefixIterator(store, prefix)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -491,7 +492,7 @@ func (k Keeper) IterateAllSwapMsgStates(ctx sdk.Context, cb func(state types.Swa
 	store := ctx.KVStore(k.storeKey)
 
 	prefix := types.PoolBatchSwapMsgStateIndexKeyPrefix
-	iterator := sdk.KVStorePrefixIterator(store, prefix)
+	iterator := storetypes.KVStorePrefixIterator(store, prefix)
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -514,7 +515,7 @@ func (k Keeper) GetAllSwapMsgStates(ctx sdk.Context) (states []types.SwapMsgStat
 // delete swap batch msgs of the liquidity pool batch which has state ToBeDeleted
 func (k Keeper) DeleteAllReadyPoolBatchSwapMsgStates(ctx sdk.Context, poolBatch types.PoolBatch) {
 	store := ctx.KVStore(k.storeKey)
-	iterator := sdk.KVStorePrefixIterator(store, types.GetPoolBatchSwapMsgStatesPrefix(poolBatch.PoolId))
+	iterator := storetypes.KVStorePrefixIterator(store, types.GetPoolBatchSwapMsgStatesPrefix(poolBatch.PoolId))
 	defer iterator.Close()
 	for ; iterator.Valid(); iterator.Next() {
 		state := types.MustUnmarshalSwapMsgState(k.cdc, iterator.Value())

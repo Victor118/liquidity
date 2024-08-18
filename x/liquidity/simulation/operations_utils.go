@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"strings"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
 
@@ -23,8 +24,8 @@ var (
 func mintCoins(ctx sdk.Context, r *rand.Rand, bk types.BankKeeper, acc simtypes.Account, denoms []string) error {
 	var mintCoins, sendCoins sdk.Coins
 	for _, denom := range denoms {
-		mintAmt := sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e15, 1e16)))
-		sendAmt := sdk.NewInt(int64(simtypes.RandIntBetween(r, 1e13, 1e14)))
+		mintAmt := math.NewInt(int64(simtypes.RandIntBetween(r, 1e15, 1e16)))
+		sendAmt := math.NewInt(int64(simtypes.RandIntBetween(r, 1e13, 1e14)))
 		mintCoins = mintCoins.Add(sdk.NewCoin(denom, mintAmt))
 		sendCoins = sendCoins.Add(sdk.NewCoin(denom, sendAmt))
 	}
@@ -59,19 +60,19 @@ func randomLiquidity(r *rand.Rand, k keeper.Keeper, ctx sdk.Context) (pool types
 }
 
 // randomDepositCoin returns deposit amount between more than minimum deposit amount and less than 1e9.
-func randomDepositCoin(r *rand.Rand, minInitDepositAmount sdk.Int, denom string) sdk.Coin {
+func randomDepositCoin(r *rand.Rand, minInitDepositAmount math.Int, denom string) sdk.Coin {
 	amount := int64(simtypes.RandIntBetween(r, int(minInitDepositAmount.Int64()+1), 1e8))
 	return sdk.NewInt64Coin(denom, amount)
 }
 
 // randomWithdrawCoin returns random withdraw amount.
-func randomWithdrawCoin(r *rand.Rand, denom string, balance sdk.Int) sdk.Coin {
+func randomWithdrawCoin(r *rand.Rand, denom string, balance math.Int) sdk.Coin {
 	// prevent panic from RandIntBetween
-	if balance.Quo(sdk.NewInt(10)).Int64() <= 1 {
+	if balance.Quo(math.NewInt(10)).Int64() <= 1 {
 		return sdk.NewInt64Coin(denom, 1)
 	}
 
-	amount := int64(simtypes.RandIntBetween(r, 1, int(balance.Quo(sdk.NewInt(10)).Int64())))
+	amount := int64(simtypes.RandIntBetween(r, 1, int(balance.Quo(math.NewInt(10)).Int64())))
 	return sdk.NewInt64Coin(denom, amount)
 }
 
@@ -85,8 +86,8 @@ func randomOfferCoin(r *rand.Rand, k keeper.Keeper, ctx sdk.Context, pool types.
 }
 
 // randomOrderPrice returns random order price that is sufficient for matchable swap.
-func randomOrderPrice(r *rand.Rand) sdk.Dec {
-	return sdk.NewDecWithPrec(int64(simtypes.RandIntBetween(r, 1, 1e2)), 2)
+func randomOrderPrice(r *rand.Rand) math.LegacyDec {
+	return math.LegacyNewDecWithPrec(int64(simtypes.RandIntBetween(r, 1, 1e2)), 2)
 }
 
 // randomFees returns a random amount of bond denom fee and
@@ -96,7 +97,7 @@ func randomFees(r *rand.Rand, spendableCoins sdk.Coins) (sdk.Coins, error) {
 		return nil, nil
 	}
 
-	if spendableCoins.AmountOf(sdk.DefaultBondDenom).Equal(sdk.ZeroInt()) {
+	if spendableCoins.AmountOf(sdk.DefaultBondDenom).Equal(math.ZeroInt()) {
 		return nil, nil
 	}
 

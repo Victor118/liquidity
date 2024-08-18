@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 
@@ -106,9 +107,9 @@ func TestLiquidityPoolBatch(t *testing.T) {
 	batchDepositMsg := types.DepositMsgState{}
 	batchWithdrawMsg := types.WithdrawMsgState{}
 	batchSwapMsg := types.SwapMsgState{
-		ExchangedOfferCoin:   sdk.NewCoin("test", sdk.NewInt(1000)),
-		RemainingOfferCoin:   sdk.NewCoin("test", sdk.NewInt(1000)),
-		ReservedOfferCoinFee: types.GetOfferCoinFee(sdk.NewCoin("test", sdk.NewInt(2000)), params.SwapFeeRate),
+		ExchangedOfferCoin:   sdk.NewCoin("test", math.NewInt(1000)),
+		RemainingOfferCoin:   sdk.NewCoin("test", math.NewInt(1000)),
+		ReservedOfferCoinFee: types.GetOfferCoinFee(sdk.NewCoin("test", math.NewInt(2000)), params.SwapFeeRate),
 	}
 	b := types.MustMarshalDepositMsgState(cdc, batchDepositMsg)
 	require.Equal(t, batchDepositMsg, types.MustUnmarshalDepositMsgState(cdc, b))

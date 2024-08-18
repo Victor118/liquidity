@@ -3,6 +3,7 @@ package keeper
 import (
 	"fmt"
 
+	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"github.com/Victor118/liquidity/x/liquidity/types"
@@ -65,21 +66,21 @@ var (
 	// meaning that the price has changed by 12.5%.
 	// This happens with small coin amounts, so there should be a threshold for coin amounts
 	// before we calculate the errorRate.
-	errorRateThreshold  = sdk.NewDecWithPrec(5, 2) // 5%
-	coinAmountThreshold = sdk.NewInt(20)           // If a decimal error occurs at a value less than 20, the error rate is over 5%.
+	errorRateThreshold  = math.LegacyNewDecWithPrec(5, 2) // 5%
+	coinAmountThreshold = math.NewInt(20)                 // If a decimal error occurs at a value less than 20, the error rate is over 5%.
 )
 
-func errorRate(expected, actual sdk.Dec) sdk.Dec {
+func errorRate(expected, actual math.LegacyDec) math.LegacyDec {
 	// To prevent divide-by-zero panics, return 1.0(=100%) as the error rate
 	// when the expected value is 0.
 	if expected.IsZero() {
-		return sdk.OneDec()
+		return math.LegacyOneDec()
 	}
 	return actual.Sub(expected).Quo(expected).Abs()
 }
 
 // MintingPoolCoinsInvariant checks the correct ratio of minting amount of pool coins.
-func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, depositCoinB, lastReserveCoinA, lastReserveCoinB, refundedCoinA, refundedCoinB sdk.Int) {
+func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, depositCoinB, lastReserveCoinA, lastReserveCoinB, refundedCoinA, refundedCoinB math.Int) {
 	if !refundedCoinA.IsZero() {
 		depositCoinA = depositCoinA.Sub(refundedCoinA)
 	}
@@ -106,14 +107,14 @@ func MintingPoolCoinsInvariant(poolCoinTotalSupply, mintPoolCoin, depositCoinA, 
 	}
 
 	if mintPoolCoin.GTE(coinAmountThreshold) &&
-		(sdk.MaxInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA).Sub(sdk.MinInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA)).ToLegacyDec().QuoInt(mintPoolCoin).GT(errorRateThreshold) ||
-			sdk.MaxInt(mintPoolCoin, expectedMintPoolCoinAmtBasedB).Sub(sdk.MinInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA)).ToLegacyDec().QuoInt(mintPoolCoin).GT(errorRateThreshold)) {
+		(math.MaxInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA).Sub(math.MinInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA)).ToLegacyDec().QuoInt(mintPoolCoin).GT(errorRateThreshold) ||
+			math.MaxInt(mintPoolCoin, expectedMintPoolCoinAmtBasedB).Sub(math.MinInt(mintPoolCoin, expectedMintPoolCoinAmtBasedA)).ToLegacyDec().QuoInt(mintPoolCoin).GT(errorRateThreshold)) {
 		panic("invariant check fails due to incorrect amount of pool coins")
 	}
 }
 
 // DepositInvariant checks after deposit amounts.
-func DepositInvariant(lastReserveCoinA, lastReserveCoinB, depositCoinA, depositCoinB, afterReserveCoinA, afterReserveCoinB, refundedCoinA, refundedCoinB sdk.Int) {
+func DepositInvariant(lastReserveCoinA, lastReserveCoinB, depositCoinA, depositCoinB, afterReserveCoinA, afterReserveCoinB, refundedCoinA, refundedCoinB math.Int) {
 	depositCoinA = depositCoinA.Sub(refundedCoinA)
 	depositCoinB = depositCoinB.Sub(refundedCoinB)
 
@@ -142,9 +143,9 @@ func DepositInvariant(lastReserveCoinA, lastReserveCoinB, depositCoinA, depositC
 }
 
 // BurningPoolCoinsInvariant checks the correct burning amount of pool coins.
-func BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, lastPoolCoinSupply sdk.Int, withdrawFeeCoins sdk.Coins) {
+func BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, lastPoolCoinSupply math.Int, withdrawFeeCoins sdk.Coins) {
 	burningPoolCoinRatio := burnedPoolCoin.ToLegacyDec().Quo(lastPoolCoinSupply.ToLegacyDec())
-	if burningPoolCoinRatio.Equal(sdk.OneDec()) {
+	if burningPoolCoinRatio.Equal(math.LegacyOneDec()) {
 		return
 	}
 
@@ -161,15 +162,15 @@ func BurningPoolCoinsInvariant(burnedPoolCoin, withdrawCoinA, withdrawCoinB, res
 	expectedBurningPoolCoinBasedB := lastPoolCoinSupply.ToLegacyDec().MulTruncate(withdrawCoinBRatio).TruncateInt()
 
 	if burnedPoolCoin.GTE(coinAmountThreshold) &&
-		(sdk.MaxInt(burnedPoolCoin, expectedBurningPoolCoinBasedA).Sub(sdk.MinInt(burnedPoolCoin, expectedBurningPoolCoinBasedA)).ToLegacyDec().QuoInt(burnedPoolCoin).GT(errorRateThreshold) ||
-			sdk.MaxInt(burnedPoolCoin, expectedBurningPoolCoinBasedB).Sub(sdk.MinInt(burnedPoolCoin, expectedBurningPoolCoinBasedB)).ToLegacyDec().QuoInt(burnedPoolCoin).GT(errorRateThreshold)) {
+		(math.MaxInt(burnedPoolCoin, expectedBurningPoolCoinBasedA).Sub(math.MinInt(burnedPoolCoin, expectedBurningPoolCoinBasedA)).ToLegacyDec().QuoInt(burnedPoolCoin).GT(errorRateThreshold) ||
+			math.MaxInt(burnedPoolCoin, expectedBurningPoolCoinBasedB).Sub(math.MinInt(burnedPoolCoin, expectedBurningPoolCoinBasedB)).ToLegacyDec().QuoInt(burnedPoolCoin).GT(errorRateThreshold)) {
 		panic("invariant check fails due to incorrect amount of burning pool coins")
 	}
 }
 
 // WithdrawReserveCoinsInvariant checks the after withdraw amounts.
 func WithdrawReserveCoinsInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB,
-	afterReserveCoinA, afterReserveCoinB, afterPoolCoinTotalSupply, lastPoolCoinSupply, burnedPoolCoin sdk.Int) {
+	afterReserveCoinA, afterReserveCoinB, afterPoolCoinTotalSupply, lastPoolCoinSupply, burnedPoolCoin math.Int) {
 	// AfterWithdrawReserveCoinA = LastReserveCoinA - WithdrawCoinA
 	if !afterReserveCoinA.Equal(reserveCoinA.Sub(withdrawCoinA)) {
 		panic("invariant check fails due to incorrect withdraw coin A amount")
@@ -187,24 +188,24 @@ func WithdrawReserveCoinsInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, r
 }
 
 // WithdrawAmountInvariant checks the correct ratio of withdraw coin amounts.
-func WithdrawAmountInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, burnedPoolCoin, poolCoinSupply sdk.Int, withdrawFeeRate sdk.Dec) {
-	ratio := burnedPoolCoin.ToLegacyDec().Quo(poolCoinSupply.ToLegacyDec()).Mul(sdk.OneDec().Sub(withdrawFeeRate))
+func WithdrawAmountInvariant(withdrawCoinA, withdrawCoinB, reserveCoinA, reserveCoinB, burnedPoolCoin, poolCoinSupply math.Int, withdrawFeeRate math.LegacyDec) {
+	ratio := burnedPoolCoin.ToLegacyDec().Quo(poolCoinSupply.ToLegacyDec()).Mul(math.LegacyOneDec().Sub(withdrawFeeRate))
 	idealWithdrawCoinA := reserveCoinA.ToLegacyDec().Mul(ratio)
 	idealWithdrawCoinB := reserveCoinB.ToLegacyDec().Mul(ratio)
 	diffA := idealWithdrawCoinA.Sub(withdrawCoinA.ToLegacyDec()).Abs()
 	diffB := idealWithdrawCoinB.Sub(withdrawCoinB.ToLegacyDec()).Abs()
 	if !burnedPoolCoin.Equal(poolCoinSupply) {
-		if diffA.GTE(sdk.OneDec()) {
+		if diffA.GTE(math.LegacyOneDec()) {
 			panic(fmt.Sprintf("withdraw coin amount %v differs too much from %v", withdrawCoinA, idealWithdrawCoinA))
 		}
-		if diffB.GTE(sdk.OneDec()) {
+		if diffB.GTE(math.LegacyOneDec()) {
 			panic(fmt.Sprintf("withdraw coin amount %v differs too much from %v", withdrawCoinB, idealWithdrawCoinB))
 		}
 	}
 }
 
 // ImmutablePoolPriceAfterWithdrawInvariant checks the immutable pool price after withdrawing coins.
-func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdrawCoinA, withdrawCoinB, afterReserveCoinA, afterReserveCoinB sdk.Int) {
+func ImmutablePoolPriceAfterWithdrawInvariant(reserveCoinA, reserveCoinB, withdrawCoinA, withdrawCoinB, afterReserveCoinA, afterReserveCoinB math.Int) {
 	// TestReinitializePool tests a scenario where after reserve coins are zero
 	if !afterReserveCoinA.IsZero() && !afterReserveCoinB.IsZero() {
 		reserveCoinA = reserveCoinA.Sub(withdrawCoinA)
@@ -242,9 +243,9 @@ func SwapMatchingInvariants(xToY, yToX []*types.SwapMsgState, matchResultXtoY, m
 }
 
 // SwapPriceInvariants checks swap price invariants.
-func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2 sdk.Dec, result types.BatchResult) {
-	invariantCheckX := sdk.ZeroDec()
-	invariantCheckY := sdk.ZeroDec()
+func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, poolXDelta, poolYDelta, poolXDelta2, poolYDelta2 math.LegacyDec, result types.BatchResult) {
+	invariantCheckX := math.LegacyZeroDec()
+	invariantCheckY := math.LegacyZeroDec()
 
 	for _, m := range matchResultXtoY {
 		invariantCheckX = invariantCheckX.Sub(m.TransactedCoinAmt)
@@ -270,7 +271,7 @@ func SwapPriceInvariants(matchResultXtoY, matchResultYtoX []types.MatchResult, p
 }
 
 // SwapPriceDirectionInvariants checks whether the calculated swap price is increased, decreased, or stayed from the last pool price.
-func SwapPriceDirectionInvariants(currentPoolPrice sdk.Dec, batchResult types.BatchResult) {
+func SwapPriceDirectionInvariants(currentPoolPrice math.LegacyDec, batchResult types.BatchResult) {
 	switch batchResult.PriceDirection {
 	case types.Increasing:
 		if !batchResult.SwapPrice.GT(currentPoolPrice) {
