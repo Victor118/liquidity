@@ -3,6 +3,7 @@ package liquidity.v1beta1;
 
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
+import "cosmos/msg/v1/msg.proto";
 
 option go_package = "github.com/Victor118/liquidity/x/liquidity/types";
 
@@ -32,6 +33,7 @@ service Msg {
 // See:
 // https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 message MsgCreatePool {
+  option (cosmos.msg.v1.signer) = "pool_creator_address";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -67,6 +69,7 @@ message MsgCreatePoolResponse {}
 // See:
 // https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/04_messages.md
 message MsgDepositWithinBatch {
+  option (cosmos.msg.v1.signer) = "depositor_address";
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
 
@@ -105,6 +108,7 @@ message MsgDepositWithinBatchResponse {}
 message MsgWithdrawWithinBatch {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "withdrawer_address";
 
   string withdrawer_address = 1 [
     (gogoproto.moretags) = "yaml:\"withdrawer_address\""
@@ -140,6 +144,7 @@ message MsgWithdrawWithinBatchResponse {}
 message MsgSwapWithinBatch {
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "swap_requester_address";
   // address of swap requester
   string swap_requester_address = 1 [
     (gogoproto.moretags) = "yaml:\"swap_requester_address\""
@@ -192,6 +197,7 @@ message MsgSwapWithinBatchResponse {}
 message MsgDirectSwap{
   option (gogoproto.equal) = false;
   option (gogoproto.goproto_getters) = false;
+  option (cosmos.msg.v1.signer) = "swap_requester_address";
   // address of swap requester
   string swap_requester_address = 1 [
     (gogoproto.moretags) = "yaml:\"swap_requester_address\""
