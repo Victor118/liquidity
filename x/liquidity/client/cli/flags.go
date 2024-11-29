@@ -9,6 +9,7 @@ import (
 const (
 	FlagPoolCoinDenom = "pool-coin-denom"
 	FlagReserveAcc    = "reserve-acc"
+	FlagDenoms        = "denoms"
 )
 
 func flagSetPool() *flag.FlagSet {

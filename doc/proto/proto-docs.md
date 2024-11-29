@@ -36,6 +36,7 @@
 - [liquidity/v1beta1/query.proto](#liquidity/v1beta1/query.proto)
     - [QueryLiquidityPoolBatchRequest](#liquidity.v1beta1.QueryLiquidityPoolBatchRequest)
     - [QueryLiquidityPoolBatchResponse](#liquidity.v1beta1.QueryLiquidityPoolBatchResponse)
+    - [QueryLiquidityPoolByCoinsDenomRequest](#liquidity.v1beta1.QueryLiquidityPoolByCoinsDenomRequest)
     - [QueryLiquidityPoolByPoolCoinDenomRequest](#liquidity.v1beta1.QueryLiquidityPoolByPoolCoinDenomRequest)
     - [QueryLiquidityPoolByReserveAccRequest](#liquidity.v1beta1.QueryLiquidityPoolByReserveAccRequest)
     - [QueryLiquidityPoolRequest](#liquidity.v1beta1.QueryLiquidityPoolRequest)
@@ -575,6 +576,23 @@ the liquidity pool batch that corresponds to the requested pool_id.
 
 
 
+<a name="liquidity.v1beta1.QueryLiquidityPoolByCoinsDenomRequest"></a>
+
+### QueryLiquidityPoolByCoinsDenomRequest
+
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `coin_denom1` | [string](#string) |  |  |
+| `coin_denom2` | [string](#string) |  |  |
+| `pool_type_id` | [uint32](#uint32) |  |  |
+
+
+
+
+
+
 <a name="liquidity.v1beta1.QueryLiquidityPoolByPoolCoinDenomRequest"></a>
 
 ### QueryLiquidityPoolByPoolCoinDenomRequest
@@ -919,6 +937,7 @@ Query defines the gRPC query service for the liquidity module.
 | `LiquidityPools` | [QueryLiquidityPoolsRequest](#liquidity.v1beta1.QueryLiquidityPoolsRequest) | [QueryLiquidityPoolsResponse](#liquidity.v1beta1.QueryLiquidityPoolsResponse) | Get existing liquidity pools. | GET|/cosmos/liquidity/v1beta1/pools|
 | `LiquidityPool` | [QueryLiquidityPoolRequest](#liquidity.v1beta1.QueryLiquidityPoolRequest) | [QueryLiquidityPoolResponse](#liquidity.v1beta1.QueryLiquidityPoolResponse) | Get specific liquidity pool. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}|
 | `LiquidityPoolByPoolCoinDenom` | [QueryLiquidityPoolByPoolCoinDenomRequest](#liquidity.v1beta1.QueryLiquidityPoolByPoolCoinDenomRequest) | [QueryLiquidityPoolResponse](#liquidity.v1beta1.QueryLiquidityPoolResponse) | Get specific liquidity pool corresponding to the pool_coin_denom. | GET|/cosmos/liquidity/v1beta1/pools/pool_coin_denom/{pool_coin_denom}|
+| `LiquidityPoolByCoinsDenom` | [QueryLiquidityPoolByCoinsDenomRequest](#liquidity.v1beta1.QueryLiquidityPoolByCoinsDenomRequest) | [QueryLiquidityPoolResponse](#liquidity.v1beta1.QueryLiquidityPoolResponse) | Get specific liquidity pool corresponding to the pool_coin_denom. | GET|/cosmos/liquidity/v1beta1/pools/coins_denom/{coin_denom1}/{coin_denom2}|
 | `LiquidityPoolByReserveAcc` | [QueryLiquidityPoolByReserveAccRequest](#liquidity.v1beta1.QueryLiquidityPoolByReserveAccRequest) | [QueryLiquidityPoolResponse](#liquidity.v1beta1.QueryLiquidityPoolResponse) | Get specific liquidity pool corresponding to the reserve account. | GET|/cosmos/liquidity/v1beta1/pools/reserve_acc/{reserve_acc}|
 | `LiquidityPoolBatch` | [QueryLiquidityPoolBatchRequest](#liquidity.v1beta1.QueryLiquidityPoolBatchRequest) | [QueryLiquidityPoolBatchResponse](#liquidity.v1beta1.QueryLiquidityPoolBatchResponse) | Get the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch|
 | `PoolBatchSwapMsgs` | [QueryPoolBatchSwapMsgsRequest](#liquidity.v1beta1.QueryPoolBatchSwapMsgsRequest) | [QueryPoolBatchSwapMsgsResponse](#liquidity.v1beta1.QueryPoolBatchSwapMsgsResponse) | Get all swap messages in the pool's current batch. | GET|/cosmos/liquidity/v1beta1/pools/{pool_id}/batch/swaps|

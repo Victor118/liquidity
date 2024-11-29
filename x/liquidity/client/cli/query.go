@@ -95,6 +95,10 @@ $ %[1]s query %[2]s pool 1
 Example (with pool coin denom):
 $ %[1]s query %[2]s pool --pool-coin-denom=[denom]
 
+Example (with pool denoms):
+$ %[1]s query %[2]s pool --denoms=[denom1,denom2]
+
+
 Example (with reserve acc):
 $ %[1]s query %[2]s pool --reserve-acc=[address]
 `,
@@ -117,6 +121,19 @@ $ %[1]s query %[2]s pool --reserve-acc=[address]
 				res, err = queryClient.LiquidityPoolByPoolCoinDenom(
 					context.Background(),
 					&types.QueryLiquidityPoolByPoolCoinDenomRequest{PoolCoinDenom: poolCoinDenom},
+				)
+				if err != nil {
+					return err
+				}
+			}
+
+			coinDenoms, _ := cmd.Flags().GetString(FlagDenoms)
+			if coinDenoms != "" {
+				foundArg = true
+				denoms := strings.Split(coinDenoms, ",")
+				res, err = queryClient.LiquidityPoolByCoinsDenom(
+					context.Background(),
+					&types.QueryLiquidityPoolByCoinsDenomRequest{CoinDenom1: denoms[0], CoinDenom2: denoms[1], PoolTypeId: 1},
 				)
 				if err != nil {
 					return err

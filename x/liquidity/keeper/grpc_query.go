@@ -57,6 +57,29 @@ func (k Querier) LiquidityPoolByPoolCoinDenom(c context.Context, req *types.Quer
 	return k.MakeQueryLiquidityPoolResponse(pool)
 }
 
+func (k Querier) LiquidityPoolByCoinsDenom(c context.Context, req *types.QueryLiquidityPoolByCoinsDenomRequest) (*types.QueryLiquidityPoolResponse, error) {
+	empty := &types.QueryLiquidityPoolByCoinsDenomRequest{}
+	if req == nil || *req == *empty {
+		return nil, status.Errorf(codes.InvalidArgument, "empty request")
+	}
+	ctx := sdk.UnwrapSDKContext(c)
+
+	denom1, denom2 := types.AlphabeticalDenomPair(req.CoinDenom1, req.CoinDenom2)
+	reserveCoinDenoms := []string{denom1, denom2}
+
+	poolName := types.PoolName(reserveCoinDenoms, req.PoolTypeId)
+	poolCoinDenom := types.GetPoolCoinDenom(poolName)
+	reserveAcc, err := types.GetReserveAcc(poolCoinDenom)
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, "liquidity pool with coins denom %s %s doesn't exist", req.CoinDenom1, req.CoinDenom2)
+	}
+	pool, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
+	if !found {
+		return nil, status.Errorf(codes.NotFound, "liquidity pool with pool coins denom %s %s doesn't exist", req.CoinDenom1, req.CoinDenom2)
+	}
+	return k.MakeQueryLiquidityPoolResponse(pool)
+}
+
 // LiquidityPool queries a liquidity pool with the given reserve account address.
 func (k Querier) LiquidityPoolByReserveAcc(c context.Context, req *types.QueryLiquidityPoolByReserveAccRequest) (*types.QueryLiquidityPoolResponse, error) {
 	empty := &types.QueryLiquidityPoolByReserveAccRequest{}
