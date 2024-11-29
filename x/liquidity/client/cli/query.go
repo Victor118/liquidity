@@ -128,7 +128,7 @@ $ %[1]s query %[2]s pool --reserve-acc=[address]
 			}
 
 			coinDenoms, _ := cmd.Flags().GetString(FlagDenoms)
-			if coinDenoms != "" {
+			if !foundArg && coinDenoms != "" {
 				foundArg = true
 				denoms := strings.Split(coinDenoms, ",")
 				res, err = queryClient.LiquidityPoolByCoinsDenom(
@@ -171,7 +171,7 @@ $ %[1]s query %[2]s pool --reserve-acc=[address]
 			}
 
 			if !foundArg {
-				return fmt.Errorf("provide the pool-id argument or --%s or --%s flag", FlagPoolCoinDenom, FlagReserveAcc)
+				return fmt.Errorf("provide the pool-id argument or --%s or --%s or --%s flag", FlagPoolCoinDenom, FlagReserveAcc, FlagDenoms)
 			}
 
 			return clientCtx.PrintProto(res)
