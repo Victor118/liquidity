@@ -48,7 +48,7 @@ message MsgCreatePool {
   ];
 
   // reserve coin pair of the pool to deposit.
-  repeated cosmos.base.v1beta1.Coin deposit_coins = 4 [
+  repeated cosmos.base.v1beta1.Coin deposit_coins = 3 [
     (gogoproto.nullable) = false,
     (gogoproto.moretags) = "yaml:\"deposit_coins\"",
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
