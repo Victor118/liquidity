@@ -83,16 +83,19 @@ func (k Keeper) InitNextPoolBatch(ctx sdk.Context, poolBatch types.PoolBatch) er
 func (k Keeper) ExecutePoolBatches(ctx sdk.Context) {
 	params := k.GetParams(ctx)
 	logger := k.Logger(ctx)
-
+	ctx.Logger().Error("ExecutePoolBatches", "blockHeight", ctx.BlockHeight())
 	k.IterateAllPoolBatches(ctx, func(poolBatch types.PoolBatch) bool {
-		if !poolBatch.Executed && ctx.BlockHeight()%int64(params.UnitBatchHeight) == 0 {
+		ctx.Logger().Error("IterateAllPoolBatches", "poolBatch", poolBatch.Index)
 
+		if !poolBatch.Executed && ctx.BlockHeight()%int64(params.UnitBatchHeight) == 0 {
+			ctx.Logger().Error("IterateAllPoolBatches 2", "poolBatch", poolBatch.Index)
 			executedMsgCount, err := k.SwapExecution(ctx, poolBatch)
 			if err != nil {
 				panic(err)
 			}
 
 			k.IterateAllPoolBatchDepositMsgStates(ctx, poolBatch, func(batchMsg types.DepositMsgState) bool {
+				ctx.Logger().Error("IterateAllPoolBatchDepositMsgStates ", "DepositMsg", batchMsg.MsgIndex)
 				if batchMsg.Executed || batchMsg.ToBeDeleted || batchMsg.Succeeded {
 					return false
 				}
