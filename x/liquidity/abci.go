@@ -24,7 +24,6 @@ func BeginBlocker(ctx context.Context, k keeper.Keeper) {
 // collect them in the liquidity pool batch and perform an execution once at the endblock to calculate and use the universal price.
 func EndBlocker(ctx context.Context, k keeper.Keeper) {
 	context := sdk.UnwrapSDKContext(ctx)
-	context.Logger().Error("EndBlocker Start")
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyEndBlocker)
 	k.ExecutePoolBatches(context)
 }
