@@ -20,6 +20,7 @@ func BeginBlocker(ctx sdk.Context, k keeper.Keeper) {
 // In case of deposit, withdraw, and swap msgs, unlike other normal tx msgs,
 // collect them in the liquidity pool batch and perform an execution once at the endblock to calculate and use the universal price.
 func EndBlocker(ctx sdk.Context, k keeper.Keeper) {
+	ctx.Logger().Error("EndBlocker Start")
 	defer telemetry.ModuleMeasureSince(types.ModuleName, time.Now(), telemetry.MetricKeyEndBlocker)
 	k.ExecutePoolBatches(ctx)
 }
