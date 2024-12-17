@@ -161,14 +161,15 @@ func (am AppModule) ExportGenesis(ctx sdk.Context, cdc codec.JSONCodec) json.Raw
 func (AppModule) ConsensusVersion() uint64 { return 2 }
 
 // BeginBlock performs a no-op.
-func (am AppModule) BeginBlock(ctx sdk.Context) {
+func (am AppModule) BeginBlock(ctx context.Context) error {
 	BeginBlocker(ctx, am.keeper)
+	return nil
 }
 
 // EndBlock returns the end blocker for the liquidity module. It returns no validator updates.
-func (am AppModule) EndBlock(ctx sdk.Context) []abci.ValidatorUpdate {
+func (am AppModule) EndBlock(ctx context.Context) error {
 	EndBlocker(ctx, am.keeper)
-	return []abci.ValidatorUpdate{}
+	return nil
 }
 
 // AppModuleSimulation functions
