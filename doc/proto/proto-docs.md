@@ -325,6 +325,7 @@ Params defines the parameters for the liquidity module.
 | `circuit_breaker_enabled` | [bool](#bool) |  | Circuit breaker enables or disables transaction messages in liquidity module. |
 | `builders_addresses` | [WeightedAddress](#liquidity.v1beta1.WeightedAddress) | repeated |  |
 | `builders_commission` | [string](#string) |  |  |
+| `pool_permissioned_creator_address` | [string](#string) |  | Permissioned address that can create pools. |
 
 
 

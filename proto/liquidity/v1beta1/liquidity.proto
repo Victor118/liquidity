@@ -139,6 +139,11 @@ message Params {
     (gogoproto.customtype) = "cosmossdk.io/math.LegacyDec",
     (gogoproto.nullable) = false
   ];
+
+  // Permissioned address that can create pools.
+  string pool_permissioned_creator_address = 13 [
+    (gogoproto.moretags) = "yaml:\"pool_permissioned_creator_address\""
+  ];
 }
 
 // Pool defines the liquidity pool that contains pool information.
