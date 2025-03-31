@@ -34,18 +34,19 @@ const (
 
 // Parameter store keys
 var (
-	KeyPoolTypes              = []byte("PoolTypes")
-	KeyMinInitDepositAmount   = []byte("MinInitDepositAmount")
-	KeyInitPoolCoinMintAmount = []byte("InitPoolCoinMintAmount")
-	KeyMaxReserveCoinAmount   = []byte("MaxReserveCoinAmount")
-	KeySwapFeeRate            = []byte("SwapFeeRate")
-	KeyPoolCreationFee        = []byte("PoolCreationFee")
-	KeyUnitBatchHeight        = []byte("UnitBatchHeight")
-	KeyWithdrawFeeRate        = []byte("WithdrawFeeRate")
-	KeyMaxOrderAmountRatio    = []byte("MaxOrderAmountRatio")
-	KeyCircuitBreakerEnabled  = []byte("CircuitBreakerEnabled")
-	KeyBuildersAddresses      = []byte("BuildersAddresses")
-	KeyBuildersCommission     = []byte("BuildersCommission")
+	KeyPoolTypes                     = []byte("PoolTypes")
+	KeyMinInitDepositAmount          = []byte("MinInitDepositAmount")
+	KeyInitPoolCoinMintAmount        = []byte("InitPoolCoinMintAmount")
+	KeyMaxReserveCoinAmount          = []byte("MaxReserveCoinAmount")
+	KeySwapFeeRate                   = []byte("SwapFeeRate")
+	KeyPoolCreationFee               = []byte("PoolCreationFee")
+	KeyUnitBatchHeight               = []byte("UnitBatchHeight")
+	KeyWithdrawFeeRate               = []byte("WithdrawFeeRate")
+	KeyMaxOrderAmountRatio           = []byte("MaxOrderAmountRatio")
+	KeyCircuitBreakerEnabled         = []byte("CircuitBreakerEnabled")
+	KeyBuildersAddresses             = []byte("BuildersAddresses")
+	KeyBuildersCommission            = []byte("BuildersCommission")
+	KeyPoolPermissonedCreatorAddress = []byte("PoolPermissionedCreatorAddress")
 )
 
 var (
@@ -110,6 +111,7 @@ func (p *Params) ParamSetPairs() paramstypes.ParamSetPairs {
 		paramstypes.NewParamSetPair(KeyCircuitBreakerEnabled, &p.CircuitBreakerEnabled, validateCircuitBreakerEnabled),
 		paramstypes.NewParamSetPair(KeyBuildersAddresses, &p.BuildersAddresses, validateBuildersAddresses),
 		paramstypes.NewParamSetPair(KeyBuildersCommission, &p.BuildersCommission, validateBuildersCommission),
+		paramstypes.NewParamSetPair(KeyPoolPermissonedCreatorAddress, &p.PoolPermissionedCreatorAddress, validatePoolPermissonedCreatorAddress),
 	}
 }
 
@@ -137,6 +139,7 @@ func (p Params) Validate() error {
 		{p.CircuitBreakerEnabled, validateCircuitBreakerEnabled},
 		{p.BuildersAddresses, validateBuildersAddresses},
 		{p.BuildersCommission, validateBuildersCommission},
+		{p.PoolPermissionedCreatorAddress, validatePoolPermissonedCreatorAddress},
 	} {
 		if err := v.validator(v.value); err != nil {
 			return err
@@ -380,6 +383,22 @@ func validateCircuitBreakerEnabled(i interface{}) error {
 	_, ok := i.(bool)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	return nil
+}
+
+func validatePoolPermissonedCreatorAddress(i interface{}) error {
+	v, ok := i.(string)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", i)
+	}
+
+	if v != "" {
+		_, err := sdk.AccAddressFromBech32(v)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
