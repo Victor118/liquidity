@@ -1,6 +1,7 @@
 package types
 
 import (
+	errorsmod "cosmossdk.io/errors"
 	"cosmossdk.io/math"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
@@ -10,6 +11,7 @@ var (
 	_ sdk.Msg = (*MsgDepositWithinBatch)(nil)
 	_ sdk.Msg = (*MsgWithdrawWithinBatch)(nil)
 	_ sdk.Msg = (*MsgSwapWithinBatch)(nil)
+	_ sdk.Msg = (*MsgUpdateParams)(nil)
 )
 
 // Message types for the liquidity module
@@ -18,6 +20,7 @@ const (
 	TypeMsgDepositWithinBatch  = "deposit_within_batch"
 	TypeMsgWithdrawWithinBatch = "withdraw_within_batch"
 	TypeMsgSwapWithinBatch     = "swap_within_batch"
+	TypeMsgUpdateParams        = "update_params"
 )
 
 // NewMsgCreatePool creates a new MsgCreatePool.
@@ -288,4 +291,26 @@ func (msg MsgDirectSwap) GetSwapRequester() sdk.AccAddress {
 		panic(err)
 	}
 	return addr
+}
+
+func (msg MsgUpdateParams) Type() string { return TypeMsgUpdateParams }
+
+// GetSigners returns the expected signers for a MsgUpdateParams message.
+func (msg MsgUpdateParams) GetSigners() []sdk.AccAddress {
+	addr := sdk.MustAccAddressFromBech32(msg.Authority)
+	return []sdk.AccAddress{addr}
+}
+
+// ValidateBasic does a sanity check of the provided data
+func (msg MsgUpdateParams) ValidateBasic() error {
+	if _, err := sdk.AccAddressFromBech32(msg.Authority); err != nil {
+		return errorsmod.Wrap(err, "invalid authority address")
+	}
+
+	return msg.Params.Validate()
+}
+
+// GetSignBytes implements the LegacyMsg interface.
+func (msg MsgUpdateParams) GetSignBytes() []byte {
+	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&msg))
 }

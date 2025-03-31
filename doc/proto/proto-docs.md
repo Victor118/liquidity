@@ -4,6 +4,11 @@
 
 ## Table of Contents
 
+- [liquidity/v1beta1/params.proto](#liquidity/v1beta1/params.proto)
+    - [Params](#liquidity.v1beta1.Params)
+    - [PoolType](#liquidity.v1beta1.PoolType)
+    - [WeightedAddress](#liquidity.v1beta1.WeightedAddress)
+  
 - [liquidity/v1beta1/tx.proto](#liquidity/v1beta1/tx.proto)
     - [MsgCreatePool](#liquidity.v1beta1.MsgCreatePool)
     - [MsgCreatePoolResponse](#liquidity.v1beta1.MsgCreatePoolResponse)
@@ -13,6 +18,8 @@
     - [MsgDirectSwapResponse](#liquidity.v1beta1.MsgDirectSwapResponse)
     - [MsgSwapWithinBatch](#liquidity.v1beta1.MsgSwapWithinBatch)
     - [MsgSwapWithinBatchResponse](#liquidity.v1beta1.MsgSwapWithinBatchResponse)
+    - [MsgUpdateParams](#liquidity.v1beta1.MsgUpdateParams)
+    - [MsgUpdateParamsResponse](#liquidity.v1beta1.MsgUpdateParamsResponse)
     - [MsgWithdrawWithinBatch](#liquidity.v1beta1.MsgWithdrawWithinBatch)
     - [MsgWithdrawWithinBatchResponse](#liquidity.v1beta1.MsgWithdrawWithinBatchResponse)
   
@@ -20,13 +27,10 @@
   
 - [liquidity/v1beta1/liquidity.proto](#liquidity/v1beta1/liquidity.proto)
     - [DepositMsgState](#liquidity.v1beta1.DepositMsgState)
-    - [Params](#liquidity.v1beta1.Params)
     - [Pool](#liquidity.v1beta1.Pool)
     - [PoolBatch](#liquidity.v1beta1.PoolBatch)
     - [PoolMetadata](#liquidity.v1beta1.PoolMetadata)
-    - [PoolType](#liquidity.v1beta1.PoolType)
     - [SwapMsgState](#liquidity.v1beta1.SwapMsgState)
-    - [WeightedAddress](#liquidity.v1beta1.WeightedAddress)
     - [WithdrawMsgState](#liquidity.v1beta1.WithdrawMsgState)
   
 - [liquidity/v1beta1/genesis.proto](#liquidity/v1beta1/genesis.proto)
@@ -61,6 +65,87 @@
     - [Query](#liquidity.v1beta1.Query)
   
 - [Scalar Value Types](#scalar-value-types)
+
+
+
+<a name="liquidity/v1beta1/params.proto"></a>
+<p align="right"><a href="#top">Top</a></p>
+
+## liquidity/v1beta1/params.proto
+
+
+
+<a name="liquidity.v1beta1.Params"></a>
+
+### Params
+Params defines the parameters for the liquidity module.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `pool_types` | [PoolType](#liquidity.v1beta1.PoolType) | repeated | list of available pool types |
+| `min_init_deposit_amount` | [string](#string) |  | Minimum number of coins to be deposited to the liquidity pool on pool creation. |
+| `init_pool_coin_mint_amount` | [string](#string) |  | Initial mint amount of pool coins upon pool creation. |
+| `max_reserve_coin_amount` | [string](#string) |  | Limit the size of each liquidity pool to minimize risk. In development, set to 0 for no limit. In production, set a limit. |
+| `pool_creation_fee` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | Fee paid to create a Liquidity Pool. Set a fee to prevent spamming. |
+| `swap_fee_rate` | [string](#string) |  | Swap fee rate for every executed swap. |
+| `withdraw_fee_rate` | [string](#string) |  | Reserve coin withdrawal with less proportion by withdrawFeeRate. |
+| `max_order_amount_ratio` | [string](#string) |  | Maximum ratio of reserve coins that can be ordered at a swap order. |
+| `unit_batch_height` | [uint32](#uint32) |  | The smallest unit batch height for every liquidity pool. |
+| `circuit_breaker_enabled` | [bool](#bool) |  | Circuit breaker enables or disables transaction messages in liquidity module. |
+| `builders_addresses` | [WeightedAddress](#liquidity.v1beta1.WeightedAddress) | repeated |  |
+| `builders_commission` | [string](#string) |  |  |
+| `pool_permissioned_creator_address` | [string](#string) |  | Permissioned address that can create pools. |
+
+
+
+
+
+
+<a name="liquidity.v1beta1.PoolType"></a>
+
+### PoolType
+Structure for the pool type to distinguish the characteristics of the reserve
+pools.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `id` | [uint32](#uint32) |  | This is the id of the pool_type that is used as pool_type_id for pool creation. In this version, only pool-type-id 1 is supported. {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""} |
+| `name` | [string](#string) |  | name of the pool type. |
+| `min_reserve_coin_num` | [uint32](#uint32) |  | minimum number of reserveCoins for LiquidityPoolType, only 2 reserve coins are supported. |
+| `max_reserve_coin_num` | [uint32](#uint32) |  | maximum number of reserveCoins for LiquidityPoolType, only 2 reserve coins are supported. |
+| `description` | [string](#string) |  | description of the pool type. |
+
+
+
+
+
+
+<a name="liquidity.v1beta1.WeightedAddress"></a>
+
+### WeightedAddress
+WeightedAddress represents an address with a weight assigned to it.
+The weight is used to determine the proportion of the total minted
+tokens to be minted to the address.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `address` | [string](#string) |  |  |
+| `weight` | [string](#string) |  |  |
+
+
+
+
+
+ <!-- end messages -->
+
+ <!-- end enums -->
+
+ <!-- end HasExtensions -->
+
+ <!-- end services -->
 
 
 
@@ -217,6 +302,35 @@ MsgSwapWithinBatchResponse defines the Msg/Swap response type.
 
 
 
+<a name="liquidity.v1beta1.MsgUpdateParams"></a>
+
+### MsgUpdateParams
+MsgUpdateParams is the Msg/UpdateParams request type.
+
+
+| Field | Type | Label | Description |
+| ----- | ---- | ----- | ----------- |
+| `authority` | [string](#string) |  | authority is the address that controls the module (defaults to x/gov unless overwritten). |
+| `params` | [Params](#liquidity.v1beta1.Params) |  | params defines the liquidity parameters to update.
+
+NOTE: All parameters must be supplied. |
+
+
+
+
+
+
+<a name="liquidity.v1beta1.MsgUpdateParamsResponse"></a>
+
+### MsgUpdateParamsResponse
+MsgUpdateParamsResponse defines the response structure for executing a
+MsgUpdateParams message.
+
+
+
+
+
+
 <a name="liquidity.v1beta1.MsgWithdrawWithinBatch"></a>
 
 ### MsgWithdrawWithinBatch
@@ -272,6 +386,7 @@ Msg defines the liquidity Msg service.
 | `WithdrawWithinBatch` | [MsgWithdrawWithinBatch](#liquidity.v1beta1.MsgWithdrawWithinBatch) | [MsgWithdrawWithinBatchResponse](#liquidity.v1beta1.MsgWithdrawWithinBatchResponse) | Submit a withdraw from the liquidity pool batch. | |
 | `Swap` | [MsgSwapWithinBatch](#liquidity.v1beta1.MsgSwapWithinBatch) | [MsgSwapWithinBatchResponse](#liquidity.v1beta1.MsgSwapWithinBatchResponse) | Submit a swap to the liquidity pool batch. | |
 | `DirectSwap` | [MsgDirectSwap](#liquidity.v1beta1.MsgDirectSwap) | [MsgDirectSwapResponse](#liquidity.v1beta1.MsgDirectSwapResponse) |  | |
+| `UpdateParams` | [MsgUpdateParams](#liquidity.v1beta1.MsgUpdateParams) | [MsgUpdateParamsResponse](#liquidity.v1beta1.MsgUpdateParamsResponse) |  | |
 
  <!-- end services -->
 
@@ -299,33 +414,6 @@ information as it is processed in the next batch or batches.
 | `succeeded` | [bool](#bool) |  | true if executed successfully on this batch, false if failed |
 | `to_be_deleted` | [bool](#bool) |  | true if ready to be deleted on kvstore, false if not ready to be deleted |
 | `msg` | [MsgDepositWithinBatch](#liquidity.v1beta1.MsgDepositWithinBatch) |  | MsgDepositWithinBatch |
-
-
-
-
-
-
-<a name="liquidity.v1beta1.Params"></a>
-
-### Params
-Params defines the parameters for the liquidity module.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `pool_types` | [PoolType](#liquidity.v1beta1.PoolType) | repeated | list of available pool types |
-| `min_init_deposit_amount` | [string](#string) |  | Minimum number of coins to be deposited to the liquidity pool on pool creation. |
-| `init_pool_coin_mint_amount` | [string](#string) |  | Initial mint amount of pool coins upon pool creation. |
-| `max_reserve_coin_amount` | [string](#string) |  | Limit the size of each liquidity pool to minimize risk. In development, set to 0 for no limit. In production, set a limit. |
-| `pool_creation_fee` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) | repeated | Fee paid to create a Liquidity Pool. Set a fee to prevent spamming. |
-| `swap_fee_rate` | [string](#string) |  | Swap fee rate for every executed swap. |
-| `withdraw_fee_rate` | [string](#string) |  | Reserve coin withdrawal with less proportion by withdrawFeeRate. |
-| `max_order_amount_ratio` | [string](#string) |  | Maximum ratio of reserve coins that can be ordered at a swap order. |
-| `unit_batch_height` | [uint32](#uint32) |  | The smallest unit batch height for every liquidity pool. |
-| `circuit_breaker_enabled` | [bool](#bool) |  | Circuit breaker enables or disables transaction messages in liquidity module. |
-| `builders_addresses` | [WeightedAddress](#liquidity.v1beta1.WeightedAddress) | repeated |  |
-| `builders_commission` | [string](#string) |  |  |
-| `pool_permissioned_creator_address` | [string](#string) |  | Permissioned address that can create pools. |
 
 
 
@@ -392,26 +480,6 @@ export or import.
 
 
 
-<a name="liquidity.v1beta1.PoolType"></a>
-
-### PoolType
-Structure for the pool type to distinguish the characteristics of the reserve
-pools.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `id` | [uint32](#uint32) |  | This is the id of the pool_type that is used as pool_type_id for pool creation. In this version, only pool-type-id 1 is supported. {"id":1,"name":"ConstantProductLiquidityPool","min_reserve_coin_num":2,"max_reserve_coin_num":2,"description":""} |
-| `name` | [string](#string) |  | name of the pool type. |
-| `min_reserve_coin_num` | [uint32](#uint32) |  | minimum number of reserveCoins for LiquidityPoolType, only 2 reserve coins are supported. |
-| `max_reserve_coin_num` | [uint32](#uint32) |  | maximum number of reserveCoins for LiquidityPoolType, only 2 reserve coins are supported. |
-| `description` | [string](#string) |  | description of the pool type. |
-
-
-
-
-
-
 <a name="liquidity.v1beta1.SwapMsgState"></a>
 
 ### SwapMsgState
@@ -431,24 +499,6 @@ information as the message is processed in the next batch or batches.
 | `remaining_offer_coin` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | offer coin currently remaining to be exchanged |
 | `reserved_offer_coin_fee` | [cosmos.base.v1beta1.Coin](#cosmos.base.v1beta1.Coin) |  | reserve fee for pays fee in half offer coin |
 | `msg` | [MsgSwapWithinBatch](#liquidity.v1beta1.MsgSwapWithinBatch) |  | MsgSwapWithinBatch |
-
-
-
-
-
-
-<a name="liquidity.v1beta1.WeightedAddress"></a>
-
-### WeightedAddress
-WeightedAddress represents an address with a weight assigned to it.
-The weight is used to determine the proportion of the total minted
-tokens to be minted to the address.
-
-
-| Field | Type | Label | Description |
-| ----- | ---- | ----- | ----------- |
-| `address` | [string](#string) |  |  |
-| `weight` | [string](#string) |  |  |
 
 
 

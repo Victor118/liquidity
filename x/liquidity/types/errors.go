@@ -48,4 +48,5 @@ var (
 	ErrCircuitBreakerEnabled        = sdkerrors.Register(ModuleName, 40, "circuit breaker is triggered")
 	ErrOverflowAmount               = sdkerrors.Register(ModuleName, 41, "invalid amount that can cause overflow")
 	ErrMaxSlippage                  = sdkerrors.Register(ModuleName, 42, "Max slippage reached")
+	ErrNotPermissonedCreator        = sdkerrors.Register(ModuleName, 43, "creator doesn't have permission")
 )
