@@ -2,6 +2,7 @@ syntax = "proto3";
 package liquidity.v1beta1;
 
 import "liquidity/v1beta1/liquidity.proto";
+import "liquidity/v1beta1/params.proto";
 import "gogoproto/gogo.proto";
 
 option go_package = "github.com/Victor118/liquidity/x/liquidity/types";

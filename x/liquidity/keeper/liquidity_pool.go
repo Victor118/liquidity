@@ -16,6 +16,11 @@ func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool)
 	params := k.GetParams(ctx)
 	var poolType types.PoolType
 
+	// check creator has permission to create pool
+	if params.GetPoolPermissionedCreatorAddress() != "" && params.GetPoolPermissionedCreatorAddress() != msg.PoolCreatorAddress {
+		return types.ErrNotPermissonedCreator
+	}
+
 	// check poolType exist, get poolType from param
 	if len(params.PoolTypes) >= int(msg.PoolTypeId) {
 		poolType = params.PoolTypes[msg.PoolTypeId-1]

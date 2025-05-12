@@ -337,6 +337,7 @@ func NewLiquidityApp(
 	app.LiquidityKeeper = liquiditykeeper.NewKeeper(
 		appCodec, keys[liquiditytypes.StoreKey],
 		app.BankKeeper, app.AccountKeeper, app.DistrKeeper,
+		authtypes.NewModuleAddress(govtypes.ModuleName),
 	)
 
 	// get skipUpgradeHeights from the app options
