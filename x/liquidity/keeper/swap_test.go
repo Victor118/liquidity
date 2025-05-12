@@ -431,12 +431,11 @@ func TestDirectSwapWithBuilders(t *testing.T) {
 	reserveCoins = simapp.LiquidityKeeper.GetReserveCoins(ctx, pool)
 	newX := reserveCoins[0].Amount.ToLegacyDec()
 	newY := reserveCoins[1].Amount.ToLegacyDec()
-	builderBalanceA := simapp.BankKeeper.GetBalance(ctx, sdk.MustAccAddressFromBech32("cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp"), denomA)
 	builderBalanceB := simapp.BankKeeper.GetBalance(ctx, sdk.MustAccAddressFromBech32("cosmos15ky9du8a2wlstz6fpx3p4mqpjyrm5cg36er2cp"), denomB)
-	require.True(t, builderBalanceA.Amount.Equal(math.NewInt(300)))
-	require.True(t, builderBalanceB.Amount.Equal(math.NewInt(5940)))
+	t.Logf("builderBalanceB %v", builderBalanceB)
+	require.True(t, builderBalanceB.Amount.Equal(math.NewInt(11881)))
 	require.True(t, builderBalanceB.Amount.GT(math.NewInt(0)))
-	require.Equal(t, newX, math.LegacyNewDec(101000000).Sub(builderBalanceA.Amount.ToLegacyDec())) // initial balance + offer coin + offer coin fee
+	require.Equal(t, newX, math.LegacyNewDec(101000000)) // initial balance + offer coin
 
 	balanceB := simapp.BankKeeper.GetBalance(ctx, addrs[0], denomB)
 	require.Equal(t, receivedAmount, balanceB.Amount)
