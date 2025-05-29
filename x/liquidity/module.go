@@ -18,10 +18,17 @@ import (
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/spf13/cobra"
 
+	"cosmossdk.io/core/address"
+	"cosmossdk.io/core/appmodule"
+	"cosmossdk.io/core/store"
+	"cosmossdk.io/depinject"
+	"cosmossdk.io/depinject/appconfig"
+	storetypes "cosmossdk.io/store/types"
 	"github.com/Victor118/liquidity/x/liquidity/client/cli"
 	"github.com/Victor118/liquidity/x/liquidity/keeper"
 	"github.com/Victor118/liquidity/x/liquidity/simulation"
 	"github.com/Victor118/liquidity/x/liquidity/types"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 )
 
 var (
@@ -195,4 +202,54 @@ func (am AppModule) WeightedOperations(simState module.SimulationState) []simtyp
 		simState.AppParams, simState.Cdc,
 		am.accountKeeper, am.bankKeeper, am.keeper,
 	)
+}
+
+var _ depinject.OnePerModuleType = AppModule{}
+
+func init() {
+	appconfig.Register(
+		&types.Module{},
+		appconfig.Provide(ProvideModule),
+	)
+}
+
+type ModuleInputs struct {
+	depinject.In
+
+	Config       *types.Module
+	Key          storetypes.StoreKey
+	StoreService store.KVStoreService
+	Cdc          codec.Codec
+	AddressCodec address.Codec
+
+	AccountKeeper      types.AccountKeeper
+	BankKeeper         types.BankKeeper
+	DistributionKeeper types.DistributionKeeper
+	Authority          sdk.AccAddress
+}
+
+type ModuleOutputs struct {
+	depinject.Out
+
+	LiquidityKeeper keeper.Keeper
+	Module          appmodule.AppModule
+}
+
+func ProvideModule(in ModuleInputs) ModuleOutputs {
+	// default to governance authority if not provided
+	authority := authtypes.NewModuleAddress(types.GovModuleName)
+	if in.Config.Authority != "" {
+		authority = authtypes.NewModuleAddressOrBech32Address(in.Config.Authority)
+	}
+	k := keeper.NewKeeper(
+		in.Cdc,
+		in.Key,
+		in.BankKeeper,
+		in.AccountKeeper,
+		in.DistributionKeeper,
+		authority,
+	)
+	m := NewAppModule(in.Cdc, k, in.AccountKeeper, in.BankKeeper, in.DistributionKeeper)
+
+	return ModuleOutputs{LiquidityKeeper: k, Module: m}
 }
