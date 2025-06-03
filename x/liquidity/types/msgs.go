@@ -20,6 +20,7 @@ const (
 	TypeMsgDepositWithinBatch  = "deposit_within_batch"
 	TypeMsgWithdrawWithinBatch = "withdraw_within_batch"
 	TypeMsgSwapWithinBatch     = "swap_within_batch"
+	TypeMsgDirectSwap          = "direct_swap"
 	TypeMsgUpdateParams        = "update_params"
 )
 

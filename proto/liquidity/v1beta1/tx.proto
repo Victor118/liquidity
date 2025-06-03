@@ -13,6 +13,7 @@ option go_package = "github.com/Victor118/liquidity/x/liquidity/types";
 // Msg defines the liquidity Msg service.
 service Msg {
 
+  option (cosmos.msg.v1.service) = true;
   // Submit a create liquidity pool message.
   rpc CreatePool(MsgCreatePool) returns (MsgCreatePoolResponse);
 

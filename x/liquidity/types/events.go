@@ -6,6 +6,7 @@ const (
 	EventTypeDepositWithinBatch  = TypeMsgDepositWithinBatch
 	EventTypeWithdrawWithinBatch = TypeMsgWithdrawWithinBatch
 	EventTypeSwapWithinBatch     = TypeMsgSwapWithinBatch
+	EventTypeDirectSwap          = TypeMsgDirectSwap
 	EventTypeDepositToPool       = "deposit_to_pool"
 	EventTypeWithdrawFromPool    = "withdraw_from_pool"
 	EventTypeSwapTransacted      = "swap_transacted"
