@@ -89,9 +89,9 @@ message Params {
     (gogoproto.nullable) = false
   ];
 
-  // Permissioned address that can create pools.
-  string pool_permissioned_creator_address = 13 [
-    (gogoproto.moretags) = "yaml:\"pool_permissioned_creator_address\""
+  // Permissioned addresses that can create pools.
+  repeated string pool_permissioned_creator_addresses = 13 [
+    (gogoproto.moretags) = "yaml:\"pool_permissioned_creator_addresses\""
   ];
 }
 

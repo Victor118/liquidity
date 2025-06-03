@@ -17,7 +17,7 @@ func (k Keeper) ValidateMsgCreatePool(ctx sdk.Context, msg *types.MsgCreatePool)
 	var poolType types.PoolType
 
 	// check creator has permission to create pool
-	if params.GetPoolPermissionedCreatorAddress() != "" && params.GetPoolPermissionedCreatorAddress() != msg.PoolCreatorAddress {
+	if !isWhitelistedAddress(msg.PoolCreatorAddress, params) {
 		return types.ErrNotPermissonedCreator
 	}
 
@@ -1053,4 +1053,15 @@ func (k Keeper) IsPoolCoinDenom(ctx sdk.Context, denom string) bool {
 	}
 	_, found := k.GetPoolByReserveAccIndex(ctx, reserveAcc)
 	return found
+}
+
+func isWhitelistedAddress(sender string, params types.Params) bool {
+	if len(params.GetPoolPermissionedCreatorAddresses()) > 0 {
+		for _, addr := range params.GetPoolPermissionedCreatorAddresses() {
+			if addr == sender {
+				return true
+			}
+		}
+	}
+	return false
 }
