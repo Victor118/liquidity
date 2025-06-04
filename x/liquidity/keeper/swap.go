@@ -67,12 +67,10 @@ func (k Keeper) DirectSwapExecution(ctx sdk.Context, poolId uint64, offerCoin sd
 	}
 	//escrowAcc := k.accountKeeper.GetModuleAddress(types.ModuleName)
 	poolReserveAcc := pool.GetReserveAccount()
-
 	receiveAmt := outputAmount.Sub(exchangedCoinFeeAmount).TruncateInt()
 
 	var builders bool = len(params.BuildersAddresses) > 0
 	if builders {
-
 		builderCommDemandAmount := exchangedCoinFeeAmount.Mul(params.BuildersCommission).TruncateInt()
 		k.SendAmountToBuilders(params, poolReserveAcc, sdk.NewCoin(demandDenom, builderCommDemandAmount), sendCoin)
 	}
