@@ -34,6 +34,7 @@ func GetTxCmd() *cobra.Command {
 		NewDepositWithinBatchCmd(),
 		NewWithdrawWithinBatchCmd(),
 		NewSwapWithinBatchCmd(),
+		NewDirectSwapCmd(),
 	)
 
 	return liquidityTxCmd
